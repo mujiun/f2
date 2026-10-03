@@ -1098,8 +1098,8 @@ Dana</div>
   function renderDecided(d){
     const [cls,label]=RAG[d.status];
     const fu=[d.watch&&'watchlist',d.ask&&'question sent to Halsted',d.ic&&'flagged for IC'].filter(Boolean).join(' · ');
-    $('decBody').innerHTML='<div style="margin-top:2px;"><span class="rag-badge '+cls+'"><span class="rag-dot '+cls+'"></span>'+label+' · recorded</span></div>'+
-      '<div class="l" style="margin-top:10px;">“'+d.reason.replace(/</g,'&lt;')+'” — Maya Okafor, Aug 18'+(fu?'<br>'+fu:'')+'</div>';
+    $('decBody').innerHTML='';
+    $('decBody').style.display='none';
   }
   const qDrop=document.getElementById('qDrop');
   document.getElementById('qDropBtn').addEventListener('click',e=>{

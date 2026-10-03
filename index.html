@@ -1166,8 +1166,8 @@ Dana</div>
     t.classList.add('is-on'); setTimeout(()=>t.classList.remove('is-on'),2600);
   });
 
-  /* restore recorded decision */
-  try{ const saved=JSON.parse(localStorage.getItem('halsted_q2_decision')); if(saved) applyDecision(saved); }catch(e){}
+  /* always start fresh: never restore a recorded decision on load */
+  localStorage.removeItem('halsted_q2_decision');
   document.getElementById('resetDemo').addEventListener('click',()=>{localStorage.removeItem('halsted_q2_decision');location.reload();});
 </script>
 </body>

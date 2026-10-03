@@ -1,0 +1,18 @@
+/* ============================================
+   mu-system · single entry point
+   <link rel="stylesheet" href="mu-system/mu.css">
+   ============================================ */
+
+@import url("tokens.css");
+@import url("base.css");
+@import url("components/button.css");
+@import url("components/input.css");
+@import url("components/card.css");
+@import url("components/media.css");
+@import url("components/badge.css");
+@import url("components/avatar.css");
+@import url("components/tabs.css");
+@import url("components/dropdown.css");
+@import url("components/modal.css");
+@import url("components/table.css");
+@import url("components/nav.css");

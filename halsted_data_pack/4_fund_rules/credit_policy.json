@@ -1,0 +1,61 @@
+{
+  "firm": "Northgate Credit Partners",
+  "fund": "Northgate Direct Lending Fund III",
+  "strategy": "Senior secured, sponsor-backed unitranche lending",
+  "analyst": {
+    "name": "Maya Okafor",
+    "role": "Monitoring Analyst",
+    "email": "maya.okafor@northgatecredit.com",
+    "positions_covered": 35
+  },
+  "portfolio_manager": {
+    "name": "Daniel Ruiz",
+    "email": "daniel.ruiz@northgatecredit.com"
+  },
+  "adam_address": "adam@northgate.f2.ai",
+  "shared_reporting_inbox": {
+    "address": "reporting@northgatecredit.com",
+    "rule": "Auto-forwards every inbound email to adam@northgate.f2.ai"
+  },
+  "today": "2026-08-18T08:15:00-04:00",
+  "units": "USD millions unless noted. Ratios in x. Headroom in %.",
+  "credit_policy": {
+    "rule": "A borrower's status is the worst status across all inputs below.",
+    "inputs": [
+      {
+        "input": "Tightest covenant headroom",
+        "green": ">= 10%",
+        "amber": "5% to < 10%",
+        "red": "< 5%, or any covenant breach"
+      },
+      {
+        "input": "LTM Adjusted EBITDA as % of underwriting case",
+        "green": ">= 85%",
+        "amber": "70% to < 85%",
+        "red": "< 70%"
+      },
+      {
+        "input": "Reporting delinquency (days past the credit agreement due date)",
+        "green": "<= 15",
+        "amber": "16 to 30",
+        "red": "> 30"
+      },
+      {
+        "input": "Payment status",
+        "green": "Current",
+        "amber": "-",
+        "red": "Missed scheduled payment"
+      }
+    ],
+    "status_changes": "A status change must be confirmed by the monitoring analyst with a written reason. The analyst may override the computed status with a written reason.",
+    "watchlist": "Any Amber or Red borrower is reviewed for watchlist. Watchlist borrowers are reviewed monthly by the portfolio manager.",
+    "ic_escalation": "Red borrowers, and any borrower moving two statuses in one quarter, are presented at the next monthly IC.",
+    "borrower_review": "The analyst finalizes a borrower review for every borrower each quarter, within 10 business days of receiving a complete package.",
+    "note": "The policy does not say which figure governs when F2's calculation and the borrower's compliance certificate disagree."
+  },
+  "headroom_definition": {
+    "maximum_covenant": "(covenant level - actual) / covenant level",
+    "minimum_covenant": "(actual - covenant level) / covenant level",
+    "tightest": "The covenant with the lowest headroom for the period."
+  }
+}

@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>mu-system</title>
+<link rel="stylesheet" href="mu.css">
+<style>
+  /* ---- gallery-only styles (not part of the library) ---- */
+  .g-layout { display: grid; grid-template-columns: 220px 1fr; max-width: 1240px; margin: 0 auto; }
+  @media (max-width: 900px) { .g-layout { grid-template-columns: 1fr; } .g-sidenav { display: none; } }
+
+  .g-sidenav {
+    position: sticky; top: 0; align-self: start;
+    height: 100vh; padding: 48px 24px;
+    display: flex; flex-direction: column; gap: 2px;
+    overflow-y: auto;
+  }
+  .g-sidenav .brand { font-size: 15px; font-weight: 600; margin-bottom: 20px; letter-spacing: -0.01em; }
+  .g-sidenav .grp {
+    font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--mu-gray-400); margin: 18px 0 4px;
+  }
+  .g-sidenav .grp:first-of-type { margin-top: 0; }
+  .g-sidenav .brand span { color: var(--mu-ink-3); font-weight: 400; }
+  .g-sidenav a {
+    font-size: 13px; color: var(--mu-ink-3); text-decoration: none;
+    padding: 5px 10px; margin-left: -10px; border-radius: 8px; transition: color .15s, background .15s;
+  }
+  .g-sidenav a:hover { color: var(--mu-ink); }
+  .g-sidenav a.is-active { color: var(--mu-ink); background: var(--mu-gray-100); font-weight: 500; }
+
+  .g-main { padding: 48px 48px 120px; min-width: 0; }
+  @media (max-width: 900px) { .g-main { padding: 32px 20px 80px; } }
+
+  .g-hero { margin-bottom: 72px; }
+  .g-hero .eyebrow { margin-bottom: 12px; }
+  .g-hero p { margin-top: 12px; max-width: 520px; color: var(--mu-ink-2); }
+
+  .g-section { margin-bottom: 88px; scroll-margin-top: 32px; }
+  .g-section > h2 { margin-bottom: 6px; }
+  .g-section > .sec-desc { color: var(--mu-ink-2); font-size: 14px; margin-bottom: 14px; max-width: 560px; }
+
+  /* class-name chips — click to copy */
+  .cls { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 24px; }
+  .cls code {
+    font-family: var(--mu-mono); font-size: 12px; color: var(--mu-ink-2);
+    background: var(--mu-gray-100); border-radius: 6px; padding: 4px 8px;
+    cursor: pointer; transition: background .15s, color .15s;
+  }
+  .cls code:hover { background: var(--mu-gray-200); color: var(--mu-ink); }
+
+  /* example block: stage + code */
+  .ex { border: 1px solid var(--mu-border); border-radius: var(--mu-radius-lg); overflow: hidden; margin-bottom: 20px; }
+  .ex-stage { padding: 36px 28px; display: flex; flex-wrap: wrap; align-items: center; gap: 14px; background: #fff; }
+  .ex-stage--col { flex-direction: column; align-items: stretch; }
+  .ex-stage--surface { background: var(--mu-surface); }
+  .ex-code { position: relative; background: var(--mu-gray-50); border-top: 1px solid var(--mu-border); }
+  .ex-code pre { padding: 16px 20px; overflow-x: auto; }
+  .ex-code code { font-family: var(--mu-mono); font-size: 12px; line-height: 1.65; color: var(--mu-ink-2); }
+  .ex-copy {
+    position: absolute; top: 10px; right: 10px;
+    height: 28px; padding: 0 12px; border: 1px solid var(--mu-border); border-radius: 8px;
+    background: #fff; font-family: var(--mu-font); font-size: 12px; font-weight: 500;
+    color: var(--mu-ink-2); cursor: pointer; transition: all .15s;
+  }
+  .ex-copy:hover { color: var(--mu-ink); border-color: var(--mu-gray-300); }
+
+  /* Code / Accessibility view switcher */
+  .ex-tabs {
+    display: flex; gap: 18px; padding: 10px 20px 0;
+    background: var(--mu-gray-50); border-top: 1px solid var(--mu-border);
+  }
+  .ex-tab {
+    font-family: var(--mu-font); font-size: 12px; font-weight: 500;
+    color: var(--mu-ink-3); background: none; border: none; cursor: pointer;
+    padding: 2px 0 8px; border-bottom: 1.5px solid transparent; transition: color .15s;
+  }
+  .ex-tab:hover { color: var(--mu-ink); }
+  .ex-tab.is-active { color: var(--mu-ink); border-bottom-color: var(--mu-ink); }
+  .ex-tabs ~ .ex-code, .ex-tabs ~ .ex-a11y { border-top: none; }
+  .ex-a11y { display: none; background: var(--mu-gray-50); border-top: 1px solid var(--mu-border); padding: 14px 20px 18px; }
+  .ex-a11y ul { list-style: disc; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+  .ex-a11y li { font-size: 13px; line-height: 1.6; color: var(--mu-ink-2); }
+  .ex-a11y code { font-family: var(--mu-mono); font-size: 11.5px; background: var(--mu-gray-100); border-radius: 5px; padding: 1px 5px; color: var(--mu-ink); }
+
+  /* palette ramp — one compact strip */
+  .ramp-strip {
+    display: grid; grid-template-columns: repeat(10, 1fr);
+    height: 64px; border-radius: 12px; overflow: hidden;
+    border: 1px solid var(--mu-border);
+  }
+  .ramp-caps { display: grid; grid-template-columns: repeat(10, 1fr); margin-top: 8px; text-align: center; }
+  .ramp-caps div { display: flex; flex-direction: column; gap: 1px; }
+  .ramp-caps b { font-family: var(--mu-mono); font-size: 11px; font-weight: 500; color: var(--mu-ink); }
+  .ramp-caps span { font-family: var(--mu-mono); font-size: 10px; color: var(--mu-ink-3); }
+  @media (max-width: 720px) { .ramp-caps span { display: none; } }
+
+  .shadow-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 24px; padding: 28px; background: var(--mu-surface); border-radius: var(--mu-radius-lg); margin-top: 20px; }
+  .shadow-demo { height: 90px; background: #fff; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-family: var(--mu-mono); font-size: 11px; color: var(--mu-ink-3); }
+
+  .g-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; width: 100%; }
+  @media (max-width: 720px) { .g-grid-3 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="g-layout">
+
+  <!-- ============ SIDE NAV ============ -->
+  <nav class="g-sidenav" id="sidenav" aria-label="Sections">
+    <div class="brand">mu-system <span>v0.1</span></div>
+    <div class="grp">Foundations</div>
+    <a href="#tokens">Tokens</a>
+    <a href="#typography">Typography</a>
+    <div class="grp">Actions &amp; Inputs</div>
+    <a href="#buttons">Buttons</a>
+    <a href="#inputs">Inputs &amp; Forms</a>
+    <div class="grp">Display</div>
+    <a href="#badges">Badges &amp; Chips</a>
+    <a href="#avatars">Avatars</a>
+    <a href="#cards">Cards</a>
+    <a href="#media">Media</a>
+    <a href="#table">Table</a>
+    <div class="grp">Navigation</div>
+    <a href="#tabs">Tabs</a>
+    <a href="#nav">Nav</a>
+    <div class="grp">Overlays</div>
+    <a href="#dropdown">Dropdown</a>
+    <a href="#modal">Modal</a>
+  </nav>
+
+  <!-- ============ MAIN ============ -->
+  <main class="g-main">
+
+    <header class="g-hero">
+      <div class="eyebrow">Design System</div>
+      <h1 class="h1">mu-system</h1>
+      <p>A minimal greyscale component library. Link <code style="font-family:var(--mu-mono);font-size:13px;">mu.css</code> in any project, click a class name to copy it, or copy the snippet under each example.</p>
+    </header>
+
+    <!-- ==================== TOKENS ==================== -->
+    <section class="g-section" id="tokens">
+      <h2 class="h3">Tokens</h2>
+      <p class="sec-desc">One greyscale ramp plus radius and shadow scales, as CSS variables in <code style="font-family:var(--mu-mono);font-size:12px;">tokens.css</code>. Click a step to copy its variable.</p>
+
+      <div class="ramp-strip" id="rampStrip">
+        <div style="background:#f7f7f8" data-var="--mu-gray-50" title="copy --mu-gray-50"></div>
+        <div style="background:#f2f2f3" data-var="--mu-gray-100" title="copy --mu-gray-100"></div>
+        <div style="background:#e8e8ea" data-var="--mu-gray-200" title="copy --mu-gray-200"></div>
+        <div style="background:#d6d6d9" data-var="--mu-gray-300" title="copy --mu-gray-300"></div>
+        <div style="background:#b0b0b6" data-var="--mu-gray-400" title="copy --mu-gray-400"></div>
+        <div style="background:#767680" data-var="--mu-gray-500" title="copy --mu-gray-500"></div>
+        <div style="background:#6e6e73" data-var="--mu-gray-600" title="copy --mu-gray-600"></div>
+        <div style="background:#48484d" data-var="--mu-gray-700" title="copy --mu-gray-700"></div>
+        <div style="background:#2c2c30" data-var="--mu-gray-800" title="copy --mu-gray-800"></div>
+        <div style="background:#1d1d1f" data-var="--mu-gray-900" title="copy --mu-gray-900"></div>
+      </div>
+      <div class="ramp-caps">
+        <div><b>50</b><span>f7f7f8</span></div>
+        <div><b>100</b><span>f2f2f3</span></div>
+        <div><b>200</b><span>e8e8ea</span></div>
+        <div><b>300</b><span>d6d6d9</span></div>
+        <div><b>400</b><span>b0b0b6</span></div>
+        <div><b>500</b><span>767680</span></div>
+        <div><b>600</b><span>6e6e73</span></div>
+        <div><b>700</b><span>48484d</span></div>
+        <div><b>800</b><span>2c2c30</span></div>
+        <div><b>900</b><span>1d1d1f</span></div>
+      </div>
+
+      <div class="shadow-row">
+        <div class="shadow-demo" style="box-shadow:var(--mu-shadow-sm)">--mu-shadow-sm</div>
+        <div class="shadow-demo" style="box-shadow:var(--mu-shadow-md)">--mu-shadow-md</div>
+        <div class="shadow-demo" style="box-shadow:var(--mu-shadow-lg)">--mu-shadow-lg</div>
+      </div>
+    </section>
+
+    <!-- ==================== TYPOGRAPHY ==================== -->
+    <section class="g-section" id="typography">
+      <h2 class="h3">Typography</h2>
+      <p class="sec-desc">System font stack (SF Pro on Apple devices). Tight letter-spacing on headings.</p>
+      <div class="cls"><code>h1</code><code>h2</code><code>h3</code><code>h4</code><code>body</code><code>body-2</code><code>caption</code><code>eyebrow</code></div>
+      <div class="ex">
+        <div class="ex-stage ex-stage--col" style="gap:18px;">
+          <div class="h1">Heading one</div>
+          <div class="h2">Heading two</div>
+          <div class="h3">Heading three</div>
+          <div class="h4">Heading four</div>
+          <div class="body">Body — The quick brown fox jumps over the lazy dog.</div>
+          <div class="body-2">Body 2 — Secondary text for descriptions and supporting copy.</div>
+          <div class="caption">Caption — metadata, timestamps, helper text.</div>
+          <div class="eyebrow">Eyebrow label</div>
+        </div>
+        <div class="ex-code"><button class="ex-copy">Copy</button><pre><code>&lt;h1 class="h1"&gt;Heading one&lt;/h1&gt;
+&lt;p class="body"&gt;Body text&lt;/p&gt;
+&lt;p class="body-2"&gt;Secondary text&lt;/p&gt;
+&lt;p class="caption"&gt;Caption&lt;/p&gt;
+&lt;div class="eyebrow"&gt;Eyebrow label&lt;/div&gt;</code></pre></div>
+        <div class="ex-a11y">
+          <ul>
+            <li>The classes are visual only — pair them with semantic tags: <code>&lt;h1&gt;–&lt;h4&gt;</code> for headings, <code>&lt;p&gt;</code> for body text.</li>
+            <li>One <code>h1</code> per page, and don't skip heading levels — screen-reader users navigate by heading outline.</li>
+            <li><code>caption</code> and <code>eyebrow</code> render small and grey — keep them for metadata, never for essential instructions (contrast is lower).</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== BUTTONS ==================== -->
+    <section class="g-section" id="buttons">
+      <h2 class="h3">Buttons</h2>
+      <p class="sec-desc">Primary is dark grey. Three variants × three sizes, plus pill and icon shapes.</p>
+      <div class="cls"><code>btn</code><code>btn-primary</code><code>btn-secondary</code><code>btn-ghost</code><code>btn-sm</code><code>btn-lg</code><code>btn-pill</code><code>btn-icon</code><code>btn-block</code></div>
+
+      <div class="ex">
+        <div class="ex-stage">
+          <button class="btn btn-primary">Primary</button>
+          <button class="btn btn-secondary">Secondary</button>
+          <button class="btn btn-ghost">Ghost</button>
+          <button class="btn btn-primary" disabled>Disabled</button>
+        </div>
+        <div class="ex-code"><button class="ex-copy">Copy</button><pre><code>&lt;button class="btn btn-primary"&gt;Primary&lt;/button&gt;
+&lt;button class="btn btn-secondary"&gt;Secondary&lt;/button&gt;
+&lt;button class="btn btn-ghost"&gt;Ghost&lt;/button&gt;
+&lt;button class="btn btn-primary" disabled&gt;Disabled&lt;/button&gt;</code></pre></div>
+        <div class="ex-a11y">
+          <ul>
+            <li>Use a real <code>&lt;button&gt;</code> for actions and an <code>&lt;a href&gt;</code> for navigation — never a styled <code>&lt;div&gt;</code>.</li>
+            <li><code>disabled</code> removes the button from the tab order; if users should still discover it, use <code>aria-disabled="true"</code> and block the click in JS instead.</li>
+            <li>Don't remove the focus outline — keyboard users need a visible <code>:focus-visible</code> ring.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="ex">
+        <div class="ex-stage">
+          <button class="btn btn-primary btn-sm">Small</button>
+          <button class="btn btn-primary">Default</button>
+          <button class="btn btn-primary btn-lg">Large</button>
+          <button class="btn btn-primary btn-pill">Pill</button>
+          <button class="btn btn-secondary btn-icon" aria-label="Add">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+        <div class="ex-code"><button class="ex-copy">Copy</button><pre><code>&lt;button class="btn btn-primary btn-sm"&gt;Small&lt;/button&gt;
+&lt;button class="btn btn-primary btn-lg"&gt;Large&lt;/button&gt;
+&lt;button class="btn btn-primary btn-pill"&gt;Pill&lt;/button&gt;
+&lt;!-- icon-only buttons need aria-label --&gt;
+&lt;button class="btn btn-secondary btn-icon" aria-label="Add"&gt;…svg…&lt;/button&gt;</code></pre></div>
+        <div class="ex-a11y">
+          <ul>
+            <li>Icon-only buttons have no text, so they need an <code>aria-label</code> naming the action (e.g. "Add").</li>
+            <li>Mark the icon itself decorative with <code>aria-hidden="true"</code> on the <code>&lt;svg&gt;</code>.</li>
+            <li>Keep touch targets comfortable — <code>btn-sm</code> is fine in dense UI, but aim for ~44px hit areas on primary mobile actions.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== INPUTS ==================== -->
+    <section class="g-section" id="inputs">
+      <h2 class="h3">Inputs &amp; Forms</h2>
+      <p class="sec-desc">Text input, textarea, select, switch and checkbox. Focus = dark border + soft ring. Wrap control + text in a <code style="font-family:var(--mu-mono);font-size:12px;">&lt;label&gt;</code> so every field has an accessible name.</p>
+      <div class="cls"><code>field</code><code>label</code><code>input</code><code>hint</code><code>switch</code><code>checkbox</code><code>control-row</code></div>
+
+      <div class="ex">
+        <div class="ex-stage ex-stage--col" style="max-width:420px; gap:18px;">
+          <label class="field">
+            <span class="label">Email</span>
+            <input class="input" type="email" placeholder="you@example.com">
+            <span class="hint">We'll never share your email.</span>
+          </label>
+          <label class="field">
+            <span class="label">Message</span>
+            <textarea class="input" placeholder="Write something…"></textarea>
+          </label>
+          <label class="field">
+            <span class="label">Plan</span>
+            <select class="input">
+              <option>Free</option>
+              <option>Pro</option>
+              <option>Team</option>
+            </select>
+          </label>
+          <label class="control-row">
+            <input type="checkbox" class="switch" role="switch" checked> Enable notifications
+          </label>
+          <label class="control-row">
+            <input type="checkbox" class="checkbox" checked> I agree to the terms
+          </label>
+        </div>
+        <div class="ex-code"><button class="ex-copy">Copy</button><pre><code>&lt;label class="field"&gt;
+  &lt;span class="label"&gt;Email&lt;/span&gt;
+  &lt;input class="input" type="email" placeholder="you@example.com"&gt;
+  &lt;span class="hint"&gt;We'll never share your email.&lt;/span&gt;
+&lt;/label&gt;
+
+&lt;label class="control-row"&gt;
+  &lt;input type="checkbox" class="switch" role="switch" checked&gt; Enable notifications
+&lt;/label&gt;
+
+&lt;label class="control-row"&gt;
+  &lt;input type="checkbox" class="checkbox" checked&gt; I agree to the terms
+&lt;/label&gt;</code></pre></div>
+        <div class="ex-a11y">
+          <ul>
+            <li>Every control needs an accessible name — wrapping control + text in one <code>&lt;label&gt;</code> (as here) or linking them with <code>for</code>/<code>id</code>.</li>
+            <li>Placeholder text is not a label — it disappears on input and has low contrast.</li>
+            <li>Hint text outside the label should be linked with <code>aria-describedby</code>; the same goes for error messages.</li>
+            <li>The switch uses <code>role="switch"</code> so screen readers announce on/off instead of checked/unchecked.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== BADGES ==================== -->
+    <section class="g-section" id="badges">
+      <h2 class="h3">Badges &amp; Chips</h2>
+      <p class="sec-desc">Badges for status, chips for filters (click to toggle — <code style="font-family:var(--mu-mono);font-size:12px;">aria-pressed</code> tracks state).</p>
+      <div class="cls"><code>badge</code><code>badge-solid</code><code>badge-soft</code><code>badge-outline</code><code>badge-dot</code><code>chip</code></div>
+
+      <div class="ex">
+        <div class="ex-stage">
+          <span class="badge badge-solid">New</span>
+          <span class="badge badge-soft">Draft</span>
+          <span class="badge badge-outline">Archived</span>
+          <span class="badge badge-soft"><span class="badge-dot"></span> Live</span>
+        </div>
+        <div class="ex-code"><button class="ex-copy">Copy</button><pre><code>&lt;span class="badge badge-solid"&gt;New&lt;/span&gt;
+&lt;span class="badge badge-soft"&gt;Draft&lt;/span&gt;
+&lt;span class="badge badge-outline"&gt;Archived&lt;/span&gt;
+&lt;span class="badge badge-soft"&gt;&lt;span class="badge-dot"&gt;&lt;/span&gt; Live&lt;/span&gt;</code></pre></div>
+        <div class="ex-a11y">
+          <ul>
+            <li>Never rely on the dot or shade alone to convey status — the text label ("Live", "Draft") carries the meaning.</li>
+            <li>Badges are plain text spans, so they're read inline with surrounding content; no extra roles needed.</li>
+            <li>If a badge announces something time-sensitive (e.g. an error count that updates), put it in an <code>aria-live="polite"</code> region.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="ex">
+        <div class="ex-stage" id="chipDemo">
+          <button class="chip is-active" aria-pressed="true">All</button>
+          <button class="chip" aria-pressed="false">Design</button>
+          <button class="chip" aria-pressed="false">Prototype</button>
+          <button class="chip" aria-pressed="false">Case study</button>
+        </div>
+        <div class="ex-code"><button class="ex-copy">Copy</button><pre><code>&lt;button class="chip is-active" aria-pressed="true"&gt;All&lt;/button&gt;
+&lt;button class="chip" aria-pressed="false"&gt;Design&lt;/button&gt;
+&lt;button class="chip" aria-pressed="false"&gt;Prototype&lt;/button&gt;</code></pre></div>
+        <div class="ex-a11y">
+          <ul>
+            <li>Filter chips are real <code>&lt;button&gt;</code>s with <code>aria-pressed</code> — keep the attribute in sync when toggling <code>.is-active</code>.</li>
+            <li>Wrap a chip set in a container with <code>role="group"</code> and an <code>aria-label</code> (e.g. "Filter projects") so the set is announced together.</li>
+            <li>When a filter changes visible results, announce the outcome (e.g. "8 results") in an <code>aria-live</code> region.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== AVATARS ==================== -->
+    <section class="g-section" id="avatars">
+      <h2 class="h3">Avatars</h2>
+      <p class="sec-desc">Image or initials. Four sizes, plus an overlapping stack.</p>
+      <div class="cls"><code>avatar</code><code>avatar-sm</code><code>avatar-lg</code><code>avatar-xl</code><code>avatar-stack</code></div>
+
+      <div class="ex">
+        <div class="ex-stage">
+          <span class="avatar avatar-sm"><img src="https://picsum.photos/seed/av1/80/80" alt=""></span>
+          <span class="avatar"><img src="https://picsum.photos/seed/av2/80/80" alt=""></span>
+          <span class="avatar avatar-lg"><img src="https://picsum.photos/seed/av3/120/120" alt=""></span>
+          <span class="avatar avatar-xl">MJ</span>
+          <span class="avatar-stack">
+            <span class="avatar"><img src="https://picsum.photos/seed/av4/80/80" alt=""></span>
+            <span class="avatar"><img src="https://picsum.photos/seed/av5/80/80" alt=""></span>
+            <span class="avatar"><img src="https://picsum.photos/seed/av6/80/80" alt=""></span>
+            <span class="avatar">+3</span>
+          </span>
+        </div>
+        <div class="ex-code"><button class="ex-copy">Copy</button><pre><code>&lt;span class="avatar"&gt;&lt;img src="…" alt=""&gt;&lt;/span&gt;
+&lt;span class="avatar avatar-xl"&gt;MJ&lt;/span&gt;
+
+&lt;span class="avatar-stack"&gt;
+  &lt;span class="avatar"&gt;&lt;img src="…" alt=""&gt;&lt;/span&gt;
+  &lt;span class="avatar"&gt;&lt;img src="…" alt=""&gt;&lt;/span&gt;
+  &lt;span class="avatar"&gt;+3&lt;/span&gt;
+&lt;/span&gt;</code></pre></div>
+        <div class="ex-a11y">
+          <ul>
+            <li>If the avatar sits next to the person's visible name, use <code>alt=""</code> so the name isn't read twice.</li>
+            <li>If the avatar is the only identifier, the <code>alt</code> should be the person's name.</li>
+            <li>Give an avatar stack a summary label, e.g. <code>aria-label="Sadie, James, Emily and 3 others"</code>, instead of letting each image announce separately.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== CARDS ==================== -->
+    <section class="g-section" id="cards">
+      <h2 class="h3">Cards</h2>
+      <p class="sec-desc">Bordered by default with an inset image; <code style="font-family:var(--mu-mono);font-size:12px;">card-raised</code> floats on shadow; <code style="font-family:var(--mu-mono);font-size:12px;">card-flat</code> is the Luma-homepage style — no box, just a rounded image with text below.</p>
+      <div class="cls"><code>card</code><code>card-raised</code><code>card-hover</code><code>card-flat</code><code>card-img</code><code>card-media</code><code>card-media-flush</code><code>card-media-square</code><code>card-body</code><code>card-title</code><code>card-desc</code><code>card-meta</code><code>card-footer</code></div>
+
+      <div class="ex">
+        <div class="ex-stage ex-stage--surface">
+          <div class="g-grid-3">
+            <div class="card card-hover">
+              <div class="card-media"><img src="https://picsum.photos/seed/card1/640/400" alt=""></div>
+              <div class="card-body">
+                <div class="card-title">Bordered card</div>
+                <div class="card-desc">Default style with a hairline border and hover lift.</div>
+                <div class="card-meta">Updated 2d ago</div>
+              </div>
+            </div>
+            <div class="card card-raised card-hover">
+              <div class="card-media"><img src="https://picsum.photos/seed/card2/640/400" alt=""></div>
+              <div class="card-body">
+                <div class="card-title">Raised card</div>
+                <div class="card-desc">No border — floats on a soft layered shadow.</div>
+                <div class="card-meta">Updated 5d ago</div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-body">
+                <div class="card-title">Text card</div>
+                <div class="card-desc">Cards work without media too. Add a footer for actions.</div>
+              </div>
+              <div class="card-footer">
+                <span class="caption">3 items</span>
+                <button class="btn btn-secondary btn-sm">Open</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="ex-code"><button class="ex-copy">Copy</button><pre><code>&lt;div class="card card-raised card-hover"&gt;
+  &lt;div class="card-media"&gt;&lt;img src="…" alt="describe the image"&gt;&lt;/div&gt;
+  &lt;div class="card-body"&gt;
+    &lt;div class="card-title"&gt;Raised card&lt;/div&gt;
+    &lt;div class="card-desc"&gt;Description text.&lt;/div&gt;
+    &lt;div class="card-meta"&gt;Updated 5d ago&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre></div>
+        <div class="ex-a11y">
+          <ul>
+            <li>Use a real heading tag for <code>card-title</code> (e.g. <code>&lt;h3 class="card-title"&gt;</code>) so cards appear in the page outline.</li>
+            <li>For a clickable card, put one <code>&lt;a&gt;</code> on the title and expand its hit area with CSS — don't nest interactive elements or wrap the whole card in a link with long alt text.</li>
+            <li>Card images that convey content need descriptive <code>alt</code>; decorative ones get <code>alt=""</code>.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="ex">
+        <div class="ex-stage ex-stage--surface">
+          <div class="g-grid-3">
+            <div class="card card-flat card-hover">
+              <div class="card-media card-media-square"><img src="https://picsum.photos/seed/flat1/600/600" alt=""></div>
+              <div class="card-body">
+                <div class="card-title">Design crit night</div>
+                <div class="card-meta">Thu, Sep 10 · 6:00 PM</div>
+              </div>
+            </div>
+            <div class="card card-flat card-hover">
+              <div class="card-media card-media-square"><img src="https://picsum.photos/seed/flat2/600/600" alt=""></div>
+              <div class="card-body">
+                <div class="card-title">Portfolio workshop</div>
+                <div class="card-meta">Sat, Sep 12 · 2:00 PM</div>
+              </div>
+            </div>
+            <div class="card card-flat card-hover">
+              <div class="card-media card-media-square"><img src="https://picsum.photos/seed/flat3/600/600" alt=""></div>
+              <div class="card-body">
+                <div class="card-title">Coffee &amp; critique</div>
+                <div class="card-meta">Sun, Sep 13 · 10:00 AM</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="ex-code"><button class="ex-copy">Copy</button><pre><code>&lt;!-- Luma-style flat card: no box, rounded image + text below --&gt;
+&lt;div class="card card-flat card-hover"&gt;
+  &lt;div class="card-media card-media-square"&gt;&lt;img src="…" alt="describe the image"&gt;&lt;/div&gt;
+  &lt;div class="card-body"&gt;
+    &lt;div class="card-title"&gt;Design crit night&lt;/div&gt;
+    &lt;div class="card-meta"&gt;Thu, Sep 10 · 6:00 PM&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre></div>
+        <div class="ex-a11y">
+          <ul>
+            <li>Flat cards have no border, so the hover lift is the only visual affordance — make sure the title link also gets a clear <code>:focus-visible</code> style for keyboard users.</li>
+            <li>Use <code>&lt;time datetime="2026-09-10T18:00"&gt;</code> inside <code>card-meta</code> for machine-readable dates.</li>
+            <li>Keep reading order title → meta in the DOM even if the design changes visually.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="ex">
+        <div class="ex-stage ex-stage--surface">
+          <div class="card card-img card-raised card-hover" style="max-width:320px;">
+            <img src="https://picsum.photos/seed/imgonly/640/440" alt="">
+          </div>
+          <div class="card card-flat card-img card-hover" style="max-width:320px;">
+            <div class="card-media"><img src="https://picsum.photos/seed/imgonly2/640/440" alt=""></div>
+          </div>
+        </div>
+        <div class="ex-code"><button class="ex-copy">Copy</button><pre><code>&lt;!-- image-only, boxed --&gt;
+&lt;div class="card card-img card-raised card-hover"&gt;
+  &lt;img src="…" alt="describe the image"&gt;
+&lt;/div&gt;
+
+&lt;!-- image-only, flat (floating rounded image) --&gt;
+&lt;div class="card card-flat card-img card-hover"&gt;
+  &lt;div class="card-media"&gt;&lt;img src="…" alt="describe the image"&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre></div>
+        <div class="ex-a11y">
+          <ul>
+            <li>In an image-only card the image is the entire content — a meaningful <code>alt</code> is mandatory, or the card is invisible to screen readers.</li>
+            <li>If the card links somewhere, the <code>alt</code> should describe the destination ("Case study: bulk reply flow"), not the picture's pixels.</li>
+            <li>Any text baked into the image must also exist as real text or in the <code>alt</code>.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== MEDIA ==================== -->
+    <section class="g-section" id="media">
+      <h2 class="h3">Media</h2>
+      <p class="sec-desc">The signature treatment: image floats on a grey surface with a soft shadow. Use <code style="font-family:var(--mu-mono);font-size:12px;">media-flush</code> for edge-to-edge.</p>
+      <div class="cls"><code>media</code><code>media-deep</code><code>media-flush</code><code>media-caption</code></div>
+
+      <div class="ex">
+        <div class="ex-stage ex-stage--col">
+          <div class="media">
+            <img src="https://picsum.photos/seed/media1/1200/700" alt="">
+          </div>
+          <div class="media-caption">Default — floating image with shadow on grey surface</div>
+        </div>
+        <div class="ex-code"><button class="ex-copy">Copy</button><pre><code>&lt;div class="media"&gt;
+  &lt;img src="…" alt="describe the image"&gt;
+&lt;/div&gt;
+&lt;div class="media-caption"&gt;Caption text&lt;/div&gt;</code></pre></div>
+        <div class="ex-a11y">
+          <ul>
+            <li>For a captioned image prefer <code>&lt;figure&gt;</code> + <code>&lt;figcaption class="media-caption"&gt;</code> so the caption is programmatically tied to the image.</li>
+            <li>The caption doesn't replace <code>alt</code> — alt describes the image, the caption comments on it.</li>
+            <li>For video in a media frame, provide captions/transcripts and avoid autoplay with sound.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="ex">
+        <div class="ex-stage ex-stage--col">
+          <div class="media media-flush">
+            <img src="https://picsum.photos/seed/media2/1200/500" alt="">
+          </div>
+        </div>
+        <div class="ex-code"><button class="ex-copy">Copy</button><pre><code>&lt;div class="media media-flush"&gt;
+  &lt;img src="…" alt="describe the image"&gt;
+&lt;/div&gt;</code></pre></div>
+        <div class="ex-a11y">
+          <ul>
+            <li>Flush media is often decorative scenery — if it adds no information, use <code>alt=""</code> so screen readers skip it.</li>
+            <li>Don't put essential content (text, charts) in a purely decorative flush image.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TABLE ==================== -->
+    <section class="g-section" id="table">
+      <h2 class="h3">Table</h2>
+      <p class="sec-desc">Hairline rows with hover. Wrap in <code style="font-family:var(--mu-mono);font-size:12px;">table-frame</code> for a card-style container.</p>
+      <div class="cls"><code>table</code><code>table-frame</code><code>is-secondary</code><code>is-numeric</code></div>
+
+      <div class="ex">
+        <div class="ex-stage ex-stage--col">
+          <div class="table-frame">
+            <table class="table">
+              <thead>
+                <tr><th scope="col">Name</th><th scope="col">Status</th><th scope="col">Role</th><th scope="col" class="is-numeric">Projects</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Sadie Baker</td>
+                  <td><span class="badge badge-soft"><span class="badge-dot"></span> Active</span></td>
+                  <td class="is-secondary">Designer</td>
+                  <td class="is-numeric">12</td>
+                </tr>
+                <tr>
+                  <td>James Richmond</td>
+                  <td><span class="badge badge-outline">Away</span></td>
+                  <td class="is-secondary">Engineer</td>
+                  <td class="is-numeric">8</td>
+                </tr>
+                <tr>
+                  <td>Emily Chen</td>
+                  <td><span class="badge badge-soft"><span class="badge-dot"></span> Active</span></td>
+                  <td class="is-secondary">PM</td>
+                  <td class="is-numeric">21</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="ex-code"><button class="ex-copy">Copy</button><pre><code>&lt;div class="table-frame"&gt;
+  &lt;table class="table"&gt;
+    &lt;thead&gt;&lt;tr&gt;&lt;th scope="col"&gt;Name&lt;/th&gt;&lt;th scope="col" class="is-numeric"&gt;Projects&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;
+    &lt;tbody&gt;
+      &lt;tr&gt;&lt;td&gt;Sadie Baker&lt;/td&gt;&lt;td class="is-numeric"&gt;12&lt;/td&gt;&lt;/tr&gt;
+    &lt;/tbody&gt;
+  &lt;/table&gt;
+&lt;/div&gt;</code></pre></div>
+        <div class="ex-a11y">
+          <ul>
+            <li>Use a real <code>&lt;table&gt;</code> with <code>&lt;th scope="col"&gt;</code> headers (as here) — never a grid of divs for tabular data.</li>
+            <li>Add a <code>&lt;caption&gt;</code> naming the table (visually hide it if the design has a heading already).</li>
+            <li>Row hover is mouse-only; if rows are clickable, put a real link or button inside each row too.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TABS ==================== -->
+    <section class="g-section" id="tabs">
+      <h2 class="h3">Tabs</h2>
+      <p class="sec-desc">Segmented control and underline variant, with tab roles and <code style="font-family:var(--mu-mono);font-size:12px;">aria-selected</code>.</p>
+      <div class="cls"><code>tabs</code><code>tab</code><code>tabs-line</code></div>
+
+      <div class="ex">
+        <div class="ex-stage ex-stage--col" style="gap:24px;">
+          <div class="tabs" data-tabs role="tablist">
+            <button class="tab is-active" role="tab" aria-selected="true">Overview</button>
+            <button class="tab" role="tab" aria-selected="false">Analytics</button>
+            <button class="tab" role="tab" aria-selected="false">Settings</button>
+          </div>
+          <div class="tabs tabs-line" data-tabs role="tablist">
+            <button class="tab is-active" role="tab" aria-selected="true">Recent</button>
+            <button class="tab" role="tab" aria-selected="false">Popular</button>
+            <button class="tab" role="tab" aria-selected="false">Archived</button>
+          </div>
+        </div>
+        <div class="ex-code"><button class="ex-copy">Copy</button><pre><code>&lt;div class="tabs" role="tablist"&gt;
+  &lt;button class="tab is-active" role="tab" aria-selected="true"&gt;Overview&lt;/button&gt;
+  &lt;button class="tab" role="tab" aria-selected="false"&gt;Analytics&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+document.querySelectorAll('.tabs').forEach(g =&gt;
+  g.addEventListener('click', e =&gt; {
+    const t = e.target.closest('.tab'); if (!t) return;
+    g.querySelectorAll('.tab').forEach(x =&gt; {
+      x.classList.remove('is-active'); x.setAttribute('aria-selected', 'false');
+    });
+    t.classList.add('is-active'); t.setAttribute('aria-selected', 'true');
+  }));
+&lt;/script&gt;</code></pre></div>
+        <div class="ex-a11y">
+          <ul>
+            <li>Pair <code>role="tablist"</code>/<code>role="tab"</code> with panels: each tab gets <code>aria-controls</code> pointing to a <code>role="tabpanel"</code> labelled by the tab.</li>
+            <li>Implement roving tabindex — active tab <code>tabindex="0"</code>, others <code>-1</code> — and move selection with ←/→ arrow keys.</li>
+            <li>If the control only filters a list (not real panels), drop the tab roles and use buttons with <code>aria-pressed</code> instead.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== NAV ==================== -->
+    <section class="g-section" id="nav">
+      <h2 class="h3">Nav</h2>
+      <p class="sec-desc">Frosted top bar. Add <code style="font-family:var(--mu-mono);font-size:12px;">nav-sticky</code> to pin it.</p>
+      <div class="cls"><code>nav</code><code>nav-sticky</code><code>nav-logo</code><code>nav-links</code><code>nav-link</code><code>nav-actions</code></div>
+
+      <div class="ex">
+        <div class="ex-stage ex-stage--col" style="padding:0;">
+          <nav class="nav" aria-label="Main">
+            <a class="nav-logo" href="#">mu</a>
+            <div class="nav-links">
+              <a class="nav-link is-active" href="#" aria-current="page">Work</a>
+              <a class="nav-link" href="#">About</a>
+              <a class="nav-link" href="#">Resume</a>
+            </div>
+            <div class="nav-actions">
+              <button class="btn btn-primary btn-sm">Contact</button>
+            </div>
+          </nav>
+          <div style="height:120px; background:var(--mu-surface);"></div>
+        </div>
+        <div class="ex-code"><button class="ex-copy">Copy</button><pre><code>&lt;nav class="nav nav-sticky" aria-label="Main"&gt;
+  &lt;a class="nav-logo" href="#"&gt;mu&lt;/a&gt;
+  &lt;div class="nav-links"&gt;
+    &lt;a class="nav-link is-active" href="#" aria-current="page"&gt;Work&lt;/a&gt;
+    &lt;a class="nav-link" href="#"&gt;About&lt;/a&gt;
+  &lt;/div&gt;
+  &lt;div class="nav-actions"&gt;
+    &lt;button class="btn btn-primary btn-sm"&gt;Contact&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/nav&gt;</code></pre></div>
+        <div class="ex-a11y">
+          <ul>
+            <li><code>&lt;nav aria-label="Main"&gt;</code> names the landmark — required when a page has more than one nav.</li>
+            <li>Mark the current page with <code>aria-current="page"</code> on its link (as here), not just the <code>.is-active</code> class.</li>
+            <li>With <code>nav-sticky</code>, give sections <code>scroll-margin-top</code> so anchored/focused content isn't hidden under the bar.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== DROPDOWN ==================== -->
+    <section class="g-section" id="dropdown">
+      <h2 class="h3">Dropdown</h2>
+      <p class="sec-desc">Menu opens below the trigger. Toggle <code style="font-family:var(--mu-mono);font-size:12px;">.is-open</code>, sync <code style="font-family:var(--mu-mono);font-size:12px;">aria-expanded</code>. Escape and outside-click close it.</p>
+      <div class="cls"><code>dropdown</code><code>menu</code><code>menu-right</code><code>menu-item</code><code>menu-divider</code><code>menu-label</code></div>
+
+      <div class="ex">
+        <div class="ex-stage" style="min-height:260px; align-items:flex-start;">
+          <div class="dropdown" id="ddDemo">
+            <button class="btn btn-secondary" aria-haspopup="menu" aria-expanded="false"
+                    onclick="const d=this.parentElement; d.classList.toggle('is-open'); this.setAttribute('aria-expanded', d.classList.contains('is-open'));">
+              Options
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="menu" role="menu">
+              <div class="menu-label">Actions</div>
+              <button class="menu-item" role="menuitem">Duplicate</button>
+              <button class="menu-item" role="menuitem">Rename</button>
+              <button class="menu-item is-selected" role="menuitem">Share…</button>
+              <div class="menu-divider"></div>
+              <button class="menu-item" role="menuitem">Delete</button>
+            </div>
+          </div>
+        </div>
+        <div class="ex-code"><button class="ex-copy">Copy</button><pre><code>&lt;div class="dropdown"&gt;
+  &lt;button class="btn btn-secondary" aria-haspopup="menu" aria-expanded="false"
+          onclick="const d=this.parentElement; d.classList.toggle('is-open');
+                   this.setAttribute('aria-expanded', d.classList.contains('is-open'));"&gt;
+    Options
+  &lt;/button&gt;
+  &lt;div class="menu" role="menu"&gt;
+    &lt;div class="menu-label"&gt;Actions&lt;/div&gt;
+    &lt;button class="menu-item" role="menuitem"&gt;Duplicate&lt;/button&gt;
+    &lt;button class="menu-item" role="menuitem"&gt;Rename&lt;/button&gt;
+    &lt;div class="menu-divider"&gt;&lt;/div&gt;
+    &lt;button class="menu-item" role="menuitem"&gt;Delete&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre></div>
+        <div class="ex-a11y">
+          <ul>
+            <li>Keep <code>aria-expanded</code> on the trigger in sync with <code>.is-open</code>, and set <code>aria-haspopup="menu"</code>.</li>
+            <li>Escape and outside-click close the menu (built in here) — also return focus to the trigger when it closes.</li>
+            <li>For the full menu pattern, ↑/↓ should move between items; menu items are real <code>&lt;button&gt;</code>s so Enter/Space work for free.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== MODAL ==================== -->
+    <section class="g-section" id="modal">
+      <h2 class="h3">Modal</h2>
+      <p class="sec-desc">Overlay + centered dialog. Closes on overlay click, Cancel, and Escape.</p>
+      <div class="cls"><code>modal-overlay</code><code>modal</code><code>modal-lg</code><code>modal-title</code><code>modal-desc</code><code>modal-actions</code></div>
+
+      <div class="ex">
+        <div class="ex-stage">
+          <button class="btn btn-primary" onclick="document.getElementById('demoModal').classList.add('is-open')">Open modal</button>
+        </div>
+        <div class="ex-code"><button class="ex-copy">Copy</button><pre><code>&lt;button class="btn btn-primary"
+        onclick="document.getElementById('m1').classList.add('is-open')"&gt;Open&lt;/button&gt;
+
+&lt;div class="modal-overlay" id="m1"
+     onclick="if(event.target===this)this.classList.remove('is-open')"&gt;
+  &lt;div class="modal" role="dialog" aria-modal="true" aria-labelledby="m1-title"&gt;
+    &lt;div class="modal-title" id="m1-title"&gt;Delete project?&lt;/div&gt;
+    &lt;div class="modal-desc"&gt;This action can't be undone.&lt;/div&gt;
+    &lt;div class="modal-actions"&gt;
+      &lt;button class="btn btn-secondary"
+              onclick="document.getElementById('m1').classList.remove('is-open')"&gt;Cancel&lt;/button&gt;
+      &lt;button class="btn btn-primary"&gt;Delete&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre></div>
+        <div class="ex-a11y">
+          <ul>
+            <li><code>role="dialog"</code> + <code>aria-modal="true"</code> + <code>aria-labelledby</code> pointing at the title (as here) is the minimum.</li>
+            <li>On open, move focus to the dialog (or its first control); on close, return focus to the element that opened it.</li>
+            <li>Trap Tab inside the dialog while open — or use the native <code>&lt;dialog&gt;</code> element, which handles focus and Escape for you.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- demo modal -->
+<div class="modal-overlay" id="demoModal" onclick="if(event.target===this)this.classList.remove('is-open')">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="demoModalTitle">
+    <div class="modal-title" id="demoModalTitle">Delete project?</div>
+    <div class="modal-desc">This will permanently remove the project and all of its files. This action can't be undone.</div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="document.getElementById('demoModal').classList.remove('is-open')">Cancel</button>
+      <button class="btn btn-primary" onclick="document.getElementById('demoModal').classList.remove('is-open')">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // small "copied" feedback for any element
+  function flashCopied(el, original) {
+    el.textContent = 'copied ✓';
+    setTimeout(() => el.textContent = original, 900);
+  }
+
+  // class-name chips → click to copy
+  document.querySelectorAll('.cls code').forEach(chip =>
+    chip.addEventListener('click', () => {
+      const name = chip.textContent;
+      navigator.clipboard.writeText(name).then(() => flashCopied(chip, name));
+    }));
+
+  // palette ramp → click to copy the CSS variable
+  document.getElementById('rampStrip').addEventListener('click', e => {
+    const cell = e.target.closest('[data-var]'); if (!cell) return;
+    navigator.clipboard.writeText('var(' + cell.dataset.var + ')');
+  });
+
+  // tabs demo (syncs aria-selected)
+  document.querySelectorAll('[data-tabs]').forEach(g =>
+    g.addEventListener('click', e => {
+      const t = e.target.closest('.tab'); if (!t) return;
+      g.querySelectorAll('.tab').forEach(x => {
+        x.classList.remove('is-active'); x.setAttribute('aria-selected', 'false');
+      });
+      t.classList.add('is-active'); t.setAttribute('aria-selected', 'true');
+    }));
+
+  // chips demo (syncs aria-pressed)
+  document.getElementById('chipDemo').addEventListener('click', e => {
+    const c = e.target.closest('.chip'); if (!c) return;
+    c.parentElement.querySelectorAll('.chip').forEach(x => {
+      x.classList.remove('is-active'); x.setAttribute('aria-pressed', 'false');
+    });
+    c.classList.add('is-active'); c.setAttribute('aria-pressed', 'true');
+  });
+
+  // close dropdowns on outside click (keeps aria-expanded in sync)
+  document.addEventListener('click', e => {
+    document.querySelectorAll('.dropdown.is-open').forEach(d => {
+      if (!d.contains(e.target)) {
+        d.classList.remove('is-open');
+        const t = d.querySelector('[aria-expanded]');
+        if (t) t.setAttribute('aria-expanded', 'false');
+      }
+    });
+  });
+
+  // Escape closes modals and dropdowns
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    document.querySelectorAll('.modal-overlay.is-open').forEach(m => m.classList.remove('is-open'));
+    document.querySelectorAll('.dropdown.is-open').forEach(d => {
+      d.classList.remove('is-open');
+      const t = d.querySelector('[aria-expanded]');
+      if (t) t.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  // snippet copy buttons
+  document.querySelectorAll('.ex-copy').forEach(btn =>
+    btn.addEventListener('click', () => {
+      const code = btn.parentElement.querySelector('code');
+      navigator.clipboard.writeText(code.textContent).then(() => {
+        btn.textContent = 'Copied';
+        setTimeout(() => btn.textContent = 'Copy', 1200);
+      });
+    }));
+
+  // Code / Accessibility view tabs on each example
+  document.querySelectorAll('.ex').forEach(ex => {
+    const code = ex.querySelector('.ex-code');
+    const a11y = ex.querySelector('.ex-a11y');
+    if (!code || !a11y) return;
+    const bar = document.createElement('div');
+    bar.className = 'ex-tabs';
+    [['Code', code], ['Accessibility', a11y]].forEach(([name, panel], i) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'ex-tab' + (i === 0 ? ' is-active' : '');
+      b.setAttribute('aria-pressed', i === 0 ? 'true' : 'false');
+      b.textContent = name;
+      b.addEventListener('click', () => {
+        bar.querySelectorAll('.ex-tab').forEach(x => { x.classList.remove('is-active'); x.setAttribute('aria-pressed', 'false'); });
+        b.classList.add('is-active'); b.setAttribute('aria-pressed', 'true');
+        code.style.display = panel === code ? 'block' : 'none';
+        a11y.style.display = panel === a11y ? 'block' : 'none';
+      });
+      bar.appendChild(b);
+    });
+    ex.insertBefore(bar, code);
+  });
+
+  // side nav scroll-spy
+  const links = [...document.querySelectorAll('#sidenav a')];
+  const sections = links.map(a => document.querySelector(a.getAttribute('href')));
+  const spy = new IntersectionObserver(entries => {
+    entries.forEach(en => {
+      if (en.isIntersecting) {
+        links.forEach(l => l.classList.toggle('is-active', l.getAttribute('href') === '#' + en.target.id));
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => s && spy.observe(s));
+</script>
+
+</body>
+</html>

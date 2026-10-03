@@ -1,0 +1,42 @@
+/* mu-system · top nav (frosted) */
+
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+  padding: 0 24px;
+  background: rgba(255, 255, 255, .82);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid var(--mu-border);
+  font-family: var(--mu-font);
+}
+/* make it stick: <nav class="nav nav-sticky"> */
+.nav-sticky { position: sticky; top: 0; z-index: 90; }
+
+.nav-logo {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--mu-ink);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-links { display: flex; align-items: center; gap: 4px; }
+.nav-link {
+  padding: 8px 12px;
+  border-radius: var(--mu-radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--mu-ink-2);
+  text-decoration: none;
+  transition: color var(--mu-fast) var(--mu-ease), background var(--mu-fast) var(--mu-ease);
+}
+.nav-link:hover { color: var(--mu-ink); background: var(--mu-gray-100); }
+.nav-link.is-active { color: var(--mu-ink); }
+
+.nav-actions { display: flex; align-items: center; gap: 10px; }

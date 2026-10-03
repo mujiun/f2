@@ -1,0 +1,322 @@
+{
+  "about": "Everything Adam computed on Halsted's Q2 2026 package. Start with 'summary': it lists Adam's three findings and its suggested status, and points to the detail behind each. How this is shown in the workspace, and what Maya can do about it, is yours to design.",
+  "summary": {
+    "suggested_status": {
+      "from": "Green",
+      "to": "Amber",
+      "why": "Tightest covenant headroom is 8.0%, below the 10% green line in the credit policy.",
+      "decided_by": "Maya (confirm or override, with a reason)",
+      "policy": "4_fund_rules/credit_policy.json"
+    },
+    "findings": [
+      {
+        "id": "F1",
+        "plain_language": "The cushion under the debt limit shrank from 19% to 8%. About 4 points is the scheduled step-down; about 7 is weaker earnings.",
+        "detail": [
+          "passes[0].covenant_tests[0]",
+          "passes[0].headroom_bridge"
+        ]
+      },
+      {
+        "id": "F2",
+        "plain_language": "Halsted's own numbers disagree with Adam's. Its certificate reports an 11.8% cushion (green) by counting $0.72M of savings from a program that started after the quarter ended, which the loan agreement doesn't allow. Adam's figure is 8.0% (amber).",
+        "detail": [
+          "passes[0].certificate_check"
+        ]
+      },
+      {
+        "id": "F3",
+        "plain_language": "Halsted has missed the plan the deal was approved on for four quarters; the top risk named at approval is what management blames now.",
+        "detail": [
+          "passes[0].variances",
+          "passes[0].underwriting_links"
+        ]
+      }
+    ],
+    "everything_else": "Other fields (forward_schedule, spread.revolver, prior_review_follow_ups) are extra context. You don't need them."
+  },
+  "units": "USD millions; ratios in x; headroom in %",
+  "passes": [
+    {
+      "email_id": "email_01",
+      "completed_at": "2026-08-14T18:46:02-04:00",
+      "filing": {
+        "company_id": "halsted",
+        "confidence": 0.99,
+        "evidence": [
+          "Sender is the CFO contact on file",
+          "Legal entity on the financial statements matches the workspace",
+          "Subject line names Halsted",
+          "Sponsor contact on file is copied"
+        ]
+      },
+      "documents": [
+        {
+          "file": "1_the_email/attachments/Halsted_Q2_2026_Financial_Statements.pdf",
+          "classified_as": "Quarterly financial statements with management commentary",
+          "period": "Q2 2026",
+          "pages": {
+            "income_statement": 1,
+            "balance_sheet": 2,
+            "management_commentary": 3
+          }
+        },
+        {
+          "file": "1_the_email/attachments/Halsted_Q2_2026_Compliance_Certificate.pdf",
+          "classified_as": "Compliance certificate",
+          "period": "Q2 2026",
+          "pages": {
+            "certificate": 1,
+            "schedule_1": 2
+          }
+        }
+      ],
+      "package": {
+        "period": "Q2 2026",
+        "due_date": "2026-08-14",
+        "received_on": "2026-08-14",
+        "received": [
+          "Quarterly financial statements",
+          "Management commentary",
+          "Compliance certificate"
+        ],
+        "missing": [],
+        "requirement_source": {
+          "file": "2_workspace_before_this_quarter/documents/Halsted_Loan_Agreement_Excerpt.pdf",
+          "page": 2,
+          "section": "§6.01(b), §6.02(b)"
+        }
+      },
+      "spread": {
+        "revenue": 23.5,
+        "adj_ebitda_quarter": 3.95,
+        "adj_ebitda_margin_pct": 16.8,
+        "ltm_adj_ebitda": 16.8,
+        "cash": 3.4,
+        "total_debt": 84.5,
+        "net_debt": 81.1,
+        "revolver": {
+          "commitment": 10.0,
+          "drawn": 10.0,
+          "drawn_prior_quarter": 6.3,
+          "availability": 0.0
+        },
+        "sources": {
+          "income_statement": {
+            "file": "1_the_email/attachments/Halsted_Q2_2026_Financial_Statements.pdf",
+            "page": 1
+          },
+          "balance_sheet": {
+            "file": "1_the_email/attachments/Halsted_Q2_2026_Financial_Statements.pdf",
+            "page": 2
+          }
+        }
+      },
+      "covenant_tests": [
+        {
+          "covenant": "total_net_leverage",
+          "type": "maximum",
+          "level": 5.25,
+          "level_prior_quarter": 5.5,
+          "step_down_this_period": true,
+          "f2_value": 4.83,
+          "f2_headroom_pct": 8.0,
+          "prior_quarter_value": 4.45,
+          "prior_quarter_headroom_pct": 19.1,
+          "prior_quarter_value_at_new_level_headroom_pct": 15.2,
+          "inputs": {
+            "ltm_adj_ebitda": 16.8,
+            "net_debt": 81.1
+          },
+          "sources": {
+            "definition": {
+              "file": "2_workspace_before_this_quarter/documents/Halsted_Loan_Agreement_Excerpt.pdf",
+              "page": 1
+            },
+            "level": {
+              "file": "2_workspace_before_this_quarter/documents/Halsted_Loan_Agreement_Excerpt.pdf",
+              "page": 2,
+              "section": "§7.11(a)"
+            },
+            "net_debt": {
+              "file": "1_the_email/attachments/Halsted_Q2_2026_Financial_Statements.pdf",
+              "page": 2
+            },
+            "ebitda": {
+              "file": "1_the_email/attachments/Halsted_Q2_2026_Financial_Statements.pdf",
+              "page": 1
+            }
+          }
+        },
+        {
+          "covenant": "fccr",
+          "type": "minimum",
+          "level": 1.1,
+          "f2_value": 1.32,
+          "f2_headroom_pct": 20.0,
+          "prior_quarter_value": 1.41,
+          "prior_quarter_headroom_pct": 28.2,
+          "sources": {
+            "level": {
+              "file": "2_workspace_before_this_quarter/documents/Halsted_Loan_Agreement_Excerpt.pdf",
+              "page": 2,
+              "section": "§7.11(b)"
+            }
+          }
+        }
+      ],
+      "headroom_bridge": {
+        "prior_quarter_headroom_pct": 19.1,
+        "effect_of_step_down_pts": 3.9,
+        "effect_of_performance_pts": 7.2,
+        "current_headroom_pct": 8.0
+      },
+      "forward_schedule": {
+        "next_step_down": {
+          "period": "Q2 2027",
+          "level": 5.0
+        },
+        "headroom_at_next_step_down_if_leverage_unchanged_pct": 3.4,
+        "source": {
+          "file": "2_workspace_before_this_quarter/documents/Halsted_Loan_Agreement_Excerpt.pdf",
+          "page": 2
+        }
+      },
+      "variances": [
+        {
+          "metric": "Revenue (quarter)",
+          "actual": 23.5,
+          "underwriting_base": 25.0,
+          "underwriting_downside": 23.0,
+          "prior_quarter": 23.9,
+          "vs_base_pct": -6.0,
+          "vs_prior_quarter_pct": -1.7
+        },
+        {
+          "metric": "Adjusted EBITDA (quarter)",
+          "actual": 3.95,
+          "underwriting_base": 4.75,
+          "underwriting_downside": 3.68,
+          "prior_quarter": 4.15,
+          "vs_base_pct": -16.8,
+          "vs_prior_quarter_pct": -4.8
+        },
+        {
+          "metric": "Adjusted EBITDA margin (quarter)",
+          "actual_pct": 16.8,
+          "underwriting_base_pct": 19.0,
+          "underwriting_downside_pct": 16.0,
+          "prior_quarter_pct": 17.4,
+          "vs_base_bps": -219,
+          "vs_prior_quarter_bps": -56,
+          "trend": "Down four quarters in a row (Q3 2025 to Q2 2026)"
+        },
+        {
+          "metric": "LTM Adjusted EBITDA vs underwriting case",
+          "actual": 16.8,
+          "underwriting_base": 18.73,
+          "pct_of_base": 89.7
+        },
+        {
+          "metric": "Gulf Coast share of revenue (quarter)",
+          "actual_pct": 38.0,
+          "underwriting_assumption_pct": "< 40",
+          "source": {
+            "file": "1_the_email/attachments/Halsted_Q2_2026_Financial_Statements.pdf",
+            "page": 3
+          }
+        }
+      ],
+      "underwriting_links": [
+        {
+          "assumption_id": "A2",
+          "finding": "Margin 16.8% vs about 19% assumed; still above the downside case's 16.0%"
+        },
+        {
+          "risk_id": "R1",
+          "finding": "Management commentary cites technician wage inflation and lagging repricing",
+          "source": {
+            "file": "1_the_email/attachments/Halsted_Q2_2026_Financial_Statements.pdf",
+            "page": 3
+          }
+        },
+        {
+          "assumption_id": "A3",
+          "finding": "Gulf Coast at 38% of revenue vs < 40% assumed",
+          "source": {
+            "file": "1_the_email/attachments/Halsted_Q2_2026_Financial_Statements.pdf",
+            "page": 3
+          }
+        }
+      ],
+      "prior_review_follow_ups": [
+        {
+          "follow_up": "Revisit watchlist if leverage headroom falls below 10% after the Q2 step-down",
+          "source": {
+            "file": "2_workspace_before_this_quarter/documents/Halsted_Q1_2026_Review.pdf",
+            "page": 1
+          }
+        },
+        {
+          "follow_up": "Request management's cost plan with the Q2 package",
+          "source": {
+            "file": "2_workspace_before_this_quarter/documents/Halsted_Q1_2026_Review.pdf",
+            "page": 1
+          },
+          "status_in_package": "Commentary describes a cost program launched in July; no detailed plan attached"
+        }
+      ],
+      "management_commentary_summary": "Q2 revenue of $23.5M was down 1.7% from Q1, reflecting lower project volume in the Gulf Coast region, which represented 38% of revenue in the quarter. Adjusted EBITDA margin declined to 16.8% as technician wage inflation continued and contract repricing lagged. The revolver was fully drawn in June to fund working capital. In July, management launched a cost program targeting $2.0M of annualized savings, principally through subcontractor consolidation and overhead reductions, with the majority expected to be realized in Q4 2026.",
+      "certificate_check": {
+        "borrower_certifies_compliance": true,
+        "signed_by": "Dana Whitfield, Chief Financial Officer",
+        "matches_f2": false,
+        "results": [
+          {
+            "covenant": "total_net_leverage",
+            "level": 5.25,
+            "borrower": 4.63,
+            "borrower_headroom_pct": 11.8,
+            "f2": 4.83,
+            "f2_headroom_pct": 8.0
+          },
+          {
+            "covenant": "fccr",
+            "level": 1.1,
+            "borrower": 1.38,
+            "borrower_headroom_pct": 25.5,
+            "f2": 1.32,
+            "f2_headroom_pct": 20.0
+          }
+        ],
+        "discrepancies": [
+          {
+            "metric": "LTM Consolidated EBITDA",
+            "borrower": 17.52,
+            "f2": 16.8,
+            "difference": 0.72,
+            "driver": "Clause (h) add-back: run-rate cost savings from the cost program launched in July 2026",
+            "borrower_addback": 0.72,
+            "f2_addback": 0.0,
+            "explanation": "Clause (h) allows run-rate savings only for actions taken on or before the last day of the Test Period (June 30, 2026). Management commentary says the program launched in July.",
+            "sources": {
+              "certificate_schedule": {
+                "file": "1_the_email/attachments/Halsted_Q2_2026_Compliance_Certificate.pdf",
+                "page": 2
+              },
+              "credit_agreement": {
+                "file": "2_workspace_before_this_quarter/documents/Halsted_Loan_Agreement_Excerpt.pdf",
+                "page": 1,
+                "section": "§1.01 clause (h)"
+              },
+              "launch_date": {
+                "file": "1_the_email/attachments/Halsted_Q2_2026_Financial_Statements.pdf",
+                "page": 3
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

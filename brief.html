@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio Monitoring — Design Brief</title>
+<link rel="stylesheet" href="mu-system/mu.css">
+<style>
+  :root{
+    --rag-green:#1d7a46; --rag-green-bg:#e9f5ee;
+    --rag-amber:#9a6200; --rag-amber-bg:#fdf3e0;
+    --rag-red:#b3261e;   --rag-red-bg:#fdecea;
+  }
+  body{background:var(--mu-bg);}
+  .wrap{max-width:860px;margin:0 auto;padding:0 28px 110px;}
+
+  .topnav{
+    position:sticky;top:0;z-index:50;
+    background:rgba(255,255,255,.85);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);
+    border-bottom:1px solid var(--mu-border);
+  }
+  .topnav-inner{max-width:860px;margin:0 auto;padding:0 28px;height:58px;display:flex;align-items:center;gap:12px;}
+  .logo{background:var(--mu-gray-900);color:#fff;font-weight:700;font-size:13px;padding:4px 8px;border-radius:7px;letter-spacing:.4px;}
+  .topnav-inner .t{font-size:14px;font-weight:600;color:var(--mu-ink);}
+  .topnav-links{margin-left:auto;display:flex;gap:6px;}
+  .topnav-links a{
+    font-size:13px;font-weight:500;color:var(--mu-ink-2);text-decoration:none;
+    padding:7px 13px;border-radius:999px;transition:background var(--mu-fast) var(--mu-ease);
+  }
+  .topnav-links a:hover{background:var(--mu-gray-100);color:var(--mu-ink);}
+  .topnav-links a.primary{background:var(--mu-gray-900);color:#fff;}
+
+  .hero{padding:68px 0 10px;}
+  .hero .eyebrow{margin-bottom:14px;}
+  .hero h1{font-size:36px;font-weight:650;letter-spacing:-.022em;line-height:1.15;}
+  .hero p{font-size:16.5px;color:var(--mu-ink-2);margin-top:14px;max-width:640px;line-height:1.65;}
+
+  h2.sec{font-size:21px;font-weight:650;letter-spacing:-.015em;margin:60px 0 6px;display:flex;align-items:baseline;gap:10px;}
+  h2.sec .num{font-family:var(--mu-mono);font-size:12px;color:var(--mu-ink-3);font-weight:500;}
+  .sec-sub{font-size:14.5px;color:var(--mu-ink-2);margin-bottom:18px;line-height:1.65;max-width:680px;}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+  @media(max-width:700px){.grid2,.grid3{grid-template-columns:1fr;}}
+
+  .b-card{padding:4px 0;}
+  .b-card .tag{font-size:19px;font-weight:650;letter-spacing:-.015em;text-transform:none;font-family:var(--mu-font);color:var(--mu-ink);display:block;margin-bottom:12px;}
+  .b-card h3{font-size:15px;font-weight:650;margin-bottom:5px;letter-spacing:-.01em;}
+  .b-card p{font-size:14px;color:var(--mu-ink);line-height:1.7;}
+  .b-card b{color:var(--mu-ink);font-weight:650;}
+
+  .pill{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;border-radius:999px;font-size:11.5px;font-weight:600;}
+  .pill .d{width:6px;height:6px;border-radius:50%;background:currentColor;}
+  .pill.g{background:var(--rag-green-bg);color:var(--rag-green);}
+  .pill.a{background:var(--rag-amber-bg);color:var(--rag-amber);}
+
+  ol.flow{list-style:none;counter-reset:f;margin-top:14px;}
+  ol.flow li{
+    counter-increment:f;position:relative;padding:15px 20px 15px 56px;
+    background:var(--mu-surface);border-radius:var(--mu-radius-lg);margin-bottom:10px;
+  }
+  ol.flow li::before{
+    content:counter(f,decimal-leading-zero);position:absolute;left:19px;top:17px;
+    font-family:var(--mu-mono);font-size:12px;color:var(--mu-ink-3);font-weight:600;
+  }
+  ol.flow h3{font-size:14.5px;font-weight:650;margin-bottom:3px;}
+  ol.flow p{font-size:13.5px;color:var(--mu-ink-2);line-height:1.6;}
+  ol.flow b{color:var(--mu-ink);font-weight:600;}
+
+  .qa{border-top:1px solid var(--mu-gray-100);padding:14px 2px;}
+  .qa:first-of-type{border-top:none;}
+  .qa .q{font-size:14px;font-weight:650;margin-bottom:4px;}
+  .qa .a{font-size:13.5px;color:var(--mu-ink-2);line-height:1.65;}
+  .qa .a b{color:var(--mu-ink);font-weight:600;}
+
+  .shot{margin:18px 0 26px;}
+  .shot:last-child{margin-bottom:4px;}
+  .shot img{
+    width:100%;display:block;border:1px solid var(--mu-border);
+    border-radius:var(--mu-radius-md);box-shadow:var(--mu-shadow-sm);
+  }
+  .shot figcaption{font-size:13px;color:var(--mu-ink-2);line-height:1.6;margin-top:9px;}
+  .shot figcaption b{color:var(--mu-ink);font-weight:650;}
+
+  .footer{margin-top:76px;padding-top:22px;border-top:1px solid var(--mu-border);font-size:12.5px;color:var(--mu-ink-3);display:flex;gap:16px;flex-wrap:wrap;}
+  .footer a{color:var(--mu-ink-2);}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="topnav-inner">
+    <span class="logo">F2</span><span class="t">Design Brief</span>
+    <div class="topnav-links">
+      <a class="primary" href="index.html" target="_blank" rel="noopener">Open prototype →</a>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <header class="hero">
+    <div class="eyebrow">F2 · Product Designer Case Study · Portfolio Monitoring</div>
+    <h1>From package to decision.</h1>
+  </header>
+
+  <div style="margin-top:44px;display:flex;flex-direction:column;gap:52px;">
+    <div class="b-card">
+      <span class="tag">Hypothesis</span>
+      <p>When Maya lands on the workspace, she wants to quickly review the high-level state of Q2 2026 and determine whether the health status needs to change.</p>
+    </div>
+    <div class="b-card">
+      <span class="tag">Considerations</span>
+      <p>Adam's analysis shows the cushion dropped to <b>8.0%</b>, below the 10% policy line — hence the suggested downgrade. I prioritized Adam's number over Halsted's certificate because it follows the <b>standardized definition the whole platform uses</b> — the loan agreement's own terms — making it the more defensible figure.</p>
+    </div>
+    <div class="b-card">
+      <span class="tag">Design Focus</span>
+      <p style="margin-bottom:10px;"><b>1 · Which cards earn the top of the dashboard.</b> I worked with AI to pressure-test what Maya actually re-checks every quarter, and landed on three: <b>Net leverage</b> (the covenant itself), <b>EBITDA vs plan</b> (the second policy input, and the "why" behind the cushion drop), and <b>Liquidity</b> (not a policy input, but the survival signal — revolver went fully drawn before anything breached). Along the way we cut a Loan card (static, already in the header), merged leverage and cushion into one card (same fact, two layers), and killed a standalone Adam card so his findings live inside the metrics they belong to.</p>
+      <p style="margin-bottom:10px;"><b>2 · The banner as the action guide.</b> One banner carries Adam's suggestion, the dispute (8.0% vs 11.8%), and the four policy inputs with only one tripped — then hands Maya a single <b>Review</b> action. The modal is split Review / Decide &amp; act: evidence on the left ($0.72M add-back isolated, sources linked), status + reason + follow-ups on the right, one recorded flow.</p>
+      <p><b>3 · Most of the time went into making the cards scannable.</b> Dozens of small passes: every card shares one anatomy (big number → status pill → bar against its reference line → newest-first quarterly table); bars pinned to the same height across cards; policy verdicts as matching pills (Amber &lt;10%, Green ≥85%); breakdowns flipped from chips to aligned columns with explicit $M units; citations unified into one quiet (ref) mark. The goal: Maya reads the row in seconds, and every deeper question is one click down.</p>
+    </div>
+    <div class="b-card">
+      <span class="tag">Design iteration with AI</span>
+      <p style="margin-bottom:10px;">Tool: <b>Claude Code</b>, ~50 prompts from brief to prototype, every one logged verbatim. The split: I set direction, structure, and taste — what deserves a card, what the top number is, when a screen is too cluttered, when a label is wrong. AI read the data pack, wired every figure to its source page, drafted layouts and copy, and explained the credit mechanics I challenged it on.</p>
+      <p style="margin-bottom:10px;">The useful pattern wasn't generation — it was <b>argument</b>. Before touching the UI I asked it to defend choices: why Performance and Liquidity deserve permanent cards, whether leverage and headroom are the same fact (they are — so they became one card), whether "Confirm" biased the journey toward agreeing with the AI (it did — renamed to <b>Review → Decide → Act</b>). I also used it as a domain tutor mid-design: LTM vs single-quarter, stock vs flow on the revolver, step-down vs policy — each answer sharpened what the cards needed to say.</p>
+      <p>Then dozens of rapid visual rounds — spacing, pill formats, column alignment, banner tone — where I corrected and it applied, usually in one pass. AI compressed the mechanics; the judgment calls stayed mine.</p>
+    </div>
+
+    <div class="b-card">
+      <span class="tag">Iteration snapshots</span>
+      <figure class="shot">
+        <img src="iterations/01-hero-card.png" alt="v1 — Adam hero card above four stat cards">
+        <figcaption><b>v1 — Adam as a hero card.</b> His first pass owned a big card above four stat cards, with status badges floating in the page header. Verdict: too much to read before any data; the stats were flat metrics with no judgment attached.</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="iterations/02-cards-absorb-adam.png" alt="Adam's findings embedded inside the metric cards">
+        <figcaption><b>Adam dissolves into the cards.</b> The hero card is gone — each finding now annotates the metric it belongs to, and the ✦ ADAM suggestion sits inside the headroom card. A Loan card led the row; it died next round for being static wallpaper already covered by the header.</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="iterations/03-decision-card.png" alt="Dedicated decision card and vertical quarterly tables">
+        <figcaption><b>The decision gets its own surface.</b> A Decision card pairs Adam's 8.0% → Amber against the certificate's 11.8% → Green; a quarter switcher appears; the quarterly breakdowns turn from chips into vertical rows. We also merged leverage + cushion here — same fact, two layers, one card.</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="iterations/04-banner-above.png" alt="Full-width suggestion banner above three cards">
+        <figcaption><b>The suggestion becomes the page's alert.</b> The decision section moves out of the cards into a full-width banner above them — suggestion, dispute, and Review in one strip. Leverage gains the same quarterly table as its siblings; status history becomes a six-quarter dot timeline.</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="iterations/05-one-anatomy.png" alt="All three cards sharing one anatomy">
+        <figcaption><b>One anatomy for every card.</b> Big number → status pill → bar against its reference line → newest-first table, with bars pinned to the same height across all three. Citations unified into the quiet (ref) mark; column headers and $M units made explicit.</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="iterations/06-final.png" alt="Final — merged header, white banner, policy input strip">
+        <figcaption><b>Final.</b> Header merges to "Halsted Industrial Services / Q2 2026"; the banner turns white with a dark border — amber survives only where it means something — and gains the four-policy-input strip: one amber, three green, status = worst of 4.</figcaption>
+      </figure>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>F2 Product Designer case study · all companies and figures fictional</span>
+    <a href="index.html">Prototype</a>
+  </div>
+</div>
+
+</body>
+</html>

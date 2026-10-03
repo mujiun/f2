@@ -1,0 +1,62 @@
+/* ============================================
+   mu-system · tokens.css
+   Design tokens only — no component styles.
+   Retheme a project by overriding these vars.
+   ============================================ */
+
+:root {
+  /* ---- Greyscale ramp ---- */
+  --mu-white:    #ffffff;
+  --mu-gray-50:  #f7f7f8;   /* page / section background */
+  --mu-gray-100: #f2f2f3;   /* media surface, ghost hover */
+  --mu-gray-200: #e8e8ea;   /* borders */
+  --mu-gray-300: #d6d6d9;   /* border hover */
+  --mu-gray-400: #b0b0b6;   /* placeholder */
+  --mu-gray-500: #767680;   /* tertiary text — 4.6:1 on white (WCAG AA) */
+  --mu-gray-600: #6e6e73;   /* secondary text */
+  --mu-gray-700: #48484d;
+  --mu-gray-800: #2c2c30;   /* primary button hover */
+  --mu-gray-900: #1d1d1f;   /* ink, primary button */
+
+  /* ---- Semantic aliases ---- */
+  --mu-ink:     var(--mu-gray-900);
+  --mu-ink-2:   var(--mu-gray-600);
+  --mu-ink-3:   var(--mu-gray-500);
+  --mu-bg:      var(--mu-white);
+  --mu-surface: var(--mu-gray-50);
+  --mu-media:   var(--mu-gray-100);
+  --mu-border:  var(--mu-gray-200);
+  --mu-border-strong: #8e8e93; /* 3:1 on white — swap onto inputs for strict WCAG 1.4.11 */
+
+  /* ---- Radius ---- */
+  --mu-radius-sm:   8px;
+  --mu-radius-md:   12px;
+  --mu-radius-lg:   16px;
+  --mu-radius-xl:   20px;
+  --mu-radius-full: 999px;
+
+  /* ---- Shadows (soft, layered) ---- */
+  --mu-shadow-sm: 0 1px 2px rgba(0,0,0,.05), 0 1px 4px rgba(0,0,0,.04);
+  --mu-shadow-md: 0 2px 6px rgba(0,0,0,.06), 0 8px 24px rgba(0,0,0,.08);
+  --mu-shadow-lg: 0 4px 12px rgba(0,0,0,.08), 0 16px 48px rgba(0,0,0,.14);
+  --mu-focus-ring: 0 0 0 3px rgba(29,29,31,.16);
+
+  /* ---- Type ---- */
+  --mu-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Inter, Arial, sans-serif;
+  --mu-mono: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+
+  /* ---- Spacing scale ---- */
+  --mu-space-1: 4px;
+  --mu-space-2: 8px;
+  --mu-space-3: 12px;
+  --mu-space-4: 16px;
+  --mu-space-5: 24px;
+  --mu-space-6: 32px;
+  --mu-space-7: 48px;
+  --mu-space-8: 64px;
+
+  /* ---- Motion ---- */
+  --mu-ease: cubic-bezier(.25,.1,.25,1);
+  --mu-fast: .15s;
+  --mu-slow: .25s;
+}

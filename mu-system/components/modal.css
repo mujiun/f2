@@ -1,0 +1,42 @@
+/* mu-system · modal
+   Panel: role="dialog" aria-modal="true" aria-labelledby="<title id>"
+   Open:  overlay.classList.add('is-open')
+   Close: overlay click, Cancel button, and Escape key */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .4);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 100;
+}
+.modal-overlay.is-open { display: flex; }
+
+.modal {
+  width: 100%;
+  max-width: 440px;
+  padding: 28px;
+  background: var(--mu-white);
+  border-radius: var(--mu-radius-xl);
+  box-shadow: var(--mu-shadow-lg);
+  font-family: var(--mu-font);
+  animation: modal-in var(--mu-slow) var(--mu-ease);
+}
+@keyframes modal-in {
+  from { opacity: 0; transform: translateY(8px) scale(.98); }
+  to   { opacity: 1; transform: none; }
+}
+
+.modal-title { font-size: 19px; font-weight: 600; letter-spacing: -0.01em; color: var(--mu-ink); }
+.modal-desc  { margin-top: 8px; font-size: 14px; line-height: 1.55; color: var(--mu-ink-2); }
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.modal-lg { max-width: 640px; }

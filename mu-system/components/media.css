@@ -1,0 +1,36 @@
+/* mu-system · media
+   Image / video presentation: content floats on a grey
+   surface with a soft shadow. */
+
+.media {
+  background: var(--mu-media);
+  border-radius: var(--mu-radius-lg);
+  padding: clamp(24px, 6%, 56px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.media img,
+.media video {
+  max-width: 100%;
+  border-radius: var(--mu-radius-md);
+  box-shadow: var(--mu-shadow-md);
+}
+
+/* deeper shadow for hero shots */
+.media-deep img,
+.media-deep video { box-shadow: var(--mu-shadow-lg); }
+
+/* flush: image fills the surface edge-to-edge */
+.media-flush { padding: 0; overflow: hidden; }
+.media-flush img,
+.media-flush video { width: 100%; border-radius: 0; box-shadow: none; }
+
+/* caption below the surface */
+.media-caption {
+  margin-top: 10px;
+  font-family: var(--mu-font);
+  font-size: 13px;
+  color: var(--mu-ink-3);
+  text-align: center;
+}

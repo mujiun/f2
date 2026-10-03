@@ -1,0 +1,55 @@
+/* ============================================
+   mu-system · base.css
+   Reset + typography defaults.
+   ============================================ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+
+body {
+  font-family: var(--mu-font);
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--mu-ink);
+  background: var(--mu-bg);
+}
+
+img, video { max-width: 100%; display: block; }
+button, input, select, textarea { font: inherit; color: inherit; }
+a { color: inherit; }
+
+/* ---- Type scale ---- */
+.h1 { font-size: 40px; font-weight: 600; line-height: 1.1;  letter-spacing: -0.022em; }
+.h2 { font-size: 28px; font-weight: 600; line-height: 1.2;  letter-spacing: -0.02em; }
+.h3 { font-size: 22px; font-weight: 600; line-height: 1.25; letter-spacing: -0.015em; }
+.h4 { font-size: 17px; font-weight: 600; line-height: 1.3;  letter-spacing: -0.01em; }
+
+.body    { font-size: 15px; color: var(--mu-ink); }
+.body-2  { font-size: 14px; color: var(--mu-ink-2); }
+.caption { font-size: 13px; color: var(--mu-ink-3); }
+
+.eyebrow {
+  font-family: var(--mu-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mu-ink-3);
+}
+
+/* ---- Accessibility ---- */
+
+/* one visible keyboard focus style everywhere (WCAG 2.4.7) */
+:where(a, button, [role="button"], input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--mu-gray-800);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}

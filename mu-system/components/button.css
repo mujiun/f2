@@ -1,0 +1,49 @@
+/* mu-system · button */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 20px;
+  border: 1px solid transparent;
+  border-radius: var(--mu-radius-md);
+  font-family: var(--mu-font);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background var(--mu-fast) var(--mu-ease),
+              border-color var(--mu-fast) var(--mu-ease),
+              transform .1s var(--mu-ease);
+}
+.btn:active { transform: scale(.98); }
+/* keyboard focus comes from the global :focus-visible outline in base.css */
+.btn[disabled] { opacity: .4; pointer-events: none; }
+
+/* variants */
+.btn-primary { background: var(--mu-gray-900); color: #fff; }
+.btn-primary:hover { background: var(--mu-gray-800); }
+
+.btn-secondary { background: var(--mu-white); color: var(--mu-ink); border-color: var(--mu-border); }
+.btn-secondary:hover { border-color: var(--mu-gray-300); background: var(--mu-gray-50); }
+
+.btn-ghost { background: transparent; color: var(--mu-ink); }
+.btn-ghost:hover { background: var(--mu-gray-100); }
+
+/* sizes */
+.btn-sm { height: 34px; padding: 0 14px; font-size: 13px; border-radius: var(--mu-radius-sm); }
+.btn-lg { height: 52px; padding: 0 26px; font-size: 17px; border-radius: 14px; }
+
+/* shape / layout */
+.btn-pill  { border-radius: var(--mu-radius-full); }
+.btn-block { width: 100%; }
+
+/* icon-only square button */
+.btn-icon { width: 44px; padding: 0; }
+.btn-icon.btn-sm { width: 34px; }

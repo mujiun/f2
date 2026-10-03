@@ -1,0 +1,76 @@
+/* mu-system · card */
+
+.card {
+  background: var(--mu-white);
+  border: 1px solid var(--mu-border);
+  border-radius: var(--mu-radius-lg);
+  overflow: hidden;
+  font-family: var(--mu-font);
+  transition: box-shadow var(--mu-slow) var(--mu-ease),
+              transform var(--mu-slow) var(--mu-ease);
+}
+
+/* raised: no border, floats on shadow */
+.card-raised { border: none; box-shadow: var(--mu-shadow-md); }
+
+/* hover lift — add alongside default or raised */
+.card-hover { cursor: pointer; }
+.card-hover:hover { box-shadow: var(--mu-shadow-lg); transform: translateY(-2px); }
+
+/* media is inset by default — image floats inside the card with rounded corners */
+.card-media { aspect-ratio: 16 / 10; overflow: hidden; padding: 8px; }
+.card-media img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  border-radius: calc(var(--mu-radius-lg) - 8px);
+  background: var(--mu-media); /* placeholder while loading */
+}
+
+/* flush: image edge-to-edge, no spacing */
+.card-media-flush { padding: 0; }
+.card-media-flush img { border-radius: 0; }
+
+/* square media (Luma-style poster ratio) */
+.card-media-square { aspect-ratio: 1 / 1; }
+
+/* image-only card — framed image, inset like card-media */
+.card-img { line-height: 0; padding: 8px; }
+.card-img img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  border-radius: calc(var(--mu-radius-lg) - 8px);
+  background: var(--mu-media);
+}
+
+/* flat: Luma homepage style — no box; rounded image floats on a
+   shadow, text sits directly on the page below it */
+.card-flat {
+  border: none;
+  background: transparent;
+  border-radius: 0;
+  overflow: visible;
+}
+.card-flat .card-media { padding: 0; overflow: visible; background: transparent; }
+.card-flat.card-img { padding: 0; } /* flat img-only: the floating image needs no inset */
+.card-flat .card-media img {
+  border-radius: var(--mu-radius-lg);
+  box-shadow: var(--mu-shadow-md);
+  transition: box-shadow var(--mu-slow) var(--mu-ease),
+              transform var(--mu-slow) var(--mu-ease);
+}
+.card-flat .card-body { padding: 14px 2px 0; }
+.card-flat.card-hover:hover { box-shadow: none; transform: none; }
+.card-flat.card-hover:hover .card-media img {
+  box-shadow: var(--mu-shadow-lg);
+  transform: translateY(-3px);
+}
+
+.card-body  { padding: 20px; display: flex; flex-direction: column; gap: 6px; }
+.card-title { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; color: var(--mu-ink); }
+.card-desc  { font-size: 14px; color: var(--mu-ink-2); line-height: 1.5; }
+.card-meta  { font-size: 13px; color: var(--mu-ink-3); margin-top: 6px; }
+.card-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 20px;
+  border-top: 1px solid var(--mu-gray-100);
+}

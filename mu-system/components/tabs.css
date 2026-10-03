@@ -1,0 +1,52 @@
+/* mu-system · tabs (segmented control + underline variant)
+   Use role="tablist" on .tabs, role="tab" + aria-selected on .tab */
+
+/* segmented */
+.tabs {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  background: var(--mu-gray-100);
+  border-radius: var(--mu-radius-full);
+}
+.tab {
+  height: 32px;
+  padding: 0 16px;
+  border: none;
+  background: transparent;
+  border-radius: var(--mu-radius-full);
+  font-family: var(--mu-font);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--mu-ink-2);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: color var(--mu-fast) var(--mu-ease);
+}
+.tab:hover { color: var(--mu-ink); }
+.tab.is-active {
+  background: var(--mu-white);
+  color: var(--mu-ink);
+  box-shadow: var(--mu-shadow-sm);
+}
+
+/* underline variant */
+.tabs-line {
+  gap: 20px;
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
+  border-bottom: 1px solid var(--mu-border);
+}
+.tabs-line .tab {
+  height: 42px;
+  padding: 0 2px;
+  border-radius: 0;
+  margin-bottom: -1px;
+  border-bottom: 2px solid transparent;
+}
+.tabs-line .tab.is-active {
+  background: transparent;
+  box-shadow: none;
+  border-bottom-color: var(--mu-gray-900);
+}

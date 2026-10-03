@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Halsted Industrial Services — Portfolio OS</title>
+<link rel="stylesheet" href="mu-system/mu.css">
+<style>
+  /* ── page tokens (RAG semantics on top of mu greyscale) ── */
+  :root{
+    --rag-green:#1d7a46; --rag-green-bg:#e9f5ee;
+    --rag-amber:#9a6200; --rag-amber-bg:#fdf3e0;
+    --rag-red:#b3261e;   --rag-red-bg:#fdecea;
+    --rail-w:236px;
+  }
+  html,body{height:100%;}
+  body{background:var(--mu-surface);}
+
+  /* ════ Left rail ════ */
+  .rail{
+    position:fixed;left:0;top:0;bottom:0;width:var(--rail-w);
+    background:var(--mu-white);border-right:1px solid var(--mu-border);
+    display:flex;flex-direction:column;padding:16px 12px;z-index:100;
+  }
+  .rail-logo{display:flex;align-items:center;gap:10px;padding:4px 10px 16px;}
+  .rail-logo .mark{
+    background:var(--mu-gray-900);color:#fff;font-weight:700;font-size:13px;
+    padding:4px 8px;border-radius:7px;letter-spacing:.4px;
+  }
+  .rail-logo .name{font-size:14px;font-weight:600;color:var(--mu-ink);}
+  .rail-search{
+    display:flex;align-items:center;gap:8px;margin:0 2px 14px;
+    height:34px;padding:0 12px;border:1px solid var(--mu-border);border-radius:var(--mu-radius-sm);
+    color:var(--mu-gray-400);font-size:13px;background:var(--mu-gray-50);cursor:text;
+  }
+  .rail-section{font-family:var(--mu-mono);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--mu-ink-3);padding:14px 10px 6px;}
+  .rail-item{
+    display:flex;align-items:center;gap:10px;height:34px;padding:0 10px;
+    border-radius:var(--mu-radius-sm);font-size:13.5px;font-weight:500;color:var(--mu-ink-2);
+    cursor:pointer;text-decoration:none;transition:background var(--mu-fast) var(--mu-ease);
+  }
+  .rail-item:hover{background:var(--mu-gray-100);}
+  .rail-item.is-active{background:var(--mu-gray-100);color:var(--mu-ink);font-weight:600;}
+  .rail-item svg{width:16px;height:16px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;}
+  .rail-sub{margin-left:14px;border-left:1px solid var(--mu-border);padding-left:6px;}
+  .rail-sub .rail-item{height:30px;font-size:13px;}
+  .rail-sub .rail-item .rag-dot{margin-left:auto;}
+  .rail-more{font-size:12px;color:var(--mu-ink-3);padding:4px 10px 0;}
+  .rail-foot{margin-top:auto;border-top:1px solid var(--mu-border);padding-top:10px;}
+  .rail-user{display:flex;align-items:center;gap:10px;padding:6px 10px;}
+  .rail-user .avatar{width:28px;height:28px;border-radius:50%;background:var(--mu-gray-900);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;}
+  .rail-user .who{line-height:1.2;}
+  .rail-user .who b{display:block;font-size:12.5px;}
+  .rail-user .who span{font-size:11px;color:var(--mu-ink-3);}
+
+  /* rag dot */
+  .rag-dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0;}
+  .rag-dot.g{background:var(--rag-green);}
+  .rag-dot.a{background:var(--rag-amber);}
+  .rag-dot.r{background:var(--rag-red);}
+  .rag-dot.pending{background:transparent;border:1.5px dashed var(--mu-gray-400);}
+
+  /* ════ Main ════ */
+  .main{margin-left:var(--rail-w);min-height:100vh;}
+  .page{max-width:1080px;margin:0 auto;padding:38px 28px 90px;}
+
+  /* ════ Workspace header ════ */
+  .ws-head{display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap;}
+  .ws-title h1{font-size:26px;font-weight:650;letter-spacing:-.02em;line-height:1.2;}
+  .ws-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:7px;font-size:13px;color:var(--mu-ink-3);}
+  .ws-meta .dotsep{width:3px;height:3px;border-radius:50%;background:var(--mu-gray-300);}
+  .ws-status{margin-left:auto;display:flex;align-items:center;gap:10px;}
+
+  .rag-badge{display:inline-flex;align-items:center;gap:7px;height:28px;padding:0 12px;border-radius:var(--mu-radius-full);font-size:12.5px;font-weight:600;}
+  .rag-badge.g{background:var(--rag-green-bg);color:var(--rag-green);}
+  .rag-badge.a{background:var(--rag-amber-bg);color:var(--rag-amber);}
+  .rag-badge.r{background:var(--rag-red-bg);color:var(--rag-red);}
+  .rag-badge .rag-dot{width:7px;height:7px;}
+  .suggest-arrow{font-size:13px;color:var(--mu-ink-3);}
+
+  /* ════ Decision bar ════ */
+  .decide-bar{
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    background:var(--mu-white);border:1px solid var(--mu-border);
+    border-radius:var(--mu-radius-lg);padding:12px 16px;
+  }
+  .bar-note{font-size:12.5px;color:var(--mu-ink-3);margin-left:4px;}
+  .adam-decided{display:none;margin-top:10px;padding:13px 16px;background:var(--mu-gray-50);border:1px solid var(--mu-border);border-radius:var(--mu-radius-lg);font-size:13px;color:var(--mu-ink-2);}
+  .adam-decided b{color:var(--mu-ink);}
+
+  /* Adam annotation inside cards */
+  .adam-note{
+    display:flex;gap:8px;align-items:flex-start;margin-top:12px;padding-top:11px;
+    border-top:1px dashed var(--mu-border);font-size:12px;color:var(--mu-ink-2);line-height:1.5;
+  }
+  .adam-note .ad{width:17px;height:17px;border-radius:5px;background:var(--mu-gray-900);color:#fff;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+  .f-link{font-family:var(--mu-mono);font-size:10.5px;font-weight:600;color:var(--mu-ink);background:var(--mu-gray-100);padding:1px 6px;border-radius:5px;cursor:pointer;white-space:nowrap;}
+  .f-link:hover{background:var(--mu-gray-200);}
+  .refmark{
+    font-size:11px;color:var(--mu-ink-3);cursor:pointer;text-decoration:underline;
+    text-underline-offset:2px;text-decoration-color:var(--mu-gray-300);white-space:nowrap;
+  }
+  .refmark:hover{color:var(--mu-ink);text-decoration-color:var(--mu-ink);}
+
+  /* ── reference panels ── */
+  /* status timeline */
+  .tl{display:flex;gap:6px;margin-top:12px;}
+  .tl-q{
+    flex:1;display:flex;flex-direction:column-reverse;align-items:center;justify-content:center;gap:4px;
+    background:var(--mu-gray-50);border-radius:8px;min-height:52px;padding:6px 2px;
+    font-family:var(--mu-mono);font-size:10.5px;color:var(--mu-ink-3);
+  }
+  .tl-q.cur{background:var(--mu-white);border:1px dashed var(--mu-gray-300);color:var(--mu-ink);font-weight:600;}
+  /* follow-up list */
+  .fu-list{margin-top:16px;}
+  .fu-head{font-size:10.5px;font-weight:600;color:var(--mu-ink-3);text-transform:uppercase;letter-spacing:.04em;padding-bottom:6px;border-bottom:1px solid var(--mu-gray-100);}
+  .fu-item{display:flex;gap:9px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--mu-gray-100);}
+  .fu-item:last-child{border-bottom:none;}
+  .fu-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;position:relative;top:-1px;}
+  .fu-dot.warn{background:var(--mu-gray-900);}
+  .fu-text{font-size:12.5px;line-height:1.55;color:var(--mu-ink-2);}
+  .fu-text b{color:var(--mu-ink);font-weight:600;}
+  /* covenant rows reuse .miss grid */
+  .miss.cov{grid-template-columns:1fr 110px 88px;}
+  .cov-name{color:var(--mu-ink);font-weight:550;}
+  .cov-name em{font-style:normal;font-size:10px;color:var(--mu-ink-3);font-weight:500;margin-left:3px;}
+  .miss.cov.sub .cov-name{color:var(--mu-ink-3);font-weight:400;padding-left:10px;}
+  .miss.cov.sub i,.miss.cov.sub b{color:var(--mu-ink-3);font-weight:400;}
+  .miss.cov b.neg{color:var(--rag-red);}
+  /* spec sheet */
+  .spec{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px;margin-top:12px;}
+  .spec-item{display:flex;flex-direction:column;gap:2px;}
+  .si-l{font-size:10.5px;font-weight:600;color:var(--mu-ink-3);text-transform:uppercase;letter-spacing:.04em;}
+  .si-v{font-family:var(--mu-mono);font-size:12.5px;color:var(--mu-ink);}
+  /* people */
+  .biz-line{font-size:12.5px;color:var(--mu-ink-2);line-height:1.55;margin-top:8px;padding-bottom:11px;border-bottom:1px solid var(--mu-gray-100);}
+  .person{display:flex;align-items:center;gap:11px;padding:10px 0;border-bottom:1px solid var(--mu-gray-100);}
+  .person:last-child{border-bottom:none;padding-bottom:2px;}
+  .p-ava{width:30px;height:30px;border-radius:50%;background:var(--mu-gray-900);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:600;flex-shrink:0;}
+  .p-ava.dim{background:var(--mu-gray-200);color:var(--mu-ink-2);}
+  .p-t{display:flex;flex-direction:column;line-height:1.35;}
+  .p-t b{font-size:13px;font-weight:600;color:var(--mu-ink);}
+  .p-t span{font-size:11.5px;color:var(--mu-ink-3);}
+
+  /* ════ Tabs ════ */
+  .ws-tabs{margin-top:26px;display:flex;gap:20px;border-bottom:1px solid var(--mu-border);}
+  .ws-tab{
+    height:40px;padding:0 2px;border:none;background:transparent;cursor:pointer;
+    font-family:var(--mu-font);font-size:14px;font-weight:500;color:var(--mu-ink-2);
+    border-bottom:2px solid transparent;margin-bottom:-1px;transition:color var(--mu-fast) var(--mu-ease);
+    display:flex;align-items:center;gap:7px;
+  }
+  .ws-tab:hover{color:var(--mu-ink);}
+  .ws-tab.is-active{color:var(--mu-ink);font-weight:600;border-bottom-color:var(--mu-gray-900);}
+  .ws-tab .count{font-family:var(--mu-mono);font-size:11px;background:var(--mu-gray-100);color:var(--mu-ink-3);padding:1px 7px;border-radius:999px;}
+  .pane{display:none;padding-top:22px;}
+  .pane.is-active{display:block;animation:fadeIn .25s var(--mu-ease);}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:none;}}
+
+  /* ════ Cards & grid ════ */
+  .grid{display:grid;gap:14px;}
+  .grid-cards{grid-template-columns:repeat(3,1fr);}
+  .card-div{border-top:1px solid var(--mu-border);margin:16px 0 13px;}
+  .grid-2{grid-template-columns:1fr 1fr;}
+  .grid-32{grid-template-columns:3fr 2fr;}
+  @media(max-width:1000px){.grid-cards{grid-template-columns:1fr 1fr;}}
+  @media(max-width:700px){.grid-cards,.grid-2,.grid-32{grid-template-columns:1fr;}}
+  .panel{background:var(--mu-white);border:1px solid var(--mu-border);border-radius:var(--mu-radius-lg);padding:18px 20px;}
+  .panel-title{font-size:13px;font-weight:600;color:var(--mu-ink);margin-bottom:12px;display:flex;align-items:baseline;gap:8px;}
+  .panel-title .hint{font-size:12px;font-weight:400;color:var(--mu-ink-3);}
+  .stat .v{font-size:31px;font-weight:650;letter-spacing:-.025em;font-family:var(--mu-mono);line-height:1.1;white-space:nowrap;}
+  .stat .v .unit{font-size:16px;color:var(--mu-ink-3);font-weight:500;margin-left:4px;}
+  .stat .v .prev{font-size:17px;color:var(--mu-ink-3);font-weight:500;}
+  .stat .v .arr{font-size:15px;color:var(--mu-gray-400);}
+  .stat .v .warn{color:var(--rag-amber);}
+  .stat .v .vsword{font-size:13px;color:var(--mu-ink-3);font-weight:500;letter-spacing:0;}
+  .stat .l b{color:var(--mu-ink);}
+  .v-row{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+  /* fixed-height slot under the big number so bars align across cards */
+  .sub-slot{height:26px;display:flex;align-items:center;margin-top:4px;overflow:hidden;}
+  .sub-slot .l{display:block;min-width:0;}
+  .stat .v{height:36px;display:flex;align-items:baseline;}
+  .v-row .warn-tag{margin-top:0;margin-bottom:5px;}
+  .stat .v .lim{font-size:16px;color:var(--mu-ink-3);}
+  .stat .v .lim-sep{color:var(--mu-gray-300);font-weight:400;font-size:16px;padding:0 4px;}
+  /* leverage ceiling bar */
+  .lev-bar{position:relative;height:9px;background:var(--mu-gray-100);border-radius:999px;margin-top:8px;overflow:hidden;}
+  .lev-fill{position:absolute;left:0;top:0;height:100%;background:var(--mu-gray-800);border-radius:999px;}
+  .lev-scale{display:flex;justify-content:space-between;font-family:var(--mu-mono);font-size:10px;color:var(--mu-ink-3);margin:6px 0 10px;}
+  /* quarter heading row */
+  .q-head-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;}
+  .q-head{font-size:19px;font-weight:650;letter-spacing:-.015em;}
+  .q-tools{display:flex;align-items:center;gap:8px;}
+  /* compact mu inputs for the toolbar */
+  .q-tools .input{height:34px;font-size:13px;border-radius:var(--mu-radius-sm);padding:0 12px;}
+  .search-wrap{position:relative;display:inline-flex;align-items:center;}
+  .search-wrap svg{
+    position:absolute;left:11px;width:14px;height:14px;pointer-events:none;
+    stroke:var(--mu-gray-500);fill:none;stroke-width:2;stroke-linecap:round;
+  }
+  .search-wrap .input{padding-left:33px;}
+  .q-tools .menu{min-width:170px;}
+  .q-tools .menu-item{font-size:13px;padding:8px 10px;}
+  .warn-tag.ok{color:var(--rag-green);}
+  /* quarterly breakdown — mini table, all cols left-aligned */
+  .miss-seq{display:flex;flex-direction:column;margin-top:18px;}
+  .miss{display:grid;grid-template-columns:52px 1fr 88px;align-items:center;gap:8px 18px;padding:5.5px 0;border-bottom:1px solid var(--mu-gray-100);}
+  .miss b,.miss.head b{justify-self:start;padding-left:24px;}
+  .miss:last-child{border-bottom:none;}
+  .miss span{font-size:11.5px;color:var(--mu-ink-3);white-space:nowrap;}
+  .miss i{font-style:normal;font-family:var(--mu-mono);font-size:11.5px;color:var(--mu-ink-2);white-space:nowrap;}
+  .miss b{font-family:var(--mu-mono);font-size:12px;font-weight:600;color:var(--mu-ink-2);text-align:left;}
+  .miss.head{padding:3px 0 6px;}
+  .miss.head span,.miss.head i,.miss.head b{font-family:var(--mu-font);font-size:10.5px;font-weight:600;color:var(--mu-ink-3);text-transform:uppercase;letter-spacing:.04em;}
+  .miss.cur span{color:var(--mu-ink);font-weight:600;}
+  .miss.cur i{color:var(--mu-ink);}
+  .miss.cur b{color:var(--rag-red);}
+  .l.oneline{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .down-ic{font-size:15px;color:var(--rag-red);}
+  .warn-tag{display:inline-block;font-size:12px;font-weight:650;color:var(--rag-red);margin-top:7px;white-space:nowrap;}
+  .warn-tag .band-note{font-weight:500;color:var(--mu-ink-3);font-size:11.5px;}
+  .dispute{margin-top:11px;padding-top:10px;border-top:1px dashed var(--mu-border);font-size:12.5px;color:var(--mu-ink-2);line-height:1.5;}
+  .dispute b{color:var(--mu-ink);font-family:var(--mu-mono);font-size:12px;}
+  .ai-suggest{
+    margin-top:12px;display:block;
+    background:var(--mu-gray-50);border:1px solid var(--mu-border);border-radius:10px;
+    padding:10px 12px;font-size:12px;color:var(--mu-ink);line-height:1.65;
+  }
+  .ai-suggest b{color:var(--mu-ink);}
+  .ai-suggest .f-link{
+    background:none;padding:0;font-family:inherit;font-size:inherit;font-weight:600;
+    color:var(--mu-ink);text-decoration:underline;text-underline-offset:2px;text-decoration-color:var(--mu-gray-400);
+  }
+  .ai-suggest .f-link:hover{background:none;text-decoration-color:var(--mu-ink);}
+  /* decision warning banner */
+  .warn-banner{
+    margin-top:16px;background:var(--mu-white);border:1.5px solid var(--mu-gray-900);
+    border-radius:var(--mu-radius-md);padding:13px 15px;
+  }
+  .wb-title{font-size:13px;font-weight:650;color:var(--mu-ink);}
+  .wb-title b{color:var(--mu-ink);}
+  .wb-text{font-size:12.5px;line-height:1.6;color:var(--mu-ink);margin-top:5px;}
+  .wb-text b{font-weight:650;}
+  .wb-inputs{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:10px;padding-top:9px;border-top:1px dashed var(--mu-border);}
+  .wb-in{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:550;color:var(--rag-green);white-space:nowrap;}
+  .wb-in.bad{color:var(--rag-amber);font-weight:650;}
+  .wb-in .rag-dot{width:7px;height:7px;}
+  .wb-q{font-size:11.5px;font-weight:400;color:var(--mu-ink-2);white-space:nowrap;padding-right:2px;}
+  .wb-in-note{font-size:11px;color:var(--mu-ink-3);margin-left:auto;white-space:nowrap;}
+  .warn-banner .f-link{
+    background:none;padding:0;font-family:inherit;font-size:inherit;font-weight:600;
+    color:var(--mu-ink);text-decoration:underline;text-underline-offset:2px;text-decoration-color:var(--mu-gray-400);
+  }
+  .h1-sep{color:var(--mu-gray-300);font-weight:400;padding:0 2px;}
+  .upd-line{font-size:12.5px;color:var(--mu-ink-2);margin-top:12px;}
+  .upd-line .star{font-size:14px;vertical-align:-1px;margin-right:4px;}
+  #decisionCard .f-link{
+    background:none;padding:0;font-family:inherit;font-size:inherit;font-weight:600;
+    color:var(--mu-ink);text-decoration:underline;text-underline-offset:2px;text-decoration-color:var(--mu-gray-400);
+  }
+  .ai-tag{
+    display:inline-flex;font-family:var(--mu-mono);font-size:9px;font-weight:700;letter-spacing:.07em;
+    background:var(--mu-gray-900);color:#fff;padding:3px 7px;border-radius:5px;
+    white-space:nowrap;margin-right:4px;vertical-align:1px;
+  }
+  .stat .l{font-size:12.5px;color:var(--mu-ink-3);margin-top:3px;line-height:1.4;}
+  .stat .delta{font-size:12px;margin-top:6px;display:inline-flex;align-items:center;gap:5px;}
+  .delta.bad{color:var(--rag-amber);font-weight:600;}
+  .delta.ok{color:var(--rag-green);font-weight:600;}
+  .delta.neutral{color:var(--mu-ink-3);}
+
+  /* data table */
+  .dt{width:100%;border-collapse:collapse;font-size:13.5px;}
+  .dt th{text-align:left;font-size:11.5px;font-weight:600;color:var(--mu-ink-3);text-transform:uppercase;letter-spacing:.05em;padding:8px 0;border-bottom:1px solid var(--mu-border);white-space:nowrap;}
+  .dt td{padding:9px 0;border-bottom:1px solid var(--mu-gray-100);color:var(--mu-ink-2);vertical-align:top;}
+  .dt td+td,.dt th+th{padding-left:18px;}
+  .dt tr:last-child td{border-bottom:none;}
+  .dt td.num,.dt th.num{text-align:right;font-family:var(--mu-mono);font-size:12.5px;white-space:nowrap;}
+  .dt td.num{color:var(--mu-ink);}
+  .dt .lbl{color:var(--mu-ink);font-weight:550;}
+  .dt td .neg{color:var(--rag-amber);font-weight:600;}
+  .dt td .pos{color:var(--rag-green);}
+  .dt tr.hl-row td{background:var(--rag-amber-bg);}
+
+  /* source chip */
+  .src{
+    display:inline-flex;align-items:center;gap:5px;
+    font-family:var(--mu-mono);font-size:10.5px;color:var(--mu-ink-3);
+    background:var(--mu-gray-50);border:1px solid var(--mu-border);border-radius:6px;
+    padding:2px 7px;text-decoration:none;white-space:nowrap;cursor:pointer;
+    transition:border-color var(--mu-fast) var(--mu-ease),color var(--mu-fast) var(--mu-ease);
+  }
+  .src:hover{border-color:var(--mu-gray-400);color:var(--mu-ink);}
+  .src svg{width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+
+  /* policy evaluation */
+  .policy-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--mu-gray-100);font-size:13.5px;}
+  .policy-row:last-child{border-bottom:none;}
+  .policy-row .pi{flex:1;color:var(--mu-ink-2);}
+  .policy-row .pv{font-family:var(--mu-mono);font-size:12.5px;color:var(--mu-ink);}
+  .policy-row .rag-badge{height:22px;font-size:11px;padding:0 9px;}
+
+  /* headroom bridge */
+  .bridge{display:flex;align-items:flex-end;gap:0;margin:18px 4px 6px;height:150px;}
+  .bridge .b-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end;}
+  .bridge .b-bar{width:56%;border-radius:6px 6px 0 0;}
+  .bridge .b-bar.base{background:var(--mu-gray-800);}
+  .bridge .b-bar.drop{background:var(--mu-gray-300);border-radius:6px;}
+  .bridge .b-bar.final{background:var(--rag-amber);}
+  .bridge .b-v{font-family:var(--mu-mono);font-size:12px;font-weight:600;color:var(--mu-ink);}
+  .bridge .b-l{font-size:11px;color:var(--mu-ink-3);text-align:center;line-height:1.3;height:28px;}
+  .bridge .b-v.neg{color:var(--mu-ink-3);}
+  .bridge .b-v.amber{color:var(--rag-amber);}
+
+  /* history bars */
+  .hist{display:flex;align-items:flex-end;gap:14px;height:110px;margin-top:10px;}
+  .hist .h-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;height:100%;justify-content:flex-end;}
+  .hist .h-bar{width:100%;max-width:46px;background:var(--mu-gray-200);border-radius:5px 5px 0 0;}
+  .hist .h-bar.cur{background:var(--rag-amber);}
+  .hist .h-v{font-family:var(--mu-mono);font-size:11px;color:var(--mu-ink-2);}
+  .hist .h-l{font-size:10.5px;color:var(--mu-ink-3);}
+  .hist-line{border-top:1px dashed var(--rag-amber);position:relative;margin-top:-34px;margin-bottom:34px;}
+  .hist-line span{position:absolute;right:0;top:-16px;font-size:10px;color:var(--rag-amber);font-family:var(--mu-mono);}
+
+  /* dispute split */
+  .vs{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:4px;}
+  @media(max-width:700px){.vs{grid-template-columns:1fr;}}
+  .vs-card{border:1px solid var(--mu-border);border-radius:var(--mu-radius-md);padding:15px 17px;}
+  .vs-card.adam-side{border-color:var(--mu-gray-800);}
+  .vs-card .vs-who{font-size:12px;font-weight:600;color:var(--mu-ink-3);display:flex;align-items:center;gap:7px;margin-bottom:8px;}
+  .vs-card .vs-num{font-family:var(--mu-mono);font-size:24px;font-weight:650;letter-spacing:-.02em;}
+  .vs-card .vs-sub{font-size:12.5px;color:var(--mu-ink-3);margin-top:3px;}
+  .vs-card .vs-pill{margin-top:9px;}
+
+  .why-split{margin-top:14px;background:var(--mu-gray-50);border-radius:var(--mu-radius-md);padding:14px 17px;font-size:13.5px;color:var(--mu-ink-2);line-height:1.6;}
+  .why-split b{color:var(--mu-ink);}
+
+  /* finding section */
+  .finding{margin-top:18px;}
+  .finding-head{display:flex;align-items:baseline;gap:10px;margin-bottom:10px;}
+  .finding-head .f-badge{font-family:var(--mu-mono);font-size:11px;font-weight:600;color:var(--mu-ink-3);background:var(--mu-gray-100);padding:2px 8px;border-radius:6px;}
+  .finding-head h3{font-size:15.5px;font-weight:650;letter-spacing:-.01em;}
+
+  /* email pane — inbox list */
+  .email-row{border-bottom:1px solid var(--mu-gray-100);}
+  .email-row:last-child{border-bottom:none;}
+  .email-sum{
+    display:flex;align-items:center;gap:14px;width:100%;padding:14px 12px;
+    background:none;border:none;cursor:pointer;text-align:left;font-family:var(--mu-font);
+    border-radius:var(--mu-radius-md);transition:background var(--mu-fast) var(--mu-ease);
+  }
+  .email-sum:hover{background:var(--mu-gray-50);}
+  .e-ava{width:34px;height:34px;border-radius:50%;background:var(--mu-gray-900);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;}
+  .e-ava.dim{background:var(--mu-gray-200);color:var(--mu-ink-2);}
+  .e-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;}
+  .e-top{font-size:13px;color:var(--mu-ink);display:flex;align-items:center;gap:8px;}
+  .e-chip{font-size:10.5px;font-weight:600;color:var(--mu-ink-3);background:var(--mu-gray-100);padding:2px 8px;border-radius:999px;}
+  .e-chip.new{color:var(--rag-amber);background:var(--rag-amber-bg);}
+  .e-subj{font-size:14px;font-weight:600;color:var(--mu-ink);}
+  .e-prev{font-size:12.5px;color:var(--mu-ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .email-row.is-open .e-prev{display:none;}
+  .e-side{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0;}
+  .e-date{font-family:var(--mu-mono);font-size:11.5px;color:var(--mu-ink-3);}
+  .e-state{font-size:11px;color:var(--mu-ink-3);}
+  .email-detail{display:none;padding:2px 12px 18px 60px;}
+  .email-row.is-open .email-detail{display:block;animation:fadeIn .2s var(--mu-ease);}
+  .email-fields{display:flex;flex-direction:column;gap:3px;font-size:13px;color:var(--mu-ink-2);}
+  .email-fields .k{display:inline-block;width:52px;color:var(--mu-ink-3);}
+  .email-body{padding:16px 0;font-size:14px;line-height:1.7;color:var(--mu-ink);white-space:pre-line;}
+  .email-attach{display:flex;gap:10px;flex-wrap:wrap;}
+  .email-foot{margin-top:14px;border-top:1px solid var(--mu-gray-100);padding-top:12px;font-size:12.5px;color:var(--mu-ink-2);line-height:1.6;}
+  .email-foot b{color:var(--mu-ink);}
+  .attach{
+    display:flex;align-items:center;gap:10px;border:1px solid var(--mu-border);border-radius:var(--mu-radius-md);
+    padding:10px 14px;font-size:13px;color:var(--mu-ink);text-decoration:none;transition:border-color var(--mu-fast) var(--mu-ease);
+  }
+  .attach:hover{border-color:var(--mu-gray-400);}
+  .attach .a-ic{width:30px;height:30px;border-radius:7px;background:var(--mu-gray-100);display:flex;align-items:center;justify-content:center;font-family:var(--mu-mono);font-size:9px;font-weight:700;color:var(--mu-ink-2);}
+  .attach span small{display:block;color:var(--mu-ink-3);font-size:11px;}
+  .filing-note{margin-top:14px;}
+  .filing-note ul{list-style:none;margin-top:8px;}
+  .filing-note li{font-size:13px;color:var(--mu-ink-2);padding:4px 0 4px 20px;position:relative;}
+  .filing-note li::before{content:"✓";position:absolute;left:2px;color:var(--rag-green);font-size:12px;}
+
+  /* docs pane */
+  .doc-row{display:flex;align-items:center;gap:14px;padding:13px 6px;border-bottom:1px solid var(--mu-gray-100);text-decoration:none;transition:background var(--mu-fast) var(--mu-ease);border-radius:8px;}
+  .doc-row:hover{background:var(--mu-gray-50);}
+  .doc-row:last-child{border-bottom:none;}
+  .doc-ic{width:34px;height:34px;border-radius:8px;background:var(--mu-gray-100);display:flex;align-items:center;justify-content:center;font-family:var(--mu-mono);font-size:9.5px;font-weight:700;color:var(--mu-ink-2);flex-shrink:0;}
+  .doc-t{flex:1;min-width:0;}
+  .doc-t b{display:block;font-size:13.5px;color:var(--mu-ink);font-weight:550;}
+  .doc-t span{font-size:12px;color:var(--mu-ink-3);}
+  .doc-date{font-family:var(--mu-mono);font-size:11.5px;color:var(--mu-ink-3);white-space:nowrap;}
+  .doc-new{font-size:10.5px;font-weight:650;color:var(--rag-amber);background:var(--rag-amber-bg);padding:2px 8px;border-radius:999px;}
+
+  /* ════ Decision modal ════ */
+  .scrim{position:fixed;inset:0;background:rgba(29,29,31,.4);z-index:200;display:none;align-items:center;justify-content:center;padding:24px;}
+  .scrim.is-open{display:flex;animation:fadeIn .2s var(--mu-ease);}
+  .modal{
+    width:1280px;max-width:100%;max-height:94vh;overflow:visible;background:var(--mu-white);
+    border-radius:var(--mu-radius-xl);box-shadow:var(--mu-shadow-lg);padding:24px 30px;
+    position:relative;
+  }
+  .m-close{
+    position:absolute;top:18px;right:18px;width:32px;height:32px;
+    border:none;background:none;border-radius:8px;cursor:pointer;color:var(--mu-ink-3);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .m-close:hover{background:var(--mu-gray-100);color:var(--mu-ink);}
+  .m-cols{display:grid;grid-template-columns:1fr 1px 1fr;gap:0 28px;margin-top:4px;}
+  .m-col-head{font-size:19px;font-weight:650;letter-spacing:-.015em;color:var(--mu-ink);}
+  .m-col-sub{font-size:12.5px;line-height:1.6;color:var(--mu-ink-3);margin-top:5px;}
+  .m-col-sub b{color:var(--mu-ink-2);font-weight:600;}
+  .m-left .m-label:first-of-type,.m-right .m-label:first-of-type{margin-top:16px;}
+  .m-right{padding-right:26px;}
+  .m-div{background:var(--mu-border);}
+  @media(max-width:760px){.m-cols{grid-template-columns:1fr;}.m-div{display:none;}}
+  .modal h3{font-size:18px;font-weight:650;letter-spacing:-.015em;}
+  .modal .m-sub{font-size:13.5px;color:var(--mu-ink-3);margin-top:4px;}
+  .m-label{font-size:12.5px;font-weight:600;color:var(--mu-ink);margin:16px 0 7px;}
+  /* modal comparison table */
+  .cmp{border:1px solid var(--mu-border);border-radius:var(--mu-radius-md);padding:4px 14px;}
+  .cmp-row{display:grid;grid-template-columns:1fr 92px 92px;gap:10px;align-items:center;padding:7.5px 0;border-bottom:1px solid var(--mu-gray-100);}
+  .cmp-row:last-child{border-bottom:none;}
+  .cmp-row span{font-size:12.5px;color:var(--mu-ink);}
+  .cmp-row i{font-style:normal;font-family:var(--mu-mono);font-size:12px;color:var(--mu-ink);}
+  .cmp-row.head{padding:8px 0 5px;}
+  .cmp-row.head i{font-family:var(--mu-font);font-size:10.5px;font-weight:600;color:var(--mu-ink-3);text-transform:uppercase;letter-spacing:.04em;}
+  .cmp-row.sub span{color:var(--mu-ink-3);font-size:12px;padding-left:10px;}
+  .cmp-row.sub i{color:var(--mu-ink-3);font-size:11.5px;}
+  .cmp-row i.ok{color:var(--rag-green);font-weight:600;}
+  .cmp-row i.bad{color:var(--rag-red);font-weight:600;}
+  .cmp-row .rag-badge{height:21px;font-size:10.5px;padding:0 8px;}
+  .cmp-why{margin-top:10px;background:var(--mu-gray-50);border-radius:var(--mu-radius-md);padding:11px 14px;font-size:12px;line-height:1.6;color:var(--mu-ink-2);}
+  .cmp-why b{color:var(--mu-ink);}
+  .cmp-refs{display:block;margin-top:5px;}
+  .status-opts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+  .status-opt{
+    border:1px solid var(--mu-border);border-radius:var(--mu-radius-md);padding:11px 12px;cursor:pointer;
+    text-align:left;background:var(--mu-white);font-family:var(--mu-font);transition:border-color var(--mu-fast) var(--mu-ease),box-shadow var(--mu-fast) var(--mu-ease);
+  }
+  .status-opt .so-top{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;}
+  .status-opt .so-sub{font-size:11px;color:var(--mu-ink-3);margin-top:3px;line-height:1.35;}
+  .status-opt.is-selected{border-color:var(--mu-gray-900);box-shadow:inset 0 0 0 1px var(--mu-gray-900);}
+  .m-reason{
+    width:100%;min-height:64px;border:1px solid var(--mu-border);border-radius:var(--mu-radius-md);
+    padding:11px 13px;font-family:var(--mu-font);font-size:13.5px;line-height:1.55;color:var(--mu-ink);resize:vertical;
+  }
+  .m-reason:focus{outline:none;border-color:var(--mu-gray-800);box-shadow:var(--mu-focus-ring);}
+  .m-hint{font-size:11.5px;color:var(--mu-ink-3);margin-top:6px;}
+  .fu{display:flex;gap:11px;padding:9px 13px;border:1px solid var(--mu-border);border-radius:var(--mu-radius-md);margin-bottom:7px;cursor:pointer;transition:border-color var(--mu-fast) var(--mu-ease);align-items:flex-start;}
+  .fu:hover{border-color:var(--mu-gray-300);}
+  .fu input{margin-top:3px;accent-color:var(--mu-gray-900);}
+  .fu .fu-t b{display:block;font-size:13px;font-weight:600;color:var(--mu-ink);}
+  .fu .fu-t span{font-size:12px;color:var(--mu-ink-3);line-height:1.4;}
+  .m-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:16px;}
+
+  /* toast */
+  .toast{
+    position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(16px);
+    background:var(--mu-gray-900);color:#fff;font-size:13.5px;padding:11px 20px;border-radius:var(--mu-radius-full);
+    box-shadow:var(--mu-shadow-lg);opacity:0;pointer-events:none;transition:all .25s var(--mu-ease);z-index:300;
+  }
+  .toast.is-on{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  .muted-note{font-size:12px;color:var(--mu-ink-3);margin-top:14px;}
+  .reset-link{color:var(--mu-ink-3);text-decoration:underline;cursor:pointer;}
+  .mt14{margin-top:14px;}
+  .mt22{margin-top:22px;}
+</style>
+</head>
+<body>
+
+<!-- ════════ LEFT RAIL ════════ -->
+<aside class="rail">
+  <div class="rail-logo"><span class="mark">F2</span><span class="name">Portfolio OS</span></div>
+  <div class="rail-search">
+    <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    Search
+  </div>
+
+  <a class="rail-item"><svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>Home</a>
+  <a class="rail-item"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg>Deal Intelligence</a>
+  <a class="rail-item is-active"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/><path d="M9 20V9"/></svg>Portfolio OS</a>
+  <a class="rail-item"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>Reporting Inbox</a>
+  <a class="rail-item"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4H6.5A2.5 2.5 0 0 0 4 6.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/></svg>Institutional Knowledge</a>
+
+  <div class="rail-section">Portfolio · 35</div>
+  <div class="rail-sub">
+    <a class="rail-item">Arcadia Health <span class="rag-dot g"></span></a>
+    <a class="rail-item">Beaumont Foods <span class="rag-dot g"></span></a>
+    <a class="rail-item is-active">Halsted Industrial <span class="rag-dot g" id="railRag"></span></a>
+    <a class="rail-item">Kestrel Logistics <span class="rag-dot a"></span></a>
+    <a class="rail-item">Promontory Labs <span class="rag-dot g"></span></a>
+    <div class="rail-more">+ 30 more</div>
+  </div>
+
+  <div class="rail-foot">
+    <div class="rail-user">
+      <div class="avatar">MO</div>
+      <div class="who"><b>Maya Okafor</b><span>Monitoring Analyst</span></div>
+    </div>
+  </div>
+</aside>
+
+<!-- ════════ MAIN ════════ -->
+<div class="main">
+
+  <div class="page">
+
+    <!-- ── Workspace header ── -->
+    <div class="ws-head" style="align-items:flex-start;">
+      <div class="ws-title">
+        <h1>Halsted Industrial Services <span class="h1-sep">/</span> <span id="qHead">Q2 2026</span> <span class="rag-badge g" id="headerRag" style="vertical-align:5px;margin-left:6px;"><span class="rag-dot g"></span>Green</span></h1>
+        <div class="upd-line" id="qUpd"><span class="star">✦</span>Updated overview and analysis by Adam · Fri Aug 14, 6:46 PM</div>
+      </div>
+      <div class="q-tools" style="margin-left:auto;">
+        <div class="search-wrap">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input class="input" type="search" placeholder="Search" style="width:180px;">
+        </div>
+        <div class="dropdown" id="qDrop">
+          <button class="input select-trigger" id="qDropBtn" aria-haspopup="menu" aria-expanded="false">
+            <span id="qDropLabel">Q2 2026 · current</span>
+            <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:var(--mu-ink-2);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="menu menu-right" role="menu" id="qMenu">
+            <button class="menu-item is-selected" role="menuitem" data-q="q2_26">Q2 2026 · current</button>
+            <button class="menu-item" role="menuitem" data-q="q1_26">Q1 2026</button>
+            <button class="menu-item" role="menuitem" data-q="q4_25">Q4 2025</button>
+            <button class="menu-item" role="menuitem" data-q="q3_25">Q3 2025</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Tabs ── -->
+    <div class="ws-tabs" role="tablist">
+      <button class="ws-tab is-active" role="tab" aria-selected="true" data-pane="overview">Dashboard</button>
+      <button class="ws-tab" role="tab" aria-selected="false" data-pane="analysis">Analysis <span class="count">3</span></button>
+      <button class="ws-tab" role="tab" aria-selected="false" data-pane="email">Email</button>
+      <button class="ws-tab" role="tab" aria-selected="false" data-pane="documents">Documents <span class="count">5</span></button>
+    </div>
+
+    <!-- ════════ OVERVIEW ════════ -->
+    <section class="pane is-active" id="pane-overview">
+
+
+      <!-- Always-on monitoring cards, Adam's findings inside -->
+      <div id="decBody" class="mt14">
+        <div class="warn-banner" style="margin-top:0;">
+          <div style="display:flex;align-items:center;gap:20px;">
+            <div style="flex:1;min-width:0;">
+              <div class="wb-title">✦ Adam suggests <b>Green → Amber</b></div>
+              <div class="wb-text">Cushion <b>8.0%</b> is below the 10% policy line. Halsted's own certificate reports <b>11.8%</b> (still green) — the gap is $0.72M of July savings the loan agreement doesn't allow <span class="refmark" onclick="gotoPane('analysis','f2')">(ref)</span>. Whose number governs is Maya's call.</div>
+            </div>
+            <button class="btn btn-primary btn-sm" id="openDecision" style="flex-shrink:0;">Review</button>
+          </div>
+          <div class="wb-inputs">
+            <span class="wb-q">Q2 2026</span>
+            <span class="wb-in bad"><span class="rag-dot a"></span>Cushion 8.0%</span>
+            <span class="wb-in"><span class="rag-dot g"></span>Performance 89.7% of case</span>
+            <span class="wb-in"><span class="rag-dot g"></span>Reporting on time</span>
+            <span class="wb-in"><span class="rag-dot g"></span>Payments current</span>
+            <span class="wb-in-note">status = worst of 4 policy inputs <span class="refmark" onclick="gotoPane('analysis')">(ref)</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cards mt14">
+
+        <div class="panel stat" id="decisionCard">
+          <div class="panel-title">Net leverage <span class="hint">debt ÷ earnings</span></div>
+          <div class="v"><span id="levV">4.83x</span><span class="lim-sep">/</span><span class="lim" id="levLimit">5.25x</span></div>
+          <div class="sub-slot">
+            <span class="rag-badge a" id="levTag" style="height:22px;font-size:11px;"><span class="rag-dot a"></span>Amber (&lt;10%)</span>
+          </div>
+          <div class="lev-bar" id="levBar">
+            <div class="lev-fill" id="levFill" style="width:92%"></div>
+          </div>
+          <div class="lev-scale"><span>0x</span><span id="levScaleR">breach at 5.25x</span></div>
+          <div class="miss-seq" id="levSeq" aria-label="Leverage by quarter">
+            <div class="miss head"><span>Qtr</span><i>Actual / limit</i><b>Cushion</b></div>
+            <div class="miss cur"><span>Q2 26</span><i>4.83x / 5.25x</i><b>8.0%</b></div>
+            <div class="miss"><span>Q1 26</span><i>4.45x / 5.50x</i><b>19.1%</b></div>
+            <div class="miss"><span>Q4 25</span><i>4.38x / 5.50x</i><b>20.4%</b></div>
+            <div class="miss"><span>Q3 25</span><i>4.30x / 5.50x</i><b>21.8%</b></div>
+          </div>
+        </div>
+
+        <div class="panel stat">
+          <div class="panel-title">EBITDA vs plan <span class="hint">earnings · policy input</span></div>
+          <div class="v" id="perfV">89.7<span class="unit">% of case</span></div>
+          <div class="sub-slot" style="gap:8px;">
+            <span class="rag-badge g" style="height:22px;font-size:11px;flex-shrink:0;"><span class="rag-dot g"></span>Green (≥85%)</span>
+            <span class="l" id="perfL" style="margin-top:0;">$16.8M vs $18.7M plan</span>
+          </div>
+          <div class="lev-bar"><div class="lev-fill" id="perfFill" style="width:89.7%"></div></div>
+          <div class="lev-scale"><span>0</span><span id="perfScaleR">plan $18.7M</span></div>
+          <div class="miss-seq" id="missSeq" aria-label="EBITDA vs plan by quarter">
+            <div class="miss head"><span>Qtr</span><i>Actual vs plan</i><b>Δ</b></div>
+            <div class="miss cur"><span>Q2 26</span><i>$3.95M vs $4.75M</i><b>−17%</b></div>
+            <div class="miss"><span>Q1 26</span><i>$4.15M vs $4.71M</i><b>−12%</b></div>
+            <div class="miss"><span>Q4 25</span><i>$4.30M vs $4.65M</i><b>−8%</b></div>
+            <div class="miss"><span>Q3 25</span><i>$4.40M vs $4.62M</i><b>−5%</b></div>
+          </div>
+          <div class="adam-note" id="perfNote"><span>4th quarter behind plan, gap widening — wage inflation, the IC's named top risk <span class="refmark" onclick="gotoPane('analysis','f3')">(ref)</span></span></div>
+        </div>
+
+        <div class="panel stat">
+          <div class="panel-title">Liquidity</div>
+          <div class="v" id="liqV">$0.0<span class="unit">M available</span></div>
+          <div class="sub-slot"><span class="l oneline" id="liqL" style="margin-top:0;">Revolver $10.0M fully drawn · cash $3.4M</span></div>
+          <div class="lev-bar"><div class="lev-fill" id="liqFill" style="width:100%"></div></div>
+          <div class="lev-scale"><span>$0</span><span id="liqScaleR">limit $10.0M</span></div>
+          <div class="miss-seq" id="liqSeq" aria-label="Revolver availability by quarter">
+            <div class="miss head"><span>Qtr</span><i>Drawn</i><b>Available</b></div>
+            <div class="miss cur"><span>Q2 26</span><i>$10.0M</i><b>$0.0M</b></div>
+            <div class="miss"><span>Q1 26</span><i>$6.3M</i><b>$3.7M</b></div>
+            <div class="miss"><span>Q4 25</span><i>$4.5M</i><b>$5.5M</b></div>
+            <div class="miss"><span>Q3 25</span><i>$4.0M</i><b>$6.0M</b></div>
+          </div>
+          <div class="adam-note" id="liqNote"><span>Drawn $6.3M → $10.0M in June to fund working capital — safety net used before any breach <a class="refmark" href="halsted_data_pack/1_the_email/attachments/Halsted_Q2_2026_Financial_Statements.pdf#page=3" target="_blank">(ref)</a></span></div>
+        </div>
+      </div>
+
+      <div class="grid grid-2 mt14">
+        <div class="panel">
+          <div class="panel-title">Status &amp; follow-ups</div>
+          <div class="tl">
+            <div class="tl-q"><span class="rag-dot g"></span>Q1 25</div>
+            <div class="tl-q"><span class="rag-dot g"></span>Q2 25</div>
+            <div class="tl-q"><span class="rag-dot g"></span>Q3 25</div>
+            <div class="tl-q"><span class="rag-dot g"></span>Q4 25</div>
+            <div class="tl-q"><span class="rag-dot g"></span>Q1 26</div>
+            <div class="tl-q cur" id="histQ2"><span class="rag-dot pending"></span>Q2 26</div>
+          </div>
+          <div class="fu-list">
+            <div class="fu-head">From the Q1 review</div>
+            <div class="fu-item">
+              <span class="fu-dot warn"></span>
+              <span class="fu-text">Revisit watchlist if headroom &lt; 10% after the Q2 step-down <b>— triggered</b> <a class="refmark" href="halsted_data_pack/2_workspace_before_this_quarter/documents/Halsted_Q1_2026_Review.pdf#page=1" target="_blank">(ref)</a></span>
+            </div>
+            <div class="fu-item">
+              <span class="fu-dot warn"></span>
+              <span class="fu-text">Request management's cost plan with the Q2 package <b>— not attached</b></span>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Covenants <span class="hint">per credit agreement</span></div>
+          <div class="miss-seq" style="margin-top:10px;">
+            <div class="miss cov head"><span>Covenant</span><i>Level · actual</i><b>Headroom</b></div>
+            <div class="miss cov"><span class="cov-name">Net Leverage <em>max</em></span><i>5.25x · 4.83x</i><b class="neg">8.0%</b></div>
+            <div class="miss cov sub"><span class="cov-name">per certificate</span><i>5.25x · 4.63x</i><b>11.8%</b></div>
+            <div class="miss cov"><span class="cov-name">FCCR <em>min</em></span><i>1.10x · 1.32x</i><b>20.0%</b></div>
+          </div>
+          <div class="adam-note"><span>Steps down 5.25x → <b>5.00x in Q2 27</b>: at unchanged leverage, headroom would be <b>3.4%</b> <a class="refmark" href="halsted_data_pack/2_workspace_before_this_quarter/documents/Halsted_Loan_Agreement_Excerpt.pdf#page=2" target="_blank">(ref)</a></span></div>
+        </div>
+      </div>
+
+      <div class="grid grid-2 mt14">
+        <div class="panel">
+          <div class="panel-title">Deal</div>
+          <div class="spec">
+            <div class="spec-item"><span class="si-l">Facility</span><span class="si-v">Unitranche · sole lender</span></div>
+            <div class="spec-item"><span class="si-l">Commitment</span><span class="si-v">$75.0M TL + $10.0M RCF</span></div>
+            <div class="spec-item"><span class="si-l">Drawn · Q2 26</span><span class="si-v">$74.5M + $10.0M</span></div>
+            <div class="spec-item"><span class="si-l">Pricing</span><span class="si-v">S+575 · OID 98.0</span></div>
+            <div class="spec-item"><span class="si-l">Closed → Maturity</span><span class="si-v">Dec 2024 → Dec 2030</span></div>
+            <div class="spec-item"><span class="si-l">At close</span><span class="si-v">4.0x · $18.3M LTM EBITDA</span></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Company Info</div>
+          <div class="biz-line">Maintenance &amp; repair for refineries, chemical plants, utilities — Gulf Coast &amp; Mid-Atlantic</div>
+          <div class="spec" style="margin:12px 0 2px;">
+            <div class="spec-item"><span class="si-l">Sector</span><span class="si-v" style="font-family:var(--mu-font);">Industrial maintenance</span></div>
+            <div class="spec-item"><span class="si-l">HQ</span><span class="si-v" style="font-family:var(--mu-font);">Houston, TX</span></div>
+            <div class="spec-item"><span class="si-l">Loan</span><span class="si-v" style="font-family:var(--mu-font);">$85M unitranche · Dec 2030</span></div>
+            <div class="spec-item"><span class="si-l">Owner</span><span class="si-v" style="font-family:var(--mu-font);">Maya Okafor</span></div>
+          </div>
+          <div class="person" style="border-top:1px solid var(--mu-gray-100);margin-top:10px;">
+            <span class="p-ava">DW</span>
+            <span class="p-t"><b>Dana Whitfield</b><span>CFO · dana.whitfield@halstedis.com</span></span>
+          </div>
+          <div class="person">
+            <span class="p-ava dim">OP</span>
+            <span class="p-t"><b>Owen Pratt</b><span>Sponsor · Calder Ridge Partners · opratt@calderridge.com</span></span>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ════════ ANALYSIS ════════ -->
+    <section class="pane" id="pane-analysis">
+
+      <div class="panel" id="policyPanel">
+        <div class="panel-title">Suggested status — policy check <span class="hint">status = worst input · Northgate credit policy</span></div>
+        <div class="policy-row">
+          <span class="pi">Tightest covenant headroom <span class="pv">8.0%</span> — amber band is 5% to &lt;10%</span>
+          <span class="rag-badge a"><span class="rag-dot a"></span>Amber</span>
+        </div>
+        <div class="policy-row">
+          <span class="pi">LTM Adj. EBITDA vs underwriting case <span class="pv">89.7%</span> — green is ≥85%</span>
+          <span class="rag-badge g"><span class="rag-dot g"></span>Green</span>
+        </div>
+        <div class="policy-row">
+          <span class="pi">Reporting delinquency <span class="pv">0 days</span> — received on the due date</span>
+          <span class="rag-badge g"><span class="rag-dot g"></span>Green</span>
+        </div>
+        <div class="policy-row">
+          <span class="pi">Payment status <span class="pv">Current</span></span>
+          <span class="rag-badge g"><span class="rag-dot g"></span>Green</span>
+        </div>
+        <div class="muted-note">Policy note: it does <b>not</b> say which figure governs when F2's calculation and the borrower's certificate disagree — that judgment is the analyst's. Any Amber borrower is reviewed for watchlist.</div>
+      </div>
+
+      <!-- F1 -->
+      <div class="finding" id="f1">
+        <div class="finding-head"><span class="f-badge">F1</span><h3>Headroom fell 19.1% → 8.0% — mostly performance, not just the step-down</h3></div>
+        <div class="grid grid-32">
+          <div class="panel">
+            <div class="panel-title">Headroom bridge <span class="hint">percentage points</span></div>
+            <div class="bridge">
+              <div class="b-col"><span class="b-v">19.1%</span><div class="b-bar base" style="height:74%"></div><span class="b-l">Q1 2026</span></div>
+              <div class="b-col"><span class="b-v neg">−3.9</span><div class="b-bar drop" style="height:15%;margin-bottom:44%;"></div><span class="b-l">Scheduled step-down 5.50x→5.25x</span></div>
+              <div class="b-col"><span class="b-v neg">−7.2</span><div class="b-bar drop" style="height:28%;margin-bottom:16%;"></div><span class="b-l">Weaker earnings</span></div>
+              <div class="b-col"><span class="b-v amber">8.0%</span><div class="b-bar final" style="height:31%"></div><span class="b-l">Q2 2026</span></div>
+            </div>
+            <div class="muted-note">If leverage had stayed at Q1's 4.45x, the new 5.25x level alone would leave 15.2% headroom — the larger driver is earnings.</div>
+          </div>
+          <div class="panel">
+            <div class="panel-title">Covenant tests — Adam's recalculation</div>
+            <table class="dt">
+              <thead><tr><th></th><th class="num">Q1 26</th><th class="num">Q2 26</th></tr></thead>
+              <tr><td class="lbl">Net leverage (max 5.25x)</td><td class="num">4.45x</td><td class="num">4.83x</td></tr>
+              <tr><td class="lbl">— headroom</td><td class="num">19.1%</td><td class="num"><span class="neg">8.0%</span></td></tr>
+              <tr><td class="lbl">FCCR (min 1.10x)</td><td class="num">1.41x</td><td class="num">1.32x</td></tr>
+              <tr><td class="lbl">— headroom</td><td class="num">28.2%</td><td class="num">20.0%</td></tr>
+              <tr><td class="lbl">Inputs</td><td class="num" colspan="2">Net debt $81.1M ÷ LTM EBITDA $16.8M</td></tr>
+            </table>
+            <div class="mt14" style="display:flex;gap:6px;flex-wrap:wrap;">
+              <a class="src" href="halsted_data_pack/2_workspace_before_this_quarter/documents/Halsted_Loan_Agreement_Excerpt.pdf#page=1" target="_blank">Definition · CA p.1</a>
+              <a class="src" href="halsted_data_pack/2_workspace_before_this_quarter/documents/Halsted_Loan_Agreement_Excerpt.pdf#page=2" target="_blank">Level · CA p.2 §7.11(a)</a>
+              <a class="src" href="halsted_data_pack/1_the_email/attachments/Halsted_Q2_2026_Financial_Statements.pdf#page=2" target="_blank">Net debt · FS p.2</a>
+              <a class="src" href="halsted_data_pack/1_the_email/attachments/Halsted_Q2_2026_Financial_Statements.pdf#page=1" target="_blank">EBITDA · FS p.1</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- F2 -->
+      <div class="finding" id="f2">
+        <div class="finding-head"><span class="f-badge">F2</span><h3>Halsted's certificate disagrees — green or amber depends on whose number Maya accepts</h3></div>
+        <div class="panel">
+          <div class="vs">
+            <div class="vs-card adam-side">
+              <div class="vs-who"><span class="rag-dot a"></span>ADAM · per the credit agreement</div>
+              <div class="vs-num">4.83x <span style="font-size:14px;color:var(--mu-ink-3);">→ 8.0% headroom</span></div>
+              <div class="vs-sub">LTM EBITDA $16.80M · excludes the July add-back</div>
+              <div class="vs-pill"><span class="rag-badge a"><span class="rag-dot a"></span>Amber</span></div>
+            </div>
+            <div class="vs-card">
+              <div class="vs-who"><span class="rag-dot g"></span>HALSTED · signed certificate (Dana Whitfield, CFO)</div>
+              <div class="vs-num">4.63x <span style="font-size:14px;color:var(--mu-ink-3);">→ 11.8% headroom</span></div>
+              <div class="vs-sub">LTM EBITDA $17.52M · includes $0.72M run-rate savings</div>
+              <div class="vs-pill"><span class="rag-badge g"><span class="rag-dot g"></span>Green</span></div>
+            </div>
+          </div>
+          <div class="why-split">
+            <b>The entire $0.72M gap is one line:</b> a clause (h) add-back for run-rate savings from the cost program. Clause (h) allows run-rate savings only for <b>actions taken on or before the last day of the test period (June 30, 2026)</b> — management's own commentary says the program <b>launched in July</b>. Adam therefore excludes it. FCCR shows the same pattern (borrower 1.38x vs Adam 1.32x) but passes either way.
+          </div>
+          <div class="mt14" style="display:flex;gap:6px;flex-wrap:wrap;">
+            <a class="src" href="halsted_data_pack/1_the_email/attachments/Halsted_Q2_2026_Compliance_Certificate.pdf#page=2" target="_blank">The $720K line · Certificate p.2</a>
+            <a class="src" href="halsted_data_pack/2_workspace_before_this_quarter/documents/Halsted_Loan_Agreement_Excerpt.pdf#page=1" target="_blank">The rule · CA p.1 §1.01 (h)</a>
+            <a class="src" href="halsted_data_pack/1_the_email/attachments/Halsted_Q2_2026_Financial_Statements.pdf#page=3" target="_blank">July launch · FS p.3</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- F3 -->
+      <div class="finding" id="f3">
+        <div class="finding-head"><span class="f-badge">F3</span><h3>Fourth consecutive quarter behind plan — on the exact risk the IC named</h3></div>
+        <div class="grid grid-32">
+          <div class="panel">
+            <div class="panel-title">Q2 2026 vs the plan the deal was approved on</div>
+            <table class="dt">
+              <thead><tr><th>Metric</th><th class="num">Actual</th><th class="num">Base case</th><th class="num">vs base</th><th class="num">Downside</th></tr></thead>
+              <tr><td class="lbl">Revenue</td><td class="num">$23.5M</td><td class="num">$25.0M</td><td class="num"><span class="neg">−6.0%</span></td><td class="num">$23.0M</td></tr>
+              <tr><td class="lbl">Adj. EBITDA</td><td class="num">$3.95M</td><td class="num">$4.75M</td><td class="num"><span class="neg">−16.8%</span></td><td class="num">$3.68M</td></tr>
+              <tr><td class="lbl">EBITDA margin</td><td class="num">16.8%</td><td class="num">19.0%</td><td class="num"><span class="neg">−219 bps</span></td><td class="num">16.0%</td></tr>
+              <tr><td class="lbl">LTM EBITDA</td><td class="num">$16.8M</td><td class="num">$18.7M</td><td class="num"><span class="neg">89.7% of base</span></td><td class="num">—</td></tr>
+            </table>
+            <div class="muted-note">Margin is down four quarters in a row (Q3 2025 → Q2 2026). Tracking <b>between base and downside</b>, closer to downside on margin.</div>
+          </div>
+          <div class="panel">
+            <div class="panel-title">Links to the underwriting case</div>
+            <table class="dt">
+              <tr><td class="lbl">Assumption A2</td><td>Margin holds ~19% → <span class="neg">16.8% actual</span>, still above downside's 16.0%</td></tr>
+              <tr><td class="lbl">Risk R1 <span class="neg">top risk</span></td><td>Technician wage inflation compresses margin before contracts reprice → exactly what management's commentary cites</td></tr>
+              <tr><td class="lbl">Assumption A3</td><td>Gulf Coast &lt; 40% of revenue → 38% actual, inside but near the line</td></tr>
+            </table>
+            <div class="mt14" style="display:flex;gap:6px;flex-wrap:wrap;">
+              <a class="src" href="halsted_data_pack/2_workspace_before_this_quarter/documents/Halsted_IC_Memo_Excerpt.pdf#page=2" target="_blank">Plan · IC memo pp.2–3</a>
+              <a class="src" href="halsted_data_pack/1_the_email/attachments/Halsted_Q2_2026_Financial_Statements.pdf#page=3" target="_blank">Commentary · FS p.3</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel mt22" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;" id="decideStrip">
+        <div style="flex:1;min-width:260px;">
+          <div class="panel-title" style="margin-bottom:4px;">Decision</div>
+          <div style="font-size:13.5px;color:var(--mu-ink-2);"><span class="ai-tag">✦ ADAM</span> proposes <b>Green → Amber</b>. Confirming or overriding is yours, with a recorded reason. Follow-ups ride with the decision.</div>
+        </div>
+        <button class="btn btn-primary" id="openDecision2">Review &amp; decide</button>
+      </div>
+    </section>
+
+    <!-- ════════ EMAIL ════════ -->
+    <section class="pane" id="pane-email">
+      <div class="panel" style="padding:8px 10px;">
+
+        <!-- Q2 2026 — new -->
+        <div class="email-row">
+          <button class="email-sum">
+            <span class="e-ava">DW</span>
+            <span class="e-main">
+              <span class="e-top"><b>Dana Whitfield</b> <span class="e-chip new">Q2 2026 · 3 findings</span></span>
+              <span class="e-subj">Halsted – Q2 2026 Reporting Package</span>
+              <span class="e-prev">Attached are Halsted's Q2 2026 financial statements, management commentary, and signed compliance certificate…</span>
+            </span>
+            <span class="e-side"><span class="e-date">Aug 14</span><span class="e-state">Analyzed by Adam</span></span>
+          </button>
+          <div class="email-detail">
+            <div class="email-fields">
+              <div><span class="k">From</span> Dana Whitfield &lt;dana.whitfield@halstedis.com&gt;</div>
+              <div><span class="k">To</span> reporting@northgatecredit.com</div>
+              <div><span class="k">Cc</span> Owen Pratt &lt;opratt@calderridge.com&gt;</div>
+              <div><span class="k">Sent</span> Fri, Aug 14 2026, 6:42 PM · auto-forwarded to adam@northgate.f2.ai</div>
+            </div>
+            <div class="email-body">Hi Northgate team,
+
+Attached are Halsted's Q2 2026 financial statements, management commentary, and signed compliance certificate.
+
+Q2 was softer than we'd like. Project volume in the Gulf region came in light and labor costs stayed elevated. In July we launched a cost program, and we've included its run-rate savings in the certificate, which puts us at 4.63x against the 5.25x level. Owen and I are happy to walk you through the program on a call.
+
+Best,
+Dana</div>
+            <div class="email-attach">
+              <a class="attach" href="halsted_data_pack/1_the_email/attachments/Halsted_Q2_2026_Financial_Statements.pdf" target="_blank">
+                <span class="a-ic">PDF</span><span>Halsted_Q2_2026_Financial_Statements.pdf<small>Financial statements + management commentary · 3 pages</small></span>
+              </a>
+              <a class="attach" href="halsted_data_pack/1_the_email/attachments/Halsted_Q2_2026_Compliance_Certificate.pdf" target="_blank">
+                <span class="a-ic">PDF</span><span>Halsted_Q2_2026_Compliance_Certificate.pdf<small>Signed compliance certificate · 2 pages</small></span>
+              </a>
+            </div>
+            <div class="email-foot">
+              <b>Adam's filing</b> · confidence 0.99 — sender is the CFO on file · legal entity matches the workspace · subject names Halsted · sponsor contact copied.<br>
+              Dana's own wording flags the certificate basis — “we've included its run-rate savings in the certificate, which puts us at 4.63x.” That is the number Adam disputes in <a style="text-decoration:underline;cursor:pointer;" onclick="event.stopPropagation();gotoPane('analysis','f2')">F2</a>.
+            </div>
+          </div>
+        </div>
+
+        <!-- Q1 2026 -->
+        <div class="email-row">
+          <button class="email-sum">
+            <span class="e-ava dim">DW</span>
+            <span class="e-main">
+              <span class="e-top"><b>Dana Whitfield</b> <span class="e-chip">Q1 2026</span></span>
+              <span class="e-subj">Halsted – Q1 2026 Reporting Package</span>
+              <span class="e-prev">Attached are Halsted's Q1 2026 financial statements, management commentary, and signed compliance certificate…</span>
+            </span>
+            <span class="e-side"><span class="e-date">May 15</span><span class="e-state">Review finalized May 20</span></span>
+          </button>
+          <div class="email-detail">
+            <div class="email-foot" style="border-top:none;padding-top:0;">
+              Filed by Adam · certificate matched F2's calculation (4.45x, 19.1% headroom) · status kept <b>Green</b>.
+              Review finalized by Maya on May 20 with two follow-ups carried into Q2.
+              <a class="src" href="halsted_data_pack/2_workspace_before_this_quarter/documents/Halsted_Q1_2026_Review.pdf#page=1" target="_blank" style="margin-left:6px;">Q1 review · p.1</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Q4 2025 -->
+        <div class="email-row">
+          <button class="email-sum">
+            <span class="e-ava dim">DW</span>
+            <span class="e-main">
+              <span class="e-top"><b>Dana Whitfield</b> <span class="e-chip">Q4 2025</span></span>
+              <span class="e-subj">Halsted – Q4 2025 Reporting Package</span>
+              <span class="e-prev">Attached are Halsted's Q4 2025 financial statements, management commentary, and signed compliance certificate…</span>
+            </span>
+            <span class="e-side"><span class="e-date">Feb 13</span><span class="e-state">Review finalized Feb 24</span></span>
+          </button>
+          <div class="email-detail">
+            <div class="email-foot" style="border-top:none;padding-top:0;">
+              Filed by Adam · certificate matched F2's calculation (4.38x, 20.4% headroom) · status kept <b>Green</b>. Review finalized by Maya on Feb 24.
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="muted-note">Emails to reporting@northgatecredit.com auto-forward to adam@northgate.f2.ai; Adam files each package into this workspace. Quarterly packages before Q4 2025 are in the archive.</div>
+    </section>
+
+    <!-- ════════ DOCUMENTS ════════ -->
+    <section class="pane" id="pane-documents">
+      <div class="panel">
+        <div class="panel-title">This quarter <span class="hint">filed by Adam · Aug 14</span></div>
+        <a class="doc-row" href="halsted_data_pack/1_the_email/attachments/Halsted_Q2_2026_Financial_Statements.pdf" target="_blank">
+          <span class="doc-ic">PDF</span>
+          <span class="doc-t"><b>Q2 2026 Financial Statements</b><span>Income statement p.1 · balance sheet p.2 · management commentary p.3</span></span>
+          <span class="doc-new">New</span><span class="doc-date">Aug 14 2026</span>
+        </a>
+        <a class="doc-row" href="halsted_data_pack/1_the_email/attachments/Halsted_Q2_2026_Compliance_Certificate.pdf" target="_blank">
+          <span class="doc-ic">PDF</span>
+          <span class="doc-t"><b>Q2 2026 Compliance Certificate</b><span>Signed by Dana Whitfield, CFO · covenant schedule p.2 — disputed, see F2</span></span>
+          <span class="doc-new">New</span><span class="doc-date">Aug 14 2026</span>
+        </a>
+      </div>
+      <div class="panel mt14">
+        <div class="panel-title">On file</div>
+        <a class="doc-row" href="halsted_data_pack/2_workspace_before_this_quarter/documents/Halsted_IC_Memo_Excerpt.pdf" target="_blank">
+          <span class="doc-ic">PDF</span>
+          <span class="doc-t"><b>Investment Committee Memo (at close)</b><span>The approved plan pp.2 · key risks p.3 — wage inflation named top risk</span></span>
+          <span class="doc-date">Dec 9 2024</span>
+        </a>
+        <a class="doc-row" href="halsted_data_pack/2_workspace_before_this_quarter/documents/Halsted_Loan_Agreement_Excerpt.pdf" target="_blank">
+          <span class="doc-ic">PDF</span>
+          <span class="doc-t"><b>Credit Agreement</b><span>EBITDA definition §1.01 p.1 · covenant levels &amp; step-downs §7.11 p.2</span></span>
+          <span class="doc-date">Dec 18 2024</span>
+        </a>
+        <a class="doc-row" href="halsted_data_pack/2_workspace_before_this_quarter/documents/Halsted_Q1_2026_Review.pdf" target="_blank">
+          <span class="doc-ic">PDF</span>
+          <span class="doc-t"><b>Borrower Review — Q1 2026</b><span>Maya Okafor · finalized May 20 · carried two follow-ups into this quarter</span></span>
+          <span class="doc-date">May 20 2026</span>
+        </a>
+      </div>
+      <div class="muted-note">Also on file, not in this pack: final underwriting model (Excel), quarterly packages Q1 2025 – Q1 2026.</div>
+    </section>
+
+    <div class="muted-note" style="margin-top:34px;">Prototype · F2 Product Designer case study · data from <code style="font-family:var(--mu-mono);font-size:11px;">halsted_data_pack</code> · <span class="reset-link" id="resetDemo">reset demo</span></div>
+  </div>
+</div>
+
+<!-- ════════ DECISION MODAL ════════ -->
+<div class="scrim" id="scrim">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+    <button class="m-close" id="mClose" aria-label="Close">
+      <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+    <div class="m-cols" id="mTitle">
+    <div class="m-left">
+    <div class="m-col-head">Review Q2 2026 status</div>
+    <div class="m-col-sub">Adam proposes <b>Green → Amber</b> on the tightest-headroom input (8.0% &lt; 10%). The policy doesn't say whose figure governs a certificate dispute — weigh both numbers below.</div>
+    <div class="m-label">Halsted's certificate vs Adam's recalculation</div>
+    <div class="cmp">
+      <div class="cmp-row head"><span></span><i>Halsted</i><i>Adam</i></div>
+      <div class="cmp-row"><span>LTM Adj. EBITDA</span><i>$17.52M</i><i>$16.80M</i></div>
+      <div class="cmp-row sub"><span>— clause (h) savings add-back</span><i>+$0.72M</i><i>excluded</i></div>
+      <div class="cmp-row"><span>Net leverage vs 5.25x</span><i>4.63x</i><i>4.83x</i></div>
+      <div class="cmp-row"><span>Cushion</span><i class="ok">11.8%</i><i class="bad">8.0%</i></div>
+      <div class="cmp-row"><span>Implied status</span><i><span class="rag-badge g"><span class="rag-dot g"></span>Green</span></i><i><span class="rag-badge a"><span class="rag-dot a"></span>Amber</span></i></div>
+    </div>
+    <div class="cmp-why">
+      The only difference is the <b>$0.72M add-back</b>: run-rate savings from the cost program. Clause (h) allows savings only for <b>actions taken on or before June 30</b> — management's own commentary says the program <b>launched in July</b>, so Adam excludes it.
+      <span class="cmp-refs">
+        <a class="refmark" href="halsted_data_pack/1_the_email/attachments/Halsted_Q2_2026_Compliance_Certificate.pdf#page=2" target="_blank">certificate p.2</a> ·
+        <a class="refmark" href="halsted_data_pack/2_workspace_before_this_quarter/documents/Halsted_Loan_Agreement_Excerpt.pdf#page=1" target="_blank">clause (h), CA p.1</a> ·
+        <a class="refmark" href="halsted_data_pack/1_the_email/attachments/Halsted_Q2_2026_Financial_Statements.pdf#page=3" target="_blank">July launch, FS p.3</a>
+      </span>
+    </div>
+    </div>
+
+    <div class="m-div"></div>
+
+    <div class="m-right">
+    <div class="m-col-head">Decide &amp; act</div>
+    <div class="m-col-sub">Confirm or override the suggested status with your reason — both are recorded under your name — and attach any follow-ups in the same step.</div>
+    <div class="m-label">Status</div>
+    <div class="status-opts">
+      <button class="status-opt is-selected" data-status="Amber">
+        <span class="so-top"><span class="rag-dot a"></span>Amber</span>
+        <span class="so-sub">Confirm Adam — accept F2's 8.0% headroom</span>
+      </button>
+      <button class="status-opt" data-status="Green">
+        <span class="so-top"><span class="rag-dot g"></span>Green</span>
+        <span class="so-sub">Override — accept the certificate's 11.8%</span>
+      </button>
+      <button class="status-opt" data-status="Red">
+        <span class="so-top"><span class="rag-dot r"></span>Red</span>
+        <span class="so-sub">Override — treat as &lt;5% or breach</span>
+      </button>
+    </div>
+
+    <div class="m-label">Reason <span style="color:var(--mu-ink-3);font-weight:400;">· required, recorded with the review</span></div>
+    <textarea class="m-reason" id="mReason" placeholder="Why this status?"></textarea>
+    <div class="m-hint" id="mHint">Draft from Adam — edit or replace: “Tightest headroom 8.0% is below the 10% green line. I accept F2's calculation: the certificate's $0.72M clause (h) add-back fails the June 30 test-period cut-off (program launched in July).”</div>
+
+    <div class="m-label">Follow-ups · part of this decision</div>
+    <label class="fu"><input type="checkbox" checked id="fuWatch">
+      <span class="fu-t"><b>Add to watchlist</b><span>Policy: every Amber borrower is reviewed for watchlist; monthly review by Daniel Ruiz (PM). Q1 review already flagged this trigger.</span></span>
+    </label>
+    <label class="fu"><input type="checkbox" checked id="fuAsk">
+      <span class="fu-t"><b>Ask Halsted for the cost-program detail</b><span>Drafts a question to Dana Whitfield: detailed plan behind the $2.0M program (requested at Q1, not delivered) and the basis for the clause (h) add-back.</span></span>
+    </label>
+    <label class="fu"><input type="checkbox" id="fuIC">
+      <span class="fu-t"><b>Flag for next monthly IC</b><span>Not required by policy for a one-notch move — optional heads-up given four quarters behind plan.</span></span>
+    </label>
+
+    <div class="m-actions">
+      <button class="btn btn-secondary" id="mCancel">Cancel</button>
+      <button class="btn btn-primary" id="mRecord">Record decision</button>
+    </div>
+    </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  /* ── tabs ── */
+  function gotoPane(name, focusId){
+    document.querySelectorAll('.ws-tab').forEach(t=>{
+      const on = t.dataset.pane===name;
+      t.classList.toggle('is-active',on); t.setAttribute('aria-selected',on);
+    });
+    document.querySelectorAll('.pane').forEach(p=>p.classList.toggle('is-active',p.id==='pane-'+name));
+    if(focusId){
+      requestAnimationFrame(()=>{
+        const el=document.getElementById(focusId);
+        if(el){ el.scrollIntoView({behavior:'smooth',block:'start'}); }
+      });
+    } else { window.scrollTo({top:0}); }
+  }
+  document.querySelectorAll('.ws-tab').forEach(t=>t.addEventListener('click',()=>gotoPane(t.dataset.pane)));
+  document.querySelectorAll('.adam-f').forEach(f=>f.addEventListener('click',()=>gotoPane(f.dataset.goto,f.dataset.focus)));
+
+  /* ── quarter switcher ── */
+  const QD = {
+    q2_26: { qlabel:"Q2 2026", current:true,
+      lev:{v:"4.83x",limit:"5.25x",fill:92,sR:"breach at 5.25x",tag:'<span class="rag-dot a"></span>Amber (&lt;10%)',cls:'a',ok:false,seq:[["Q3 25","4.30x / 5.50x","21.8%"],["Q4 25","4.38x / 5.50x","20.4%"],["Q1 26","4.45x / 5.50x","19.1%"],["Q2 26","4.83x / 5.25x","8.0%",1]]},
+      perf:{v:'89.7<span class="unit">% of case</span>',l:"$16.8M vs $18.7M plan",fill:89.7,sR:"plan $18.7M",seq:[["Q3 25","$4.40M vs $4.62M","−5%"],["Q4 25","$4.30M vs $4.65M","−8%"],["Q1 26","$4.15M vs $4.71M","−12%"],["Q2 26","$3.95M vs $4.75M","−17%",1]]},
+      liq:{v:'$0.0<span class="unit">M available</span>',l:"Revolver $10.0M fully drawn · cash $3.4M",fill:100,sR:"limit $10.0M",seq:[["Q3 25","$4.0M","$6.0M"],["Q4 25","$4.5M","$5.5M"],["Q1 26","$6.3M","$3.7M"],["Q2 26","$10.0M","$0.0M",1]]} },
+    q1_26: { qlabel:"Q1 2026",
+      lev:{v:"4.45x",limit:"5.50x",fill:80.9,sR:"breach at 5.50x",tag:'<span class="rag-dot g"></span>Green (≥10%)',cls:'g',ok:true,seq:[["Q2 25","—","—"],["Q3 25","4.30x / 5.50x","21.8%"],["Q4 25","4.38x / 5.50x","20.4%"],["Q1 26","4.45x / 5.50x","19.1%",1]]},
+      perf:{v:'94.8<span class="unit">% of case</span>',l:"$17.6M vs $18.6M plan",fill:94.8,sR:"plan $18.6M",seq:[["Q2 25","$4.75M vs $4.58M","+4%"],["Q3 25","$4.40M vs $4.62M","−5%"],["Q4 25","$4.30M vs $4.65M","−8%"],["Q1 26","$4.15M vs $4.71M","−12%",1]]},
+      liq:{v:'$3.7<span class="unit">M available</span>',l:"Revolver $6.3M drawn of $10.0M · cash $2.7M",fill:63,sR:"limit $10.0M",seq:[["Q2 25","—","—"],["Q3 25","$4.0M","$6.0M"],["Q4 25","$4.5M","$5.5M"],["Q1 26","$6.3M","$3.7M",1]]},
+      dec:{rag:'g',label:'Green',text:'“All covenants above 15% headroom; margin trend under watch.” — Maya Okafor, May 20 · certificate matched'} },
+    q4_25: { qlabel:"Q4 2025",
+      lev:{v:"4.38x",limit:"5.50x",fill:79.6,sR:"breach at 5.50x",tag:'<span class="rag-dot g"></span>Green (≥10%)',cls:'g',ok:true,seq:[["Q1 25","—","—"],["Q2 25","—","—"],["Q3 25","4.30x / 5.50x","21.8%"],["Q4 25","4.38x / 5.50x","20.4%",1]]},
+      perf:{v:'98.8<span class="unit">% of case</span>',l:"$18.15M vs $18.4M plan",fill:98.8,sR:"plan $18.4M",seq:[["Q1 25","$4.70M vs $4.52M","+4%"],["Q2 25","$4.75M vs $4.58M","+4%"],["Q3 25","$4.40M vs $4.62M","−5%"],["Q4 25","$4.30M vs $4.65M","−8%",1]]},
+      liq:{v:'$5.5<span class="unit">M available</span>',l:"Revolver $4.5M drawn of $10.0M · cash $2.9M",fill:45,sR:"limit $10.0M",seq:[["Q1 25","—","—"],["Q2 25","—","—"],["Q3 25","$4.0M","$6.0M"],["Q4 25","$4.5M","$5.5M",1]]},
+      dec:{rag:'g',label:'Green',text:'Review finalized by Maya Okafor, Feb 24 · certificate matched'} },
+    q3_25: { qlabel:"Q3 2025",
+      lev:{v:"4.30x",limit:"5.50x",fill:78.2,sR:"breach at 5.50x",tag:'<span class="rag-dot g"></span>Green (≥10%)',cls:'g',ok:true,seq:[["Close 24","4.00x / 5.50x","27.3%"],["Q1 25","—","—"],["Q2 25","—","—"],["Q3 25","4.30x / 5.50x","21.8%",1]]},
+      perf:{v:'−4.8<span class="unit">% vs plan (qtr)</span>',l:"$4.40M vs $4.62M plan (qtr) — first miss",fill:95.2,sR:"plan $4.62M (qtr)",seq:[["Q4 24","—","—"],["Q1 25","$4.70M vs $4.52M","+4%"],["Q2 25","$4.75M vs $4.58M","+4%"],["Q3 25","$4.40M vs $4.62M","−5%",1]]},
+      liq:{v:'$6.0<span class="unit">M available</span>',l:"Revolver $4.0M drawn of $10.0M · cash $3.1M",fill:40,sR:"limit $10.0M",seq:[["Q4 24","—","—"],["Q1 25","—","—"],["Q2 25","—","—"],["Q3 25","$4.0M","$6.0M",1]]},
+      dec:{rag:'g',label:'Green',text:'Certificate matched F2’s calculation · cushion 21.8%'} }
+  };
+  const $=id=>document.getElementById(id);
+  function setQuarter(k){
+    const d=QD[k];
+    const cur=!!d.current;
+    $('qHead').textContent=d.qlabel;
+    const lbls={q2_26:'Q2 2026 · current',q1_26:'Q1 2026',q4_25:'Q4 2025',q3_25:'Q3 2025'};
+    $('qDropLabel').textContent=lbls[k];
+    document.querySelectorAll('#qMenu .menu-item').forEach(m=>m.classList.toggle('is-selected',m.dataset.q===k));
+    $('qUpd').innerHTML=cur?'<span class="star">\u2726</span>Updated overview and analysis by Adam \u00b7 Fri Aug 14, 6:46 PM':'Reviewed \u00b7 closed quarter';
+    $('levV').textContent=d.lev.v; $('levLimit').textContent=d.lev.limit;
+    $('levFill').style.width=d.lev.fill+'%';
+    $('levScaleR').textContent=d.lev.sR;
+    $('levTag').innerHTML=d.lev.tag; $('levTag').className='rag-badge '+d.lev.cls;
+    $('levTag').style.height='22px'; $('levTag').style.fontSize='11px';
+    $('levSeq').innerHTML='<div class="miss head"><span>Qtr</span><i>Actual / limit</i><b>Cushion</b></div>'+d.lev.seq.slice().reverse().map(s=>'<div class="miss'+(s[3]?' cur':'')+'"><span>'+s[0]+'</span><i>'+s[1]+'</i><b>'+s[2]+'</b></div>').join('');
+    $('perfV').innerHTML=d.perf.v; $('perfL').textContent=d.perf.l;
+    $('perfFill').style.width=d.perf.fill+'%'; $('perfScaleR').textContent=d.perf.sR;
+    $('missSeq').innerHTML='<div class="miss head"><span>Qtr</span><i>Actual vs plan</i><b>Δ</b></div>'+d.perf.seq.slice().reverse().map(s=>'<div class="miss'+(s[3]?' cur':'')+'"><span>'+s[0]+'</span><i>'+s[1]+'</i><b>'+s[2]+'</b></div>').join('');
+    $('liqV').innerHTML=d.liq.v; $('liqL').textContent=d.liq.l;
+    $('liqFill').style.width=d.liq.fill+'%'; $('liqScaleR').textContent=d.liq.sR;
+    $('liqSeq').innerHTML='<div class="miss head"><span>Qtr</span><i>Drawn</i><b>Available</b></div>'+d.liq.seq.slice().reverse().map(s=>'<div class="miss'+(s[3]?' cur':'')+'"><span>'+s[0]+'</span><i>'+s[1]+'</i><b>'+s[2]+'</b></div>').join('');
+    $('perfNote').style.display=cur?'flex':'none';
+    $('liqNote').style.display=cur?'flex':'none';
+    if(!cur){
+      $('decBody').innerHTML='<div style="margin-top:2px;"><span class="rag-badge '+d.dec.rag+'"><span class="rag-dot '+d.dec.rag+'"></span>'+d.dec.label+' · recorded</span></div>'+
+        '<div class="l" style="margin-top:10px;">'+d.dec.text+'</div>';
+    }else if(decidedState){
+      renderDecided(decidedState);
+    }else{
+      $('decBody').innerHTML=PENDING_DEC;
+    }
+  }
+  const PENDING_DEC=document.getElementById('decBody').innerHTML;
+  function renderDecided(d){
+    const [cls,label]=RAG[d.status];
+    const fu=[d.watch&&'watchlist',d.ask&&'question sent to Halsted',d.ic&&'flagged for IC'].filter(Boolean).join(' · ');
+    $('decBody').innerHTML='<div style="margin-top:2px;"><span class="rag-badge '+cls+'"><span class="rag-dot '+cls+'"></span>'+label+' · recorded</span></div>'+
+      '<div class="l" style="margin-top:10px;">“'+d.reason.replace(/</g,'&lt;')+'” — Maya Okafor, Aug 18'+(fu?'<br>'+fu:'')+'</div>';
+  }
+  const qDrop=document.getElementById('qDrop');
+  document.getElementById('qDropBtn').addEventListener('click',e=>{
+    e.stopPropagation();
+    const open=qDrop.classList.toggle('is-open');
+    document.getElementById('qDropBtn').setAttribute('aria-expanded',open);
+  });
+  document.querySelectorAll('#qMenu .menu-item').forEach(m=>m.addEventListener('click',()=>{
+    setQuarter(m.dataset.q); qDrop.classList.remove('is-open');
+  }));
+  document.addEventListener('click',e=>{ if(!qDrop.contains(e.target)) qDrop.classList.remove('is-open'); });
+  document.addEventListener('click',e=>{ if(e.target.closest('#openDecision')) openModal(); });
+
+  /* ── email accordion ── */
+  document.querySelectorAll('.email-sum').forEach(s=>s.addEventListener('click',()=>{
+    s.closest('.email-row').classList.toggle('is-open');
+  }));
+
+  /* ── decision modal ── */
+  const scrim=document.getElementById('scrim');
+  let chosen='Amber', decidedState=null;
+  function openModal(){scrim.classList.add('is-open');}
+  function closeModal(){scrim.classList.remove('is-open');}
+  document.getElementById('openDecision2').addEventListener('click',openModal);
+  document.getElementById('mCancel').addEventListener('click',closeModal);
+  document.getElementById('mClose').addEventListener('click',closeModal);
+  scrim.addEventListener('click',e=>{if(e.target===scrim)closeModal();});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();document.getElementById('qDrop').classList.remove('is-open');}});
+
+  document.querySelectorAll('.status-opt').forEach(b=>b.addEventListener('click',()=>{
+    document.querySelectorAll('.status-opt').forEach(x=>x.classList.remove('is-selected'));
+    b.classList.add('is-selected'); chosen=b.dataset.status;
+    const hint=document.getElementById('mHint');
+    if(chosen==='Amber') hint.textContent='Draft from Adam — edit or replace: “Tightest headroom 8.0% is below the 10% green line. I accept F2’s calculation: the certificate’s $0.72M clause (h) add-back fails the June 30 test-period cut-off (program launched in July).”';
+    if(chosen==='Green') hint.textContent='Overriding Adam: state why the certificate’s 11.8% (incl. the clause (h) add-back) should govern despite the July launch date.';
+    if(chosen==='Red') hint.textContent='Overriding to Red: state the breach or <5% basis. Red borrowers are presented at the next monthly IC per policy.';
+  }));
+
+  const RAG={Green:['g','Green'],Amber:['a','Amber'],Red:['r','Red']};
+  function applyDecision(d){
+    decidedState=d;
+    const [cls,label]=RAG[d.status];
+    document.getElementById('railRag').className='rag-dot '+cls;
+    const hb=document.getElementById('headerRag');
+    hb.className='rag-badge '+cls;
+    hb.innerHTML='<span class="rag-dot '+cls+'"></span>'+label;
+    const q2=document.getElementById('histQ2');
+    q2.className='tl-q cur';
+    q2.innerHTML='<span class="rag-dot '+cls+'"></span>Q2 26';
+    renderDecided(d);
+    const strip=document.getElementById('decideStrip'); if(strip) strip.style.display='none';
+  }
+  document.getElementById('mRecord').addEventListener('click',()=>{
+    const reason=document.getElementById('mReason').value.trim();
+    if(!reason){document.getElementById('mReason').focus();document.getElementById('mReason').style.borderColor='var(--rag-red)';return;}
+    const d={status:chosen,reason,
+      watch:document.getElementById('fuWatch').checked,
+      ask:document.getElementById('fuAsk').checked,
+      ic:document.getElementById('fuIC').checked};
+    localStorage.setItem('halsted_q2_decision',JSON.stringify(d));
+    applyDecision(d); closeModal();
+    const t=document.getElementById('toast');
+    t.textContent='Q2 2026 review recorded · status '+d.status;
+    t.classList.add('is-on'); setTimeout(()=>t.classList.remove('is-on'),2600);
+  });
+
+  /* restore recorded decision */
+  try{ const saved=JSON.parse(localStorage.getItem('halsted_q2_decision')); if(saved) applyDecision(saved); }catch(e){}
+  document.getElementById('resetDemo').addEventListener('click',()=>{localStorage.removeItem('halsted_q2_decision');location.reload();});
+</script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+{
+  "adam_address": "adam@northgate.f2.ai",
+  "emails": [
+    {
+      "id": "email_01",
+      "received_by_adam": "2026-08-14T18:43:10-04:00",
+      "forwarded_by": "Shared inbox auto-forward",
+      "original": {
+        "from": "Dana Whitfield <dana.whitfield@halstedis.com>",
+        "to": [
+          "reporting@northgatecredit.com"
+        ],
+        "cc": [
+          "Owen Pratt <opratt@calderridge.com>"
+        ],
+        "sent": "2026-08-14T18:42:00-04:00",
+        "subject": "Halsted – Q2 2026 Reporting Package",
+        "body": "Hi Northgate team,\n\nAttached are Halsted's Q2 2026 financial statements, management commentary, and signed compliance certificate.\n\nQ2 was softer than we'd like. Project volume in the Gulf region came in light and labor costs stayed elevated. In July we launched a cost program, and we've included its run-rate savings in the certificate, which puts us at 4.63x against the 5.25x level. Owen and I are happy to walk you through the program on a call.\n\nBest,\nDana"
+      },
+      "attachments": [
+        {
+          "filename": "Halsted_Q2_2026_Financial_Statements.pdf",
+          "path": "1_the_email/attachments/Halsted_Q2_2026_Financial_Statements.pdf"
+        },
+        {
+          "filename": "Halsted_Q2_2026_Compliance_Certificate.pdf",
+          "path": "1_the_email/attachments/Halsted_Q2_2026_Compliance_Certificate.pdf"
+        }
+      ]
+    }
+  ]
+}

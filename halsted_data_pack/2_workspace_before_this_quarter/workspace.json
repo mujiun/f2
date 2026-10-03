@@ -1,0 +1,438 @@
+{
+  "workspace": {
+    "id": "halsted",
+    "type": "Portfolio company",
+    "owner": "Maya Okafor",
+    "origin": "Originated and approved in F2 Deal Intelligence; moved to Portfolio OS when executed on 2024-12-18. The dataroom, IC memo, final model, and diligence artifacts carried over."
+  },
+  "company": {
+    "name": "Halsted Industrial Services",
+    "legal_entity": "Halsted Industrial Services Holdings, LLC",
+    "sector": "Industrial maintenance services",
+    "headquarters": "Houston, TX",
+    "description": "Industrial maintenance, inspection, and repair services for refineries, chemical plants, and utilities across the Gulf Coast and Mid-Atlantic.",
+    "sponsor": "Calder Ridge Partners"
+  },
+  "contacts": [
+    {
+      "name": "Dana Whitfield",
+      "role": "CFO",
+      "email": "dana.whitfield@halstedis.com"
+    },
+    {
+      "name": "Owen Pratt",
+      "role": "Principal, Calder Ridge Partners (sponsor)",
+      "email": "opratt@calderridge.com"
+    }
+  ],
+  "status": {
+    "rag": "Green",
+    "as_of_period": "Q1 2026",
+    "set_by": "Maya Okafor",
+    "set_on": "2026-05-20",
+    "reason": "All covenants above 15% headroom; margin trend under watch.",
+    "history": [
+      {
+        "period": "Q1 2025",
+        "rag": "Green"
+      },
+      {
+        "period": "Q2 2025",
+        "rag": "Green"
+      },
+      {
+        "period": "Q3 2025",
+        "rag": "Green"
+      },
+      {
+        "period": "Q4 2025",
+        "rag": "Green"
+      },
+      {
+        "period": "Q1 2026",
+        "rag": "Green"
+      }
+    ]
+  },
+  "watchlist": false,
+  "deal": {
+    "name": "Halsted unitranche",
+    "closed": "2024-12-18",
+    "pricing": "S+575",
+    "oid": "98.0",
+    "maturity": "2030-12-18",
+    "fund_hold": "100% (sole lender)",
+    "facilities": [
+      {
+        "facility": "Term loan",
+        "commitment": 75.0,
+        "drawn_q2_2026": 74.5
+      },
+      {
+        "facility": "Revolver",
+        "commitment": 10.0,
+        "drawn_q2_2026": 10.0
+      }
+    ],
+    "at_close": {
+      "ltm_adj_ebitda": 18.3,
+      "net_debt": 73.2,
+      "net_leverage": 4.0
+    },
+    "credit_agreement": {
+      "date": "December 18, 2024",
+      "agent": "Northgate Credit Partners Agent LLC",
+      "excerpt": "2_workspace_before_this_quarter/documents/Halsted_Loan_Agreement_Excerpt.pdf"
+    },
+    "covenants": [
+      {
+        "id": "total_net_leverage",
+        "name": "Consolidated Total Net Leverage Ratio",
+        "type": "maximum",
+        "schedule": [
+          {
+            "from": "Q1 2025",
+            "through": "Q1 2026",
+            "level": 5.5
+          },
+          {
+            "from": "Q2 2026",
+            "through": "Q1 2027",
+            "level": 5.25
+          },
+          {
+            "from": "Q2 2027",
+            "through": null,
+            "level": 5.0
+          }
+        ],
+        "source": {
+          "file": "2_workspace_before_this_quarter/documents/Halsted_Loan_Agreement_Excerpt.pdf",
+          "page": 2,
+          "section": "\u00a77.11(a)"
+        }
+      },
+      {
+        "id": "fccr",
+        "name": "Fixed Charge Coverage Ratio",
+        "type": "minimum",
+        "schedule": [
+          {
+            "from": "Q1 2025",
+            "through": null,
+            "level": 1.1
+          }
+        ],
+        "source": {
+          "file": "2_workspace_before_this_quarter/documents/Halsted_Loan_Agreement_Excerpt.pdf",
+          "page": 2,
+          "section": "\u00a77.11(b)"
+        }
+      }
+    ],
+    "ebitda_definition": {
+      "summary": "Standard add-backs, plus run-rate cost savings only for actions taken on or before the last day of the Test Period, capped at 10% of Consolidated EBITDA.",
+      "source": {
+        "file": "2_workspace_before_this_quarter/documents/Halsted_Loan_Agreement_Excerpt.pdf",
+        "page": 1,
+        "section": "\u00a71.01 'Consolidated EBITDA'"
+      }
+    },
+    "reporting_requirements": {
+      "cadence": "Quarterly",
+      "financial_statements_due": "45 days after quarter end (\u00a76.01(b))",
+      "compliance_certificate_due": "With the quarterly financial statements (\u00a76.02(b))",
+      "deliverables": [
+        "Quarterly financial statements",
+        "Management commentary",
+        "Compliance certificate"
+      ],
+      "q2_2026_due_date": "2026-08-14",
+      "source": {
+        "file": "2_workspace_before_this_quarter/documents/Halsted_Loan_Agreement_Excerpt.pdf",
+        "page": 2
+      }
+    },
+    "underwriting_case": {
+      "frozen_at": "2024-12-18",
+      "source": {
+        "file": "2_workspace_before_this_quarter/documents/Halsted_IC_Memo_Excerpt.pdf",
+        "page": 2
+      },
+      "base_case_quarters": {
+        "Q1 2025": {
+          "revenue": 23.8,
+          "adj_ebitda": 4.52
+        },
+        "Q2 2025": {
+          "revenue": 24.1,
+          "adj_ebitda": 4.58
+        },
+        "Q3 2025": {
+          "revenue": 24.3,
+          "adj_ebitda": 4.62
+        },
+        "Q4 2025": {
+          "revenue": 24.5,
+          "adj_ebitda": 4.65
+        },
+        "Q1 2026": {
+          "revenue": 24.8,
+          "adj_ebitda": 4.71
+        },
+        "Q2 2026": {
+          "revenue": 25.0,
+          "adj_ebitda": 4.75
+        },
+        "Q3 2026": {
+          "revenue": 25.2,
+          "adj_ebitda": 4.79
+        },
+        "Q4 2026": {
+          "revenue": 25.5,
+          "adj_ebitda": 4.85
+        }
+      },
+      "downside_case_quarters": {
+        "Q1 2025": {
+          "revenue": 21.9,
+          "adj_ebitda": 3.5
+        },
+        "Q2 2025": {
+          "revenue": 22.17,
+          "adj_ebitda": 3.55
+        },
+        "Q3 2025": {
+          "revenue": 22.36,
+          "adj_ebitda": 3.58
+        },
+        "Q4 2025": {
+          "revenue": 22.54,
+          "adj_ebitda": 3.61
+        },
+        "Q1 2026": {
+          "revenue": 22.82,
+          "adj_ebitda": 3.65
+        },
+        "Q2 2026": {
+          "revenue": 23.0,
+          "adj_ebitda": 3.68
+        },
+        "Q3 2026": {
+          "revenue": 23.18,
+          "adj_ebitda": 3.71
+        },
+        "Q4 2026": {
+          "revenue": 23.46,
+          "adj_ebitda": 3.75
+        }
+      },
+      "key_assumptions": [
+        {
+          "id": "A1",
+          "assumption": "Revenue grows about 4% a year from contract renewals and pricing",
+          "source": {
+            "file": "2_workspace_before_this_quarter/documents/Halsted_IC_Memo_Excerpt.pdf",
+            "page": 2
+          }
+        },
+        {
+          "id": "A2",
+          "assumption": "Adjusted EBITDA margin holds at about 19%",
+          "source": {
+            "file": "2_workspace_before_this_quarter/documents/Halsted_IC_Memo_Excerpt.pdf",
+            "page": 2
+          }
+        },
+        {
+          "id": "A3",
+          "assumption": "Gulf Coast stays below 40% of revenue",
+          "source": {
+            "file": "2_workspace_before_this_quarter/documents/Halsted_IC_Memo_Excerpt.pdf",
+            "page": 2
+          }
+        }
+      ],
+      "key_risks": [
+        {
+          "id": "R1",
+          "risk": "Technician wage inflation compresses margin before contracts reprice",
+          "source": {
+            "file": "2_workspace_before_this_quarter/documents/Halsted_IC_Memo_Excerpt.pdf",
+            "page": 3
+          }
+        },
+        {
+          "id": "R2",
+          "risk": "Gulf Coast concentration and project timing",
+          "source": {
+            "file": "2_workspace_before_this_quarter/documents/Halsted_IC_Memo_Excerpt.pdf",
+            "page": 3
+          }
+        },
+        {
+          "id": "R3",
+          "risk": "Customer concentration: top 5 customers are 44% of revenue",
+          "source": {
+            "file": "2_workspace_before_this_quarter/documents/Halsted_IC_Memo_Excerpt.pdf",
+            "page": 3
+          }
+        }
+      ]
+    }
+  },
+  "history": [
+    {
+      "period": "Q1 2025",
+      "period_end": "2025-03-31",
+      "revenue": 24.3,
+      "adj_ebitda": 4.7,
+      "underwriting_case": {
+        "revenue": 23.8,
+        "adj_ebitda": 4.52
+      }
+    },
+    {
+      "period": "Q2 2025",
+      "period_end": "2025-06-30",
+      "revenue": 24.6,
+      "adj_ebitda": 4.75,
+      "underwriting_case": {
+        "revenue": 24.1,
+        "adj_ebitda": 4.58
+      }
+    },
+    {
+      "period": "Q3 2025",
+      "period_end": "2025-09-30",
+      "revenue": 24.2,
+      "adj_ebitda": 4.4,
+      "underwriting_case": {
+        "revenue": 24.3,
+        "adj_ebitda": 4.62
+      },
+      "ltm_adj_ebitda": 18.55,
+      "net_debt": 79.8,
+      "cash": 3.1,
+      "revolver_drawn": 4.0,
+      "covenant_results": [
+        {
+          "covenant": "total_net_leverage",
+          "level": 5.5,
+          "actual": 4.3,
+          "headroom_pct": 21.8,
+          "certificate_matched": true
+        },
+        {
+          "covenant": "fccr",
+          "level": 1.1,
+          "actual": 1.52,
+          "headroom_pct": 38.2,
+          "certificate_matched": true
+        }
+      ],
+      "status": "Green"
+    },
+    {
+      "period": "Q4 2025",
+      "period_end": "2025-12-31",
+      "revenue": 24.0,
+      "adj_ebitda": 4.3,
+      "underwriting_case": {
+        "revenue": 24.5,
+        "adj_ebitda": 4.65
+      },
+      "ltm_adj_ebitda": 18.15,
+      "net_debt": 79.5,
+      "cash": 2.9,
+      "revolver_drawn": 4.5,
+      "covenant_results": [
+        {
+          "covenant": "total_net_leverage",
+          "level": 5.5,
+          "actual": 4.38,
+          "headroom_pct": 20.4,
+          "certificate_matched": true
+        },
+        {
+          "covenant": "fccr",
+          "level": 1.1,
+          "actual": 1.47,
+          "headroom_pct": 33.6,
+          "certificate_matched": true
+        }
+      ],
+      "status": "Green",
+      "borrower_review": {
+        "finalized_by": "Maya Okafor",
+        "finalized_on": "2026-02-24",
+        "file": null
+      }
+    },
+    {
+      "period": "Q1 2026",
+      "period_end": "2026-03-31",
+      "revenue": 23.9,
+      "adj_ebitda": 4.15,
+      "underwriting_case": {
+        "revenue": 24.8,
+        "adj_ebitda": 4.71
+      },
+      "ltm_adj_ebitda": 17.6,
+      "net_debt": 78.3,
+      "cash": 2.7,
+      "revolver_drawn": 6.3,
+      "covenant_results": [
+        {
+          "covenant": "total_net_leverage",
+          "level": 5.5,
+          "actual": 4.45,
+          "headroom_pct": 19.1,
+          "certificate_matched": true
+        },
+        {
+          "covenant": "fccr",
+          "level": 1.1,
+          "actual": 1.41,
+          "headroom_pct": 28.2,
+          "certificate_matched": true
+        }
+      ],
+      "status": "Green",
+      "borrower_review": {
+        "finalized_by": "Maya Okafor",
+        "finalized_on": "2026-05-20",
+        "file": "2_workspace_before_this_quarter/documents/Halsted_Q1_2026_Review.pdf"
+      }
+    }
+  ],
+  "documents_on_file": [
+    {
+      "file": "2_workspace_before_this_quarter/documents/Halsted_IC_Memo_Excerpt.pdf",
+      "type": "IC memo (at close)",
+      "date": "2024-12-09"
+    },
+    {
+      "file": "2_workspace_before_this_quarter/documents/Halsted_Loan_Agreement_Excerpt.pdf",
+      "type": "Credit agreement",
+      "date": "2024-12-18"
+    },
+    {
+      "file": "2_workspace_before_this_quarter/documents/Halsted_Q1_2026_Review.pdf",
+      "type": "Borrower review, Q1 2026",
+      "date": "2026-05-20"
+    },
+    {
+      "file": null,
+      "type": "Final underwriting model (Excel)",
+      "date": "2024-12-09",
+      "note": "Not included in this pack"
+    },
+    {
+      "file": null,
+      "type": "Quarterly packages Q1 2025 to Q1 2026",
+      "date": null,
+      "note": "Not included in this pack; spread figures are in history"
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+/* mu-system · badge & chip */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 10px;
+  border: 1px solid transparent;
+  border-radius: var(--mu-radius-full);
+  font-family: var(--mu-font);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+}
+.badge-solid   { background: var(--mu-gray-900); color: #fff; }
+.badge-soft    { background: var(--mu-gray-100); color: var(--mu-ink-2); }
+.badge-outline { border-color: var(--mu-border); color: var(--mu-ink-2); }
+
+/* dot status marker */
+.badge-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+/* chip: selectable filter pill — toggle .is-active + aria-pressed */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 16px;
+  background: var(--mu-white);
+  border: 1px solid var(--mu-border);
+  border-radius: var(--mu-radius-full);
+  font-family: var(--mu-font);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--mu-ink-2);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background var(--mu-fast) var(--mu-ease),
+              border-color var(--mu-fast) var(--mu-ease),
+              color var(--mu-fast) var(--mu-ease);
+}
+.chip:hover { border-color: var(--mu-gray-300); }
+.chip.is-active { background: var(--mu-gray-900); border-color: var(--mu-gray-900); color: #fff; }

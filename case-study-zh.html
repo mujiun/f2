@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>F2 設計案例研究 — 投資組合監控（中文版）</title>
+<style>
+  :root{
+    --ink:#1a1a1c;
+    --ink2:#505056;
+    --ink3:#8a8a92;
+    --line:#e8e8ea;
+    --surface:#f6f6f7;
+    --bg:#ffffff;
+    --accent:#1a1a1c;
+    --green:#1d7a46;
+    --green-bg:#e9f5ee;
+    --amber:#9a6200;
+    --amber-bg:#fdf3e0;
+    --radius:14px;
+    --mono:"SF Mono",ui-monospace,Menlo,monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Helvetica Neue",sans-serif;
+    color:var(--ink);background:var(--bg);
+    font-size:16px;line-height:1.75;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:860px;margin:0 auto;padding:0 28px 120px;}
+
+  /* ── Top nav ── */
+  .topnav{
+    position:sticky;top:0;z-index:50;
+    background:rgba(255,255,255,0.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+    border-bottom:1px solid var(--line);
+  }
+  .topnav-inner{max-width:860px;margin:0 auto;padding:0 28px;height:60px;display:flex;align-items:center;gap:24px;}
+  .logo{
+    background:var(--ink);color:#fff;font-weight:800;font-size:14px;
+    padding:4px 9px;border-radius:6px;letter-spacing:0.5px;
+  }
+  .tabs{display:flex;gap:4px;margin-left:auto;}
+  .tab{
+    border:none;background:none;cursor:pointer;
+    font-family:inherit;font-size:14.5px;font-weight:500;color:var(--ink3);
+    padding:7px 16px;border-radius:999px;transition:all .18s ease;
+  }
+  .tab:hover{color:var(--ink);}
+  .tab.active{background:var(--ink);color:#fff;font-weight:600;}
+
+  /* ── Views ── */
+  .view{display:none;}
+  .view.active{display:block;animation:fade .3s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+
+  /* ── Typography ── */
+  .hero{padding:72px 0 20px;}
+  .eyebrow{font-family:var(--mono);font-size:12.5px;letter-spacing:1.5px;color:var(--ink3);text-transform:uppercase;margin-bottom:14px;}
+  h1{font-size:34px;line-height:1.3;font-weight:700;letter-spacing:-0.5px;}
+  .hero-sub{font-size:17px;color:var(--ink2);margin-top:14px;max-width:620px;}
+  h2{font-size:22px;font-weight:700;letter-spacing:-0.2px;margin:64px 0 8px;display:flex;align-items:baseline;gap:10px;}
+  h2 .num{font-family:var(--mono);font-size:13px;color:var(--ink3);font-weight:500;}
+  .section-sub{color:var(--ink2);font-size:15.5px;margin-bottom:20px;}
+  h3{font-size:16.5px;font-weight:650;margin-bottom:4px;}
+  p+p{margin-top:10px;}
+  b{font-weight:650;}
+
+  /* ── Cards ── */
+  .card{
+    background:var(--surface);border-radius:var(--radius);
+    padding:22px 24px;margin-top:14px;
+  }
+  .card-white{background:#fff;border:1px solid var(--line);}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;}
+  @media(max-width:640px){.grid2{grid-template-columns:1fr;}}
+  .card .tag{
+    display:inline-block;font-family:var(--mono);font-size:11.5px;letter-spacing:1px;
+    color:var(--ink3);margin-bottom:8px;text-transform:uppercase;
+  }
+  .card p{font-size:15px;color:var(--ink2);}
+  .card h3+p{margin-top:4px;}
+
+  /* status pills */
+  .pill{display:inline-block;font-size:12.5px;font-weight:650;padding:2px 10px;border-radius:999px;vertical-align:1px;}
+  .pill.green{background:var(--green-bg);color:var(--green);}
+  .pill.amber{background:var(--amber-bg);color:var(--amber);}
+
+  /* ── Big stat row ── */
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:20px;}
+  @media(max-width:640px){.stats{grid-template-columns:1fr;}}
+  .stat{background:var(--surface);border-radius:var(--radius);padding:20px 22px;}
+  .stat .v{font-family:var(--mono);font-size:26px;font-weight:600;letter-spacing:-0.5px;}
+  .stat .v .dim{color:var(--ink3);font-size:18px;}
+  .stat .l{font-size:13.5px;color:var(--ink2);margin-top:6px;line-height:1.5;}
+
+  /* ── Lists ── */
+  ul.clean{list-style:none;margin-top:10px;}
+  ul.clean li{
+    position:relative;padding-left:22px;margin-bottom:10px;color:var(--ink2);font-size:15.5px;
+  }
+  ul.clean li::before{
+    content:"";position:absolute;left:4px;top:11px;width:6px;height:6px;border-radius:50%;background:var(--ink3);
+  }
+  ol.steps{list-style:none;counter-reset:s;margin-top:14px;}
+  ol.steps li{
+    counter-increment:s;position:relative;padding:16px 20px 16px 58px;
+    background:var(--surface);border-radius:var(--radius);margin-bottom:10px;
+  }
+  ol.steps li::before{
+    content:counter(s,decimal-leading-zero);
+    position:absolute;left:20px;top:18px;
+    font-family:var(--mono);font-size:13px;color:var(--ink3);font-weight:600;
+  }
+  ol.steps li h3{font-size:15.5px;}
+  ol.steps li p{font-size:14.5px;color:var(--ink2);}
+
+  /* ── Table ── */
+  .tbl-wrap{overflow-x:auto;margin-top:16px;border:1px solid var(--line);border-radius:var(--radius);}
+  table{width:100%;border-collapse:collapse;font-size:14.5px;min-width:520px;}
+  th{
+    text-align:left;font-weight:600;font-size:13px;color:var(--ink3);
+    background:var(--surface);padding:11px 16px;border-bottom:1px solid var(--line);white-space:nowrap;
+  }
+  td{padding:11px 16px;border-bottom:1px solid var(--line);color:var(--ink2);vertical-align:top;}
+  tr:last-child td{border-bottom:none;}
+  td.num{font-family:var(--mono);font-size:13.5px;color:var(--ink);white-space:nowrap;}
+  td .hl{color:var(--amber);font-weight:650;}
+  td .ok{color:var(--green);font-weight:650;}
+  .formula{
+    font-family:var(--mono);font-size:13.5px;background:var(--surface);
+    border-radius:10px;padding:12px 16px;margin-top:12px;color:var(--ink2);
+  }
+
+  /* ── Callout ── */
+  .callout{
+    border-left:3px solid var(--ink);background:var(--surface);
+    border-radius:0 var(--radius) var(--radius) 0;
+    padding:18px 22px;margin-top:20px;
+  }
+  .callout p{font-size:15.5px;color:var(--ink);}
+
+  /* ── Timeline ── */
+  .timeline{margin-top:16px;}
+  .t-item{display:flex;gap:18px;padding-bottom:18px;position:relative;}
+  .t-item::before{
+    content:"";position:absolute;left:5px;top:22px;bottom:-2px;width:1.5px;background:var(--line);
+  }
+  .t-item:last-child::before{display:none;}
+  .t-dot{width:11px;height:11px;border-radius:50%;background:var(--ink);flex-shrink:0;margin-top:7px;}
+  .t-item.now .t-dot{background:var(--amber);box-shadow:0 0 0 4px var(--amber-bg);}
+  .t-date{font-family:var(--mono);font-size:12.5px;color:var(--ink3);margin-bottom:1px;}
+  .t-body{font-size:15px;color:var(--ink2);}
+  .t-body b{color:var(--ink);}
+
+  /* folder code */
+  code{
+    font-family:var(--mono);font-size:13px;background:var(--surface);
+    padding:2px 7px;border-radius:6px;color:var(--ink);
+  }
+  td code{background:#fff;border:1px solid var(--line);}
+
+  .footer-note{margin-top:80px;padding-top:24px;border-top:1px solid var(--line);font-size:13.5px;color:var(--ink3);}
+  .jump{color:inherit;}
+
+  /* ── Presentation tab extras ── */
+  .fig{margin-top:14px;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--surface);}
+  .fig img{width:100%;display:block;}
+  .fig-cap{font-size:12.5px;color:var(--ink3);padding:9px 14px;border-top:1px solid var(--line);font-family:var(--mono);letter-spacing:0.3px;}
+  .ba{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;align-items:start;}
+  @media(max-width:700px){.ba{grid-template-columns:1fr;}}
+  .ba .fig{margin-top:0;}
+  .ba-tag{font-family:var(--mono);font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--ink3);}
+  .pivot{margin-top:40px;}
+  .pivot-head{display:flex;align-items:baseline;gap:10px;margin-bottom:2px;}
+  .pivot-head .pn{font-family:var(--mono);font-size:13px;color:var(--ink3);font-weight:600;flex-shrink:0;}
+  .pivot-head h3{font-size:18px;font-weight:700;}
+  .pivot-why{background:var(--surface);border-left:3px solid var(--ink);border-radius:0 10px 10px 0;padding:12px 16px;margin-top:12px;font-size:14.5px;color:var(--ink);}
+  .pivot-why b{color:var(--ink);}
+  .agenda{width:100%;}
+  .agenda td.num{width:84px;}
+  .chip{display:inline-block;font-family:var(--mono);font-size:11.5px;padding:2px 9px;border-radius:999px;background:var(--ink);color:#fff;letter-spacing:0.5px;}
+  .flow{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:18px;}
+  @media(max-width:700px){.flow{grid-template-columns:1fr 1fr;}}
+  .fstep{background:var(--surface);border-radius:12px;padding:13px 14px;}
+  .fstep .fk{font-family:var(--mono);font-size:11px;letter-spacing:0.5px;color:var(--ink3);}
+  .fstep .ft{font-weight:700;font-size:14.5px;margin-top:4px;}
+  .fstep .fd{font-size:12.5px;color:var(--ink2);margin-top:5px;line-height:1.5;}
+  .fstep.key{background:var(--ink);}
+  .fstep.key .fk{color:rgba(255,255,255,0.55);}
+  .fstep.key .ft{color:#fff;}
+  .fstep.key .fd{color:rgba(255,255,255,0.8);}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="topnav-inner">
+    <span class="logo">F2</span>
+    <div class="tabs">
+      <button class="tab active" data-view="overview">總覽：任務與交付</button>
+      <button class="tab" data-view="detail">詳細內容</button>
+      <button class="tab" data-view="user">User</button>
+      <button class="tab" data-view="english">English</button>
+      <button class="tab" data-view="prompts">Prompts</button>
+      <button class="tab" data-view="talk">簡報腳本</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ════════════════ OVERVIEW ════════════════ -->
+<div class="view active wrap" id="view-overview">
+
+  <header class="hero">
+    <div class="eyebrow">Product Designer Case Study · 中文版摘要</div>
+    <h1>投資組合監控<br>Portfolio Monitoring</h1>
+    <p class="hero-sub">私募信貸基金用 F2 監控放款對象。AI 代理 Adam 已完成季報的第一輪分析——你要設計的，是分析師 Maya 打開工作區之後「看什麼、怎麼做決定」。</p>
+  </header>
+
+  <h2><span class="num">01</span>一分鐘看懂故事</h2>
+  <p class="section-sub">Northgate 基金借了 <b>$85M</b> 給 Halsted（煉油廠與化工廠維護公司）。貸款有一條主要規則（covenant）：<b>負債不得超過年收益的固定倍數</b>。每季 Halsted 交一份「成績單」——財務報表、管理層評述、簽署的合規證明。AI 代理 Adam 已自動歸檔、重算、比對完畢，並建議把 Halsted 的健康狀態從 <span class="pill green">綠燈</span> 調為 <span class="pill amber">黃燈</span>。最終由分析師 Maya 決定。</p>
+
+  <div class="stats">
+    <div class="stat"><div class="v">19% <span class="dim">→</span> 8%</div><div class="l">安全餘裕（cushion）大幅縮水，低於 10% 即為黃燈</div></div>
+    <div class="stat"><div class="v">8.0% <span class="dim">vs</span> 11.8%</div><div class="l">Adam 與 Halsted 自家證明書的數字不一致，差在 $0.72M 的爭議性節省</div></div>
+    <div class="stat"><div class="v">4 <span class="dim">季</span></div><div class="l">連續四季未達成核貸時批准的營運計畫</div></div>
+  </div>
+
+  <h2><span class="num">02</span>設計任務（The Ask）</h2>
+  <p class="section-sub">設計 Maya 從「得知季報已就緒」到「做出決定」之間看到與操作的一切。包含兩個部分：</p>
+  <ol class="steps">
+    <li>
+      <h3>工作區（本案核心）</h3>
+      <p>Maya 打開 Halsted 工作區、看到 Adam 第一輪分析後的畫面：這季變了什麼、為什麼變、以及這些變化如何連回核貸計畫與歷史紀錄。</p>
+    </li>
+    <li>
+      <h3>決定</h3>
+      <p>Adam 建議新的健康狀態（綠／黃／紅）。Maya 確認或推翻它，需記錄理由，並在同一流程裡處理後續動作（加入觀察名單、向借款人提問、呈報投資委員會）。</p>
+    </li>
+  </ol>
+  <div class="callout">
+    <p><b>成功標準：</b>分析師打開工作區後，<b>一分鐘內</b>知道這季變了什麼、為什麼、她是否同意 Adam、以及下一步要做什麼。</p>
+  </div>
+  <p style="margin-top:14px;color:var(--ink2);font-size:15px;">注意：收件與歸檔已處理完畢，不需設計。只要呈現 Maya <b>如何得知季報已就緒</b>——一個通知或入口即可。</p>
+
+  <h2><span class="num">03</span>交付物（Deliverables）</h2>
+  <div class="grid2">
+    <div class="card">
+      <span class="tag">Deliverable 1</span>
+      <h3>使用者需求與痛點 — 一頁投影片</h3>
+      <p>當季報抵達時，Maya 想看到什麼、想完成什麼。</p>
+    </div>
+    <div class="card">
+      <span class="tag">Deliverable 2</span>
+      <h3>工作區 Prototype / Figma</h3>
+      <p>Maya 今早打開 Halsted 看到的工作區，包含確認／推翻 Adam 建議狀態的流程。工具不限、歡迎 AI 工具，<b>必須建立在資料包（data pack）之上</b>。</p>
+    </div>
+  </div>
+
+  <h2><span class="num">04</span>簡報安排（Presentation）</h2>
+  <div class="tbl-wrap">
+    <table>
+      <tr><th style="width:30%;">項目</th><th>內容</th></tr>
+      <tr><td>準備時間</td><td>預期約 <b>3 小時</b></td></tr>
+      <tr><td>提交</td><td>至少在面談 <b>前 24 小時</b>送出作品</td></tr>
+      <tr><td>面談</td><td><b>45 分鐘</b>：約 30 分鐘講解思路並演示 prototype，最後 15 分鐘為追問與你的提問</td></tr>
+      <tr><td>形式</td><td>對話式，過程中隨時會被提問</td></tr>
+      <tr><td>工具</td><td>不限，歡迎 AI 工具——但要說明用了什麼、怎麼用</td></tr>
+    </table>
+  </div>
+
+  <div class="callout">
+    <p><b>評分重點：</b>思考清晰度優於視覺打磨（clarity of thinking over polish）。題目刻意開放、沒有唯一正解；他們最在乎你如何思考、如何取捨、如何為真實信貸決策而設計。</p>
+  </div>
+
+  <div class="footer-note">所有公司、人物與數字皆為虛構。完整情境、數據與限制請見「詳細內容」頁。</div>
+</div>
+
+<!-- ════════════════ DETAIL ════════════════ -->
+<div class="view wrap" id="view-detail">
+
+  <header class="hero">
+    <div class="eyebrow">Detail · 情境、發現、限制與資料包</div>
+    <h1>詳細內容</h1>
+    <p class="hero-sub">設計前需要掌握的全部背景：名詞、情境時間線、Adam 的三項發現與數字、關鍵思考題、限制條件，以及資料包的使用方式。</p>
+  </header>
+
+  <h2><span class="num">01</span>白話名詞解釋</h2>
+  <div class="grid2">
+    <div class="card"><h3>Covenant（契約條款）</h3><p>貸款附帶的規則。本案主要條款：公司負債不得超過年收益的固定倍數（本季上限 5.25x）。</p></div>
+    <div class="card"><h3>Cushion / Headroom（安全餘裕）</h3><p>距離觸犯上限還有多少空間。公式：（上限 − 負債÷收益）÷ 上限。資料包中稱 headroom。</p></div>
+    <div class="card"><h3>Adam</h3><p>F2 的 AI 代理。自動歸檔季報、抽取數字、依貸款合約定義重算每條 covenant、比對借款人證明書與歷史，並建議健康狀態。</p></div>
+    <div class="card"><h3>Portfolio OS / Risk Intelligence</h3><p>F2 的監控模組。每個借款人都有工作區，存放貸款條款、covenants、核貸計畫、投委會備忘錄、歷季紀錄與分析師筆記。Adam 的分析 + 依基金內規給出的健康狀態，合稱 Risk Intelligence。</p></div>
+  </div>
+  <div class="card card-white" style="margin-top:14px;">
+    <h3>今天 vs. 有了 F2</h3>
+    <p>今天：分析師逐一打開 PDF、手動抄進 Excel、重算比率、憑肉眼跟上季比對。管理 35 家借款人，這佔掉一季的大部分時間。有了 F2：郵件轉給 Adam，第一輪分析自動完成，分析師專注在判斷。</p>
+  </div>
+
+  <h2><span class="num">02</span>情境（The Scenario）</h2>
+  <p class="section-sub"><b>Maya</b> 是 Northgate Credit Partners（直接放款基金）的監控分析師，負責 35 家借款公司。本案只關於其中一家：<b>Halsted Industrial Services</b>（煉油廠與化工廠維護），2024 年 12 月獲貸 $85M。此案當初就是在 F2 完成核貸，所以工作區已有投委會備忘錄、貸款合約、五季歷史與 Maya 上季的審閱。</p>
+  <div class="timeline">
+    <div class="t-item">
+      <div class="t-dot"></div>
+      <div><div class="t-date">2026/08/14（五）</div><div class="t-body">Halsted 財務長把 <b>Q2 2026 季報</b>寄到基金的共用回報信箱，自動轉給 Adam（adam@northgate.f2.ai）。內含財務報表、管理層評述、簽署的合規證明書。</div></div>
+    </div>
+    <div class="t-item now">
+      <div class="t-dot"></div>
+      <div><div class="t-date">2026/08/18（二）8:15 AM — 設計起點</div><div class="t-body">Adam 完成第一輪分析。Maya 即將打開 Halsted 的工作區。<b>你的設計從這一刻開始。</b></div></div>
+    </div>
+  </div>
+
+  <h2><span class="num">03</span>Adam 的三項發現</h2>
+  <ol class="steps">
+    <li>
+      <h3>安全餘裕從 19% 縮到 8% <span class="pill amber">低於 10% = 黃燈</span></h3>
+      <p>跌幅中約 <b>4 個百分點</b>是上限依約定時程收緊（5.50x → 5.25x）造成的；另外約 <b>7 個百分點</b>是 Halsted 收益變差。</p>
+    </li>
+    <li>
+      <h3>Halsted 的數字和 Adam 不一致</h3>
+      <p>Halsted 簽署的證明書寫餘裕 <b>11.8%</b>——照它就還是綠燈。差異來自 <b>$0.72M</b> 的成本計畫節省：該計畫 <b>7 月才啟動（季度結束之後）</b>，Halsted 把它算進去，但貸款合約不允許，所以 Adam 剔除。綠燈還是黃燈，取決於 Maya 採信誰的數字。</p>
+    </li>
+    <li>
+      <h3>連續四季落後核貸計畫</h3>
+      <p>營收低於計畫 <b>6%</b>，利潤率 <b>16.8%</b>（計畫約 19%）。核貸時投委會點名的最大風險——<b>工資通膨</b>——正是管理層現在歸咎的原因。</p>
+    </li>
+  </ol>
+  <div class="callout"><p><b>Adam 建議：</b>Halsted 由 <span class="pill green">綠燈</span> 調為 <span class="pill amber">黃燈</span>。<b>由 Maya 決定。</b></p></div>
+
+  <h3 style="margin-top:36px;">數字怎麼算、兩邊差在哪</h3>
+  <div class="tbl-wrap">
+    <table>
+      <tr><th></th><th>上季</th><th>本季</th></tr>
+      <tr><td>負債上限（debt limit）</td><td class="num">5.50x</td><td class="num">5.25x</td></tr>
+      <tr><td>負債 ÷ 收益 — Adam 計算</td><td class="num">4.45x</td><td class="num">4.83x</td></tr>
+      <tr><td>負債 ÷ 收益 — Halsted 證明書</td><td class="num">4.45x</td><td class="num">4.63x</td></tr>
+      <tr><td>安全餘裕 — Adam</td><td class="num">19.1%</td><td class="num"><span class="hl">8.0%</span>（黃燈）</td></tr>
+      <tr><td>安全餘裕 — Halsted</td><td class="num">19.1%</td><td class="num"><span class="ok">11.8%</span>（綠燈）</td></tr>
+    </table>
+  </div>
+  <div class="formula">安全餘裕 cushion =（上限 − 負債÷收益）÷ 上限</div>
+
+  <h2><span class="num">04</span>關鍵思考題（Key Questions）</h2>
+  <ul class="clean">
+    <li>Maya 如何得知季報已就緒？那「第一眼」就該告訴她什麼？</li>
+    <li>打開 Halsted 工作區時，她最先看到什麼？</li>
+    <li>「顯示本季數字」和「顯示數字的意義」差別在哪？</li>
+    <li>當 Adam 和借款人數字不一致時，這件事如何呈現？</li>
+    <li>Maya 需要看到什麼，才能同意或推翻 Adam 的建議？</li>
+    <li>如果某一季什麼都沒變，這個工作區會長什麼樣？</li>
+  </ul>
+
+  <h2><span class="num">05</span>限制與假設（Constraints）</h2>
+  <ol class="steps">
+    <li><h3>分析由 Adam 做</h3><p>不用設計數據抄錄表、公式或 Excel。假設抽取與計算都可行，資料包就是其輸出。</p></li>
+    <li><h3>工作區已存在</h3><p>Halsted 工作區已有投委會備忘錄、核貸計畫、covenants 與其分階段收緊時程、歷史紀錄。</p></li>
+    <li><h3>Adam 提議，Maya 決定</h3><p>健康狀態（紅／黃／綠）依基金信貸政策（在資料包內）。確認或推翻是 Maya 的職權，且需記錄理由。</p></li>
+    <li><h3>每個數字都要能溯源</h3><p>Adam 的任何數字或主張都必須連回出處的文件與頁碼。</p></li>
+    <li><h3>後續動作屬於決定的一部分</h3><p>加入觀察名單、向借款人提問、呈報投委會——設計成決定流程的一部分，不是獨立功能。</p></li>
+    <li><h3>不在範圍內</h3><p>收件歸檔、35 家借款人的總覽、遲交或不完整的季報、新聞監控、貸款條款修訂。</p></li>
+  </ol>
+
+  <h2><span class="num">06</span>資料包（Data Pack）使用指南</h2>
+  <p class="section-sub">資料夾依故事順序排列。做 prototype 需要資料夾 2、3、4；資料夾 1 僅為背景。JSON 以百萬美元計，PDF 以千美元計（借款人的回報格式）。</p>
+  <div class="tbl-wrap">
+    <table>
+      <tr><th style="width:36%;">資料夾</th><th>用途</th><th>先開哪個檔</th></tr>
+      <tr><td><code>1_the_email/</code></td><td><b>僅背景。</b>季報如何寄達——收件已處理，不需設計。</td><td><code>email.json</code>；attachments/ 內是 Halsted 寄的兩份 PDF</td></tr>
+      <tr><td><code>2_workspace_before_this_quarter/</code></td><td><b>今天之前的工作區。</b>F2 已知的 Halsted。</td><td><code>workspace.json</code>（貸款條款、上限時程、核貸計畫、五季歷史、目前狀態綠燈）；documents/ 有投委會備忘錄、貸款合約、Maya 上季審閱</td></tr>
+      <tr><td><code>3_what_adam_found/</code></td><td><b>今天之後的工作區。</b>本季新資訊。</td><td><code>adam_first_pass.json</code> — 先讀 <code>summary</code>：三項發現＋建議狀態，並指向各項細節</td></tr>
+      <tr><td><code>4_fund_rules/</code></td><td><b>決定。</b>綠／黃／紅的判定標準，以及改狀態時 Maya 必須記錄的內容。</td><td><code>credit_policy.json</code></td></tr>
+    </table>
+  </div>
+
+  <h3 style="margin-top:36px;">每項發現對應的數據與溯源文件</h3>
+  <div class="tbl-wrap">
+    <table>
+      <tr><th style="width:30%;">發現</th><th>數據位置</th><th>可連結的來源文件</th></tr>
+      <tr><td>1. 餘裕 19% → 8%</td><td><code>adam_first_pass.json</code> → covenant_tests、headroom_bridge</td><td>貸款合約 p.2（上限時程）；財務報表 pp.1–2</td></tr>
+      <tr><td>2. 數字不一致</td><td><code>adam_first_pass.json</code> → certificate_check</td><td>證明書 p.2（$720K 那一行）；貸款合約 p.1（規則）；財務報表 p.3（7 月啟動日期）</td></tr>
+      <tr><td>3. 落後計畫</td><td><code>adam_first_pass.json</code> → variances、underwriting_links；計畫在 <code>workspace.json</code> → underwriting_case</td><td>投委會備忘錄 pp.2–3</td></tr>
+    </table>
+  </div>
+  <p style="margin-top:14px;color:var(--ink2);font-size:15px;"><code>adam_first_pass.json</code> 裡每個數字都帶 <code>sources</code> 欄位（檔案＋頁碼），可用來呈現「數字從哪來」。資料包裡還有三項發現以外的素材——非必要，但想走更遠可以用。</p>
+
+  <div class="footer-note">所有公司、人物與數字皆為虛構。面試練習的點子不會被 F2 作任何商業使用。</div>
+</div>
+
+<!-- ════════════════ USER (Deliverable 1 slide) ════════════════ -->
+<div class="view wrap" id="view-user">
+
+  <header class="hero">
+    <div class="eyebrow">Deliverable 1 · User Needs &amp; Pain Points</div>
+    <h1>User</h1>
+    <p class="hero-sub">What Maya is trying to see and get done when a quarterly package arrives.</p>
+  </header>
+
+  <h2><span class="num">Part 1</span>Who</h2>
+  <div class="grid2">
+    <div class="card">
+      <span class="tag">Profile</span>
+      <h3>Maya — Monitoring Analyst, Northgate Credit Partners</h3>
+      <p>Covers <b>35 borrowers</b>. A credit expert, not a data-entry clerk — yet today, re-keying PDFs into Excel and eyeballing quarter-over-quarter changes eats most of her quarter.</p>
+    </div>
+    <div class="card">
+      <span class="tag">Accountability</span>
+      <h3>She owns the call</h3>
+      <p>Adam proposes; <b>Maya decides</b>. Every status change needs a recorded reason she can defend — to the investment committee, and in hindsight if the credit sours. Trust in a number requires knowing where it came from.</p>
+    </div>
+  </div>
+
+  <h2><span class="num">Part 2</span>Scenario and Goals</h2>
+  <p class="section-sub">Tuesday 8:15 AM. Halsted's Q2 package is in, and Adam's first pass is done. Maya has 34 other borrowers — Halsted deserves exactly as much attention as its risk warrants, no more.</p>
+  <div class="grid2">
+    <div class="card">
+      <span class="tag">Goals</span>
+      <ul class="clean" style="margin-top:4px;">
+        <li>Within a minute: know <b>what changed, why</b>, whether she agrees, and what to do next</li>
+        <li>Trust without redoing the math — every number traced to document and page</li>
+        <li>Judge the quarter <b>against the plan and history</b>, not in isolation</li>
+        <li>Decide once, record it, and move on to the next borrower</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="tag">Pain today</span>
+      <ul class="clean" style="margin-top:4px;">
+        <li>Re-typing numbers from PDFs into a tracker, borrower by borrower</li>
+        <li>Comparing with last quarter <b>by eye</b>; easy to miss a drifting trend</li>
+        <li>Borrower's certificate taken at face value — a disputed add-back can hide a breach</li>
+        <li>Decision, reason, and follow-ups scattered across email, Excel, and memory</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2><span class="num">Part 3</span>Maya's Decision Journey — Review → Decide → Act</h2>
+  <p class="section-sub">Three stages, one recorded flow. A job statement under each.</p>
+  <ol class="steps">
+    <li>
+      <h3>Review — "Show me what changed and why."</h3>
+      <p>It starts at the notification: from the alert itself, Maya already knows this isn't a routine quarter. Inside, she needs the delta, not the data: cushion 19% → 8%, how much is the scheduled step-down vs. weaker earnings, where Adam and the borrower disagree, and how this quarter sits against the approved plan — each claim one click from its source page.</p>
+    </li>
+    <li>
+      <h3>Decide — "Help me make the call, and stand behind it."</h3>
+      <p>Adam proposes amber; Halsted's certificate says green. Maya weighs the two numbers, sees exactly what drives the $0.72M split, then confirms or overrides the status — both paths equal-weight — with a recorded reason: the policy rule she applied, in her own words.</p>
+    </li>
+    <li>
+      <h3>Act — "Close the loop before I move on."</h3>
+      <p>Follow-ups ride with the decision, not after it: add to watchlist, send the question to Halsted about the cost-program add-back, flag for the investment committee. One flow, one record, nothing left in her head.</p>
+    </li>
+  </ol>
+
+  <h2><span class="num">Part 4</span>Design Exploration</h2>
+  <p class="section-sub">Principles the workspace should live by — and the directions explored before landing.</p>
+  <div class="grid2">
+    <div class="card">
+      <span class="tag">Principle</span>
+      <h3>Answer first, evidence on demand</h3>
+      <p>Lead with Adam's conclusion and suggested status; keep the full statements, bridge, and history one layer below. The one-minute bar is the layout's organizing rule.</p>
+    </div>
+    <div class="card">
+      <span class="tag">Principle</span>
+      <h3>Disagreement is a first-class object</h3>
+      <p>Adam vs. certificate isn't a footnote — it's the decision. Show both numbers side by side with the single driver ($0.72M July add-back) and the loan-agreement rule that excludes it.</p>
+    </div>
+    <div class="card">
+      <span class="tag">Principle</span>
+      <h3>Meaning over numbers</h3>
+      <p>8.0% matters because policy says &lt;10% is amber, and because it's the fourth quarter behind plan on the risk the IC named. Always pair a figure with the rule or history that gives it weight.</p>
+    </div>
+    <div class="card">
+      <span class="tag">Principle</span>
+      <h3>Calm when nothing changed</h3>
+      <p>The same workspace in a quiet quarter should read as a one-line all-clear — attention scales with risk, so amber quarters feel different from green ones.</p>
+    </div>
+  </div>
+
+  <div class="footer-note">Deliverable 1 of 2 · The prototype (Deliverable 2) demonstrates these jobs in the live workspace.</div>
+</div>
+
+<!-- ════════════════ ENGLISH ════════════════ -->
+<div class="view wrap" id="view-english">
+
+  <header class="hero">
+    <div class="eyebrow">Original Text · 原文</div>
+    <h1>Product Designer Case Study — Portfolio Monitoring</h1>
+    <p class="hero-sub">The case study brief, verbatim.</p>
+  </header>
+
+  <h2>In Plain Terms</h2>
+  <p>A lending fund lends money to a company. The loan comes with rules, called covenants. The main one in this case: the company's debt can't be more than a set multiple of its yearly earnings. Every quarter, the company sends the fund a report card: its financial statements, a short commentary, and a signed certificate saying whether it followed the rules. An analyst at the fund reads it, checks the math, and decides whether the company is getting riskier.</p>
+
+  <h2>Case Context</h2>
+  <p>Private credit funds use F2 to underwrite deals and, once a deal closes, to monitor it until it is repaid. Monitoring happens in Portfolio OS, where every borrower has a portfolio company workspace: its loan terms, its covenants, and the plan the deal was approved on.</p>
+  <p>Today an analyst opens every PDF, retypes the numbers into a tracker, usually an Excel file, recalculates the ratios, compares them with last quarter by eye, and decides whether the borrower's health has changed. At 35 borrowers, that is most of their quarter.</p>
+  <p>In Portfolio OS the analyst forwards the email to Adam, F2's AI agent. Adam files the package into the right workspace and does the first pass. It pulls out the numbers, redoes each covenant using the loan agreement's own definitions, checks its result against the borrower's certificate, and compares performance with the plan and with last quarter. Combined with a health status for each borrower based on the firm's internal risk guidelines, we call this layer Risk Intelligence.</p>
+  <p>Filing a PDF against the right company is what a CRM does. F2 holds much more: the investment committee memo the deal was approved on, the loan agreement, every prior quarter, and the analyst's own notes. This case asks what that makes possible the moment a new package arrives.</p>
+
+  <h2>Your Objective</h2>
+  <p>Design what the analyst sees and does once one borrower's quarterly package is in F2, from the moment she learns it's ready to the moment she has made her decision. That covers two parts:</p>
+  <ol class="steps">
+    <li><h3>The workspace.</h3><p>This is the heart of the case. What the analyst sees when she opens the borrower's workspace after Adam's first pass: what changed, why, and how it connects to the plan and the borrower's history.</p></li>
+    <li><h3>The decision.</h3><p>Adam suggests a new health status. The analyst confirms or overrides it, with a reason, and takes whatever follow-up that decision calls for.</p></li>
+  </ol>
+  <p style="margin-top:14px;">Intake is already handled. The email was forwarded to Adam, and Adam filed the package in Halsted's workspace. You only need to show how Maya finds out it's ready: a single notification or entry point is enough.</p>
+  <div class="callout"><p>The bar: the analyst opens the workspace and, within a minute, knows what changed this quarter, why, whether she agrees with Adam, and what to do next.</p></div>
+
+  <h2>The Scenario</h2>
+  <p>Maya is a monitoring analyst at Northgate Credit Partners, a direct lending fund. She covers 35 borrowers. This case is about one: Halsted Industrial Services, which maintains refineries and chemical plants. Northgate lent Halsted $85M in December 2024. The deal was approved in F2, so Halsted's workspace already holds the investment committee memo, the loan agreement, five quarters of history, and Maya's review from last quarter.</p>
+  <p>On Friday, August 14, Halsted's CFO emailed the Q2 2026 package to the fund's shared reporting inbox, which forwards everything to Adam at adam@northgate.f2.ai. It had the financial statements, management commentary, and the signed compliance certificate. It is now Tuesday, August 18, 8:15 am, and Adam has finished its first pass.</p>
+
+  <h2>What Adam found</h2>
+  <ul class="clean">
+    <li><b>Halsted's cushion under the debt limit shrank from 19% to 8%.</b> Northgate's policy treats anything under 10% as amber. About 4 points of the drop is because the limit tightened on schedule, from 5.50x to 5.25x. The other 7 are because Halsted earned less.</li>
+    <li><b>Halsted's own numbers disagree with Adam's.</b> Halsted's signed certificate reports a cushion of 11.8%, which would keep it green. The difference is $0.72M of savings from a cost program that started in July, after the quarter ended. Halsted counts those savings. The loan agreement doesn't allow them, so Adam leaves them out. Whether Halsted is green or amber depends on whose number Maya accepts.</li>
+    <li><b>Halsted has missed the plan the deal was approved on for four quarters running.</b> Revenue is 6% below plan, and profit margin is 16.8% against about 19% planned. When the deal was approved, the investment committee named wage inflation as the top risk; that is what management blames now.</li>
+  </ul>
+  <p>Adam suggests moving Halsted from green to amber. Maya decides.</p>
+  <p style="margin-top:14px;">How the cushion is worked out, and where the two numbers split:</p>
+  <div class="tbl-wrap">
+    <table>
+      <tr><th></th><th>Last quarter</th><th>This quarter</th></tr>
+      <tr><td>Debt limit</td><td class="num">5.50x</td><td class="num">5.25x</td></tr>
+      <tr><td>Halsted's debt ÷ earnings, per Adam</td><td class="num">4.45x</td><td class="num">4.83x</td></tr>
+      <tr><td>Halsted's debt ÷ earnings, per Halsted's certificate</td><td class="num">4.45x</td><td class="num">4.63x</td></tr>
+      <tr><td>Cushion, per Adam</td><td class="num">19.1%</td><td class="num">8.0%</td></tr>
+      <tr><td>Cushion, per Halsted</td><td class="num">19.1%</td><td class="num">11.8%</td></tr>
+    </table>
+  </div>
+  <div class="formula">Cushion = (limit − debt ÷ earnings) ÷ limit.</div>
+  <p style="margin-top:14px;">There is more in the data pack than these three findings. You don't need it, but it is there if you want to go further.</p>
+
+  <h2>Key Questions to Consider</h2>
+  <ul class="clean">
+    <li>How does Maya find out the package is ready, and what does that first moment already tell her?</li>
+    <li>When Maya opens Halsted's workspace, what does she see first?</li>
+    <li>What is the difference between showing this quarter's numbers and showing what they mean?</li>
+    <li>When Adam and the borrower disagree, how does that land?</li>
+    <li>What does Maya need to see before she agrees with Adam's suggestion, or overrides it?</li>
+    <li>What would this workspace look like in a quarter where nothing changed?</li>
+  </ul>
+
+  <h2>Constraints &amp; Assumptions</h2>
+  <ol class="steps">
+    <li><h3>Adam does the analysis.</h3><p>You are not designing spreading tables, formulas, or Excel. Assume extraction and calculation work; the data pack shows their output.</p></li>
+    <li><h3>The workspace exists.</h3><p>Halsted's workspace already holds its investment committee memo, the plan the deal was approved on, its covenants and scheduled step-downs, and its history.</p></li>
+    <li><h3>Adam proposes, Maya decides.</h3><p>Health status (red / amber / green) comes from the fund's credit policy, which is in the data pack. Adam suggests a status. Confirming or overriding it is Maya's call and needs a recorded reason.</p></li>
+    <li><h3>Everything traces to source.</h3><p>Any number or claim Adam makes must link back to the document and page it came from.</p></li>
+    <li><h3>Follow-ups belong to the decision.</h3><p>Alongside the status, Maya might add Halsted to the watchlist, ask the borrower a question, or flag it for the investment committee. Design these as part of the decision, not as separate features.</p></li>
+    <li><h3>Out of scope:</h3><p>intake and filing, views across all 35 borrowers, late or incomplete packages, news monitoring, and loan amendments.</p></li>
+  </ol>
+
+  <h2>Deliverables</h2>
+  <ul class="clean">
+    <li><b>User needs and pain points - single slide.</b> What Maya is trying to see and get done when a package arrives.</li>
+    <li><b>A prototype/Figma file</b> of the workspace Maya sees when she opens Halsted this morning, including how she confirms or overrides Adam's suggested status. Use any tool; AI tools are welcome. Build it on the data pack.</li>
+  </ul>
+  <p style="margin-top:14px;">Focus on clarity of thinking over polish. This problem is deliberately open, and there is no single right answer. We care most about how you think, what you prioritize, and how you design for real credit decisions.</p>
+
+  <h2>What We Provide</h2>
+  <p>A data pack (zip). All companies, people, and numbers are fictional. The folders follow the story in order, and <code>START_HERE.md</code> says which data to use for what. For the prototype you need folders 2, 3, and 4. Folder 1 is background.</p>
+  <div class="tbl-wrap">
+    <table>
+      <tr><th style="width:32%;">Folder</th><th>Use it for</th><th>What's inside</th></tr>
+      <tr><td><code>1_the_email/</code></td><td>Background: how the package arrived</td><td>The email Halsted's CFO sent, and the two PDFs attached to it. You don't need to design this step.</td></tr>
+      <tr><td><code>2_workspace_before_this_quarter/</code></td><td>The workspace as it stood before today</td><td>Loan terms, the debt limit and its schedule, the plan the deal was approved on, five past quarters, and the current status (green). Also the investment committee memo, the loan agreement, and Maya's review from last quarter.</td></tr>
+      <tr><td><code>3_what_adam_found/</code></td><td>What's new this quarter</td><td>Adam's three findings and suggested status, with the numbers behind each and the file and page every number came from</td></tr>
+      <tr><td><code>4_fund_rules/</code></td><td>The decision</td><td>When a borrower is green, amber, or red, and what Maya must record when she changes a status</td></tr>
+    </table>
+  </div>
+  <p style="margin-top:14px;">We will also share screenshots of today's Deal Intelligence module and a portfolio company workspace for visual context. Use as much or as little of the current UI as you like.</p>
+
+  <h2>Presentation</h2>
+  <ul class="clean">
+    <li><b>Prep time:</b> we expect ~3 hours.</li>
+    <li><b>Submission:</b> send your work at least 24 hours before the session.</li>
+    <li><b>Session:</b> 45 minutes. Spend about 30 walking us through your thinking and demoing the prototype; the last 15 are for follow-up questions and your questions for us.</li>
+    <li><b>Format:</b> the session is conversational. Expect us to ask questions as you go.</li>
+    <li><b>Tools:</b> use whatever you like, including AI tools. Tell us what you used and how.</li>
+  </ul>
+
+  <div class="footer-note">All exercises in our interview process are based on hypothetical scenarios or problems. Your ideas will not be used by F2 for any commercial benefit.</div>
+</div>
+
+<!-- ════════════════ PROMPTS (AI process log) ════════════════ -->
+<div class="view wrap" id="view-prompts">
+
+  <header class="hero">
+    <div class="eyebrow">AI Process Log · Tools: Claude Code</div>
+    <h1>Prompts</h1>
+    <p class="hero-sub">Every prompt given to the AI for this case study, in order — the "tell us what you used and how" record.</p>
+  </header>
+
+  <h2><span class="num">01</span>Understand the brief</h2>
+  <div class="card card-white">
+    <span class="tag">Prompt 1</span>
+    <div class="formula" style="margin-top:8px;">cheking the F2 folder, read PDF and create a html, chinese version for me, make an overview for ask/delivery, and detail page</div>
+    <p style="margin-top:10px;">→ AI read the 5-page case study PDF + data pack START_HERE.md; produced this page's 總覽 and 詳細內容 tabs.</p>
+  </div>
+  <div class="card card-white">
+    <span class="tag">Prompt 2</span>
+    <div class="formula" style="margin-top:8px;">也加一頁附上英文</div>
+    <p style="margin-top:10px;">→ Added an English tab.</p>
+  </div>
+  <div class="card card-white">
+    <span class="tag">Prompt 3</span>
+    <div class="formula" style="margin-top:8px;">原文</div>
+    <p style="margin-top:10px;">→ Correction mid-task: the English tab should carry the brief verbatim, not a rewrite. Replaced with the original text.</p>
+  </div>
+
+  <h2><span class="num">02</span>Define the user (Deliverable 1)</h2>
+  <div class="card card-white">
+    <span class="tag">Prompt 4</span>
+    <div class="formula" style="margin-top:8px;">add a slide for user needs call "User"<br><br>part 1 Who<br>part 2 Scenario and Goals<br>Part 3 JTBD (Review &gt; Confirm &gt; Take Action??)<br>part 4 Design exploration</div>
+    <p style="margin-top:10px;">→ AI drafted the User tab from the case data: Maya's profile, goals vs pains, the three-stage journey, four design principles.</p>
+  </div>
+  <div class="card card-white">
+    <span class="tag">Prompt 5 · critique request</span>
+    <div class="formula" style="margin-top:8px;">Jobs To Be Done — Review → Confirm → Take Action &gt;&gt; you think this is corect?</div>
+    <p style="margin-top:10px;">→ AI's assessment: "Confirm" presumes agreeing with the AI (automation bias); the brief says confirm <i>or override</i>. Also flagged that the sequence should start at the notification moment. Recommended <b>Review → Decide → Act</b>.</p>
+  </div>
+  <div class="card card-white">
+    <span class="tag">Prompt 6</span>
+    <div class="formula" style="margin-top:8px;">ok</div>
+    <p style="margin-top:10px;">→ Applied the rename; folded the notification into Review; made confirm/override equal-weight in Decide.</p>
+  </div>
+
+  <h2><span class="num">03</span>Build the prototype (Deliverable 2)</h2>
+  <div class="card card-white">
+    <span class="tag">Prompt 7</span>
+    <div class="formula" style="margin-top:8px;">ok now, leverage mu-system, building a tool to support this journey. consider<br>1. this is a Portfolio Monitoring tool, so on left bar we might have a few tool, you can mock up it<br>2. we only show the page for "Halsted", make it the index.html<br>3. give me the first version including overview of Halsted, analysis, a few tab to check analysis or email; leverage data from other folder<br><br>(also create a page in …/case-study-zh.html#detail to document all prompts I gave you )</div>
+    <p style="margin-top:10px;">→ AI read all four data-pack folders (workspace.json, adam_first_pass.json, credit_policy.json, email.json), copied the personal mu-system design library into the project, and built <b>index.html</b>: Portfolio OS left rail, notification entry point, Halsted workspace with Overview / Adam's analysis / Email / Documents tabs, headroom bridge, certificate-dispute comparison, and the Review → Decide → Act decision modal with recorded reason + follow-ups. Every figure links to its source PDF page. Also added this Prompts tab.</p>
+  </div>
+
+  <h2><span class="num">04</span>Iterate the prototype</h2>
+  <div class="card card-white">
+    <span class="tag">Prompt 8</span>
+    <div class="formula" style="margin-top:8px;">ok let's continue to fix index.html<br>1. remove this on top Portfolio OS / Portfolio companies / Halsted Industrial Services<br>2. remove settings on nav, remove notification and ask Adam on top<br>3. show [company name + meta] and then show tab<br>4. remove Green · as of Q1 2026 → Adam suggests Amber<br>5. remove Adam · first pass finished… to overview, I want to incorporate this into overview<br>6. 8.0% $16.8M $10.0M drawn make data bigger, and show what Adam found (like 8.0% vs 11.8%)<br>7. Halsted's cushion under the debt limit shrank from 19% to 8% how do we show this?<br>8. Email should also be a list, there might have multiple email<br>9. think about how do we show Halsted's analysis vs. Adam's. and what to surface top</div>
+    <p style="margin-top:10px;">→ Stripped the chrome (breadcrumb, bell, Ask Adam, Settings, status badges in header); header now flows straight into tabs. Adam's first pass became the opening card of Overview with the Green→Amber suggestion inside it. Stat numbers enlarged; new cards lead with <b>19.1% → 8.0%</b> (with a 4-quarter mini sparkline) and <b>8.0% vs 11.8%</b> (Adam vs certificate — "Maya's call"). Email tab became an inbox list (Q2 expanded with attachments + filing evidence; Q1 2026 / Q4 2025 collapsed rows showing "certificate matched, kept Green"). The dispute is surfaced three times at increasing depth: stat card → covenant-table certificate row → full F2 side-by-side in Analysis.</p>
+  </div>
+
+  <div class="card card-white">
+    <span class="tag">Prompt 9</span>
+    <div class="formula" style="margin-top:8px;">1. I don't want to see this card on top: Adam · first pass finished… this is too much to read<br>2. think about what are cards that contain most important data, that always show on dashboard, AND we should incorporate Adam's feedback there instead of creating another card<br>3. Consider what are key data to show for Maya to review time to time<br>4. keep screen simple, now it's too cluttered and overwhelm</div>
+    <p style="margin-top:10px;">→ Reframed Overview as a steady-state dashboard: one slim decision bar (Green → Adam suggests Amber · Review &amp; decide), then three always-on cards — Covenant headroom, Performance vs plan, Liquidity — each with a 4-quarter sparkline and a dashed "AD" annotation carrying Adam's finding (F1/F2/F3 links) inside the card it belongs to. Removed the hero card, the redundant headroom chart, and merged status history + follow-ups + contacts into two compact reference panels.</p>
+  </div>
+  <div class="card card-white">
+    <span class="tag">Prompt 10</span>
+    <div class="formula" style="margin-top:8px;">Overview &gt;&gt; Dashboard, Email default collapse all items</div>
+    <p style="margin-top:10px;">→ Renamed the tab to Dashboard; email list now opens fully collapsed.</p>
+  </div>
+  <div class="card card-white">
+    <span class="tag">Prompt 11</span>
+    <div class="formula" style="margin-top:8px;">Let's update the cards first<br>1. Debt $85M Lent, approved in December 2024 might be important to highlight<br>2. Headroom 8.0% (we can show down icon + warning red tag), we don't need 19.1% → 8.0%; clarify which quarter, show 19% below; show AD suggestion in a format that makes the AI suggestion obvious<br>3. for all 3 cards with charts, remove the charts<br>4. the Headroom card content should be "8.0% vs 11.8% — Adam 與 Halsted 證明書不一致，差在 $0.72M 爭議性節省"</div>
+    <p style="margin-top:10px;">→ Added a Loan card ($85M, "Approved December 2024" bolded). Headroom card now leads with 8.0% + red ▼ + "Below 10% policy line" tag, dated Q2 2026 in the card title with "Last quarter (Q1 2026): 19.1%" beneath; its body is the 8.0% vs 11.8% certificate dispute; Adam's proposal sits in a new ✦ ADAM suggestion block (dark mono tag, boxed) distinct from plain data. All sparkline charts removed.</p>
+  </div>
+
+  <div class="card card-white">
+    <span class="tag">Prompts 12–17 · design dialogue</span>
+    <div class="formula" style="margin-top:8px;">「why we need to show Performance vs plan / Liquidity? explain, don't change yet」<br>「第一張卡應該展示收益/負債．本益比?（固定倍數是多少？）」<br>「數字越大代表？」<br>「為啥有三種數字」<br>「so that's the policy change? the rule is they cannot exceed that number?」<br>「critical data: 1 loan 2 debt÷earnings (term?) 3 headroom 4 連續四季未達標 — loan critical? 2 and 3 repeating?」<br>「ok show me」</div>
+    <p style="margin-top:10px;">→ A Q&amp;A loop before touching the UI: AI explained why performance-vs-plan and liquidity are standing monitors (policy input + survival signal), the term <b>net leverage ratio</b> and its direction (bigger = worse; headroom opposite), the three-number table (rule / referee's measure / player's claim), and step-down-vs-policy. Verdicts agreed: leverage + headroom = <b>one fact, two layers → one card</b>; Loan is static and already in the header → demoted. Final set: Net leverage (4.83x / 5.25x with ceiling bar, cushion tag, dispute, ✦ ADAM), Performance vs plan (89.7% + widening miss sequence −5/−8/−12/−17%), Liquidity ($0 available).</p>
+  </div>
+
+  <div class="card card-white">
+    <span class="tag">Prompt 18</span>
+    <div class="formula" style="margin-top:8px;">for Dashboard, we need a way to switch view to different time? like now it's Q2 2026, Q1 2026..etc</div>
+    <p style="margin-top:10px;">→ Added a Period segmented control (Q3 25 / Q4 25 / Q1 26 / Q2 26·current) using mu-system's .tabs component. Past quarters re-render all three cards from workspace.json history (leverage vs that quarter's 5.50x limit, % of case, revolver drawn) with green cushion tags, hide Adam's annotations and the decision bar, and show the recorded status instead (e.g. Q1 26: Maya's May 20 reason verbatim) — which doubles as the "quiet quarter" answer.</p>
+  </div>
+  <div class="card card-white">
+    <span class="tag">Prompt 19</span>
+    <div class="formula" style="margin-top:8px;">Cushion 8.0% · below 10% policy line &gt;&gt; Cushion 8.0%<br>limit 5.25x can be same style?<br>we don't need this Q1 26 · 4.45x ↑<br>so this bar we should emphase cushion 8%, how can you improve it</div>
+    <p style="margin-top:10px;">→ Tag shortened to "Cushion 8.0%"; 5.25x now renders in the same big mono type as 4.83x (grey, "4.83x / 5.25x"); prior-quarter tick removed. Bar inverted to emphasize the cushion: the used portion is neutral grey, the remaining 8% is the colored sliver (amber now, green in past quarters) — the eye reads "how little is left" instead of "how much is used."</p>
+  </div>
+
+  <div class="card card-white">
+    <span class="tag">Prompt 20</span>
+    <div class="formula" style="margin-top:8px;">can we combine into one banner and make it short. also there should be no gap for 2nd/3rd row when it's wrapping (dispute line + ✦ ADAM block)</div>
+    <p style="margin-top:10px;">→ Merged into one ✦ ADAM banner: "Suggests Green → Amber — cushion below the 10% line F1 · certificate claims 11.8% via $0.72M disputed savings F2". Layout switched from flex (hanging indent) to inline-block flow, so wrapped lines run full width under the tag.</p>
+  </div>
+
+  <div class="card card-white">
+    <span class="tag">Prompts 21–30 · card iteration loop</span>
+    <div class="formula" style="margin-top:8px;">Review &amp; decide &gt;&gt; Review · "Decision? the copy is weird" · vertical not horizontal breakdowns · Q2 26 first · 中文Q&amp;A（LTM vs 單季為何對不上、revolver 是不是每季給$10M、餘額=累計?、為什麼展示總共欠）· header shows Green · Suggested status as warning banner, text-like · Q2 2026 + "Updated by Adam" tag · tables left-aligned with $M units · one-line revolver subline, equal-height tables</div>
+    <p style="margin-top:10px;">→ Decision section became an amber warning banner in prose ("✦ Adam suggests Green → Amber… whose number governs is Maya's call") replacing the chip-row layout; company header carries the live Green badge (updates on record); quarter heading gets an "✦ Updated by Adam · Fri Aug 14, 6:46 PM" tag (past quarters: "Reviewed · closed quarter"). Breakdowns became newest-first mini-tables with headers (Qtr / EBITDA vs plan / Δ and Qtr / Drawn / Available), explicit $M units, matched heights. The 中文 Q&amp;A clarified stock-vs-flow and LTM-vs-quarter — material reused for the interview's "how the numbers work" moments.</p>
+  </div>
+
+  <div class="card card-white">
+    <span class="tag">Prompts 31–38 · refinement + decision flow</span>
+    <div class="formula" style="margin-top:8px;">spacing/gap polish ($0.0 M, header spacing, col gaps, bigger ✦) · "what's F3 means?" · unify F3/FS p.3 pills → (ref) · Adam's analysis → Analysis tab · remove covenant row highlight · improve Status&amp;follow-ups / Deal / Covenants / Company cards · when click Review, show detail data of Halsted's report vs Adam's analysis so Maya can make decision</div>
+    <p style="margin-top:10px;">→ Dashboard refs unified to quiet underlined "(ref)" (Analysis-tab source chips kept — the label is the audit trail there). Reference panels redesigned: status history as a 6-quarter dot timeline (Q2 26 = dashed pending cell), follow-ups as amber-dot checklist, covenants as mini-table with indented "per certificate" dispute row + step-down note, Deal as uppercase-label spec grid, contacts as avatar person rows. Review modal now opens with a <b>Halsted vs Adam</b> comparison table — LTM EBITDA $17.52M/$16.80M, the +$0.72M add-back row, leverage 4.63x/4.83x, cushion 11.8%/8.0%, implied Green/Amber badges — plus a "why they differ" note with three source refs, so the decision is made on the evidence inside the same dialog.</p>
+  </div>
+
+  <div class="callout">
+    <p><b>Method:</b> human sets direction, structure, and taste (what to build, what's correct, what to fix); AI reads the sources, drafts, and wires the data. Each output was reviewed and corrected before moving on — see Prompts 3 and 5.</p>
+  </div>
+
+  <div class="footer-note">Log maintained alongside the work · tool: Claude Code (Fable 5)</div>
+</div>
+
+<!-- ════════════════ TALK TRACK (Presentation companion) ════════════════ -->
+<div class="view wrap" id="view-talk">
+
+  <header class="hero">
+    <div class="eyebrow">Presentation Companion · 45 min（30 講解 + 15 QA）</div>
+    <h1>簡報腳本</h1>
+    <p class="hero-sub">面談用的講述地圖：我怎麼解這題（解題流程），以及原型怎麼走到最終版（關鍵轉折＋ AI 協作）。對話式進行，隨時會被打斷提問——所以每段都先給結論。</p>
+  </header>
+
+  <div class="callout">
+    <p><b>一句話主張：</b>把 Adam 的第一輪分析，從一份「要讀的報告」，變成一個<b>一分鐘內能做出決定、且敢為決定負責</b>的工作區。</p>
+  </div>
+
+  <h2><span class="num">00</span>30 分鐘節奏表</h2>
+  <p class="section-sub">建議的時間分配。核心是中段的實機演示——讓畫面說話，流程說明與轉折穿插其中。</p>
+  <div class="tbl-wrap">
+    <table class="agenda">
+      <tr><th class="num">時間</th><th>段落</th><th>一句話重點</th></tr>
+      <tr><td class="num">0–3′</td><td><b>開場：一分鐘看懂賭注</b></td><td>$85M 貸款、綠轉黃，關鍵不在數字而在「採信誰的數字」</td></tr>
+      <tr><td class="num">3–6′</td><td><b>使用者 Maya 與「一分鐘標準」</b></td><td>管 35 家借款人；她要的是判斷，不是重抄數字</td></tr>
+      <tr><td class="num">6–9′</td><td><b>我的解題流程＋四個原則</b></td><td>五階段（理解→第一版→定優先級→微調→串流程）＋ Answer-first／意義重於數字／分歧一等公民／無事則靜</td></tr>
+      <tr><td class="num">9–20′</td><td><b>原型實機演示（核心）</b></td><td>Review → Decide → Act，示範分歧、溯源、時間旅行</td></tr>
+      <tr><td class="num">20–27′</td><td><b>關鍵轉折：怎麼走到這版</b></td><td>四個 pivot——砍掉什麼、為什麼</td></tr>
+      <tr><td class="num">27–30′</td><td><b>AI 協作方式與收束</b></td><td>人定方向與品味，AI 讀檔、起草、接資料</td></tr>
+      <tr><td class="num">30–45′</td><td><b>QA</b></td><td>見下方預備題</td></tr>
+    </table>
+  </div>
+
+  <!-- ===== Q1: PROCESS ===== -->
+  <h2><span class="num">01</span>我的解題流程</h2>
+  <p class="section-sub">核心邏輯：<b>先鎖定「確定的」，再用迭代逐一回答「不確定的」</b>（哪些 data、怎麼呈現、AI 建議怎麼給）。五個階段：</p>
+
+  <div class="flow">
+    <div class="fstep"><div class="fk">01 · UNDERSTAND</div><div class="ft">了解</div><div class="fd">鎖定確定的，列出不確定的</div></div>
+    <div class="fstep"><div class="fk">02 · DRAFT</div><div class="ft">AI 第一版</div><div class="fd">故意先要一版亂的來排序</div></div>
+    <div class="fstep key"><div class="fk">03 · PRIORITIZE</div><div class="ft">上方放什麼</div><div class="fd">keep／remove——本題重點</div></div>
+    <div class="fstep"><div class="fk">04 · REFINE</div><div class="ft">微調三卡</div><div class="fd">Maya 每季要看的細節</div></div>
+    <div class="fstep"><div class="fk">05 · CONNECT</div><div class="ft">串 end-to-end</div><div class="fd">Validate → Take action</div></div>
+  </div>
+
+  <ol class="steps">
+    <li>
+      <h3>Understand — 分清「確定」與「不確定」</h3>
+      <p>先吃透 context、名詞、Maya 的核心任務。<b>確定的部分：</b>這是一個 dashboard、用資料包裡的 data、Maya 要 review 一些數據點＋ Adam 的建議，然後決定「要不要改 health status」。<b>不確定的部分：</b>哪些 data 要呈現？怎麼呈現？AI 的建議怎麼給、放哪？——這三個問號就是後面每一輪迭代要回答的。</p>
+    </li>
+    <li>
+      <h3>AI 生成第一版 — 先要一個能被批評的實體</h3>
+      <p>下了第一個 build prompt（「leverage mu-system，建一個支援這段旅程的工具……做出 Halsted 的 index.html」），AI 讀完四個資料夾接出第一版。結果<b>很亂、info overload、沒有優先級</b>。<b>判斷：</b>第一版的價值不在「對」，而在給我一個可以排序、可以砍的具體對象。</p>
+    </li>
+    <li>
+      <h3>迭代「上方要放什麼」— 這題的重點（優先級）</h3>
+      <p>和 AI 一起試了多種卡：Tightest headroom、LTM EBITDA、Revolver、Reporting、Loan、Net leverage、Performance vs plan、Liquidity……然後我做 <b>keep / remove</b>：收斂成<b>三張常態卡</b>（Net leverage、Performance vs plan、Liquidity）＋一條決策 banner；Loan 是靜態資訊 → 降到標頭；砍掉 Reporting、獨立的 EBITDA／Revolver、以及所有 sparkline。<b>判斷：</b>assignment 的核心就是優先級——「一分鐘標準」逼我只留下真正驅動決策的東西。</p>
+    </li>
+    <li>
+      <h3>微調卡片細節（Review）— Maya 每季要看什麼</h3>
+      <p>鎖定三張卡後，調的是「Maya 時時要 review 的資訊」：槓桿／餘裕（距違約還有多遠）、vs plan（賺得夠不夠）、流動性（撐不撐得住）。細節上讓 <b>cushion 當主角</b>（強調「剩多少」而非「用多少」）、把政策門檻外顯（&lt;10% = amber）、內嵌過去四季、統一單位與對齊。</p>
+    </li>
+    <li>
+      <h3>串起 end-to-end（Validate → Take action）</h3>
+      <p><b>Validate：</b>決定 AI 的建議放哪、怎麼給——從旁邊一張小卡 → 卡內 amber 區塊 → 最終全寬 banner；在 page-level 用「狀態＝四項政策輸入取最差」把 health status 的推導攤開，幫 Maya 判斷。<b>Take action：</b>點 Review 開「Halsted vs Adam」對照（$0.72M 加回、兩個 cushion、各自 imply 的燈號），記錄理由並帶出後續動作（watchlist／問借款人／呈報 IC）。這裡也體現一個刻意的取捨：把 <b>Confirm 改成 Decide</b>——confirm 與 override 等重，避免 automation bias 下的橡皮圖章。</p>
+    </li>
+  </ol>
+
+  <div class="grid2">
+    <div class="card"><span class="tag">原則 1</span><h3>答案先行，證據隨點隨看</h3><p>先給 Adam 的結論與建議狀態；完整報表、拆解、歷史都收在下一層。「一分鐘標準」就是版面的組織規則。</p></div>
+    <div class="card"><span class="tag">原則 2</span><h3>意義重於數字</h3><p>8.0% 之所以重要，是因為政策說 &lt;10% 即黃燈、且是連續第四季落後投委會點名的風險。數字一定配上賦予它意義的規則或歷史。</p></div>
+    <div class="card"><span class="tag">原則 3</span><h3>分歧是一等公民</h3><p>Adam vs 證明書不是註腳，而是「決定」本身。兩個數字並排，標出唯一驅動（$0.72M 的 7 月加回）與排除它的合約條款。</p></div>
+    <div class="card"><span class="tag">原則 4</span><h3>無事則靜</h3><p>平靜的一季同一個工作區應讀作一行 all-clear。注意力隨風險縮放——黃燈那季和綠燈那季「體感」就該不同。</p></div>
+  </div>
+
+  <!-- ===== Q2a: PIVOTS ===== -->
+  <h2><span class="num">02</span>關鍵轉折：原型怎麼走到最終版</h2>
+  <p class="section-sub">六版演進，四個決定性轉折。每個轉折的重點不是「變好看」，而是一個明確的判斷。</p>
+
+  <div class="pivot">
+    <div class="pivot-head"><span class="pn">Pivot 1</span><h3>從「報告」變「答案先行」</h3></div>
+    <p class="card-sub" style="color:var(--ink2);font-size:15px;">砍掉所有頂部 chrome（麵包屑、鈴鐺、Ask Adam、Settings）與那張要讀一大段的 Adam 大卡；把 Adam 的三項發現<b>溶進它們各自所屬的數據卡</b>。</p>
+    <div class="ba">
+      <div><div class="ba-tag">Before</div><div class="fig"><img src="iterations/01-hero-card.png" alt="hero card version"><div class="fig-cap">01 · 大卡擋在最上方，滿屏文字</div></div></div>
+      <div><div class="ba-tag">After</div><div class="fig"><img src="iterations/02-cards-absorb-adam.png" alt="cards absorb adam"><div class="fig-cap">02 · Adam 的發現進到各卡（AD 註記）</div></div></div>
+    </div>
+    <div class="pivot-why"><b>為什麼：</b>使用者回饋「這張卡太多字、讀不完」。這是 dashboard，不是 document——不該逼 Maya 讀一份報告才找到答案。</div>
+  </div>
+
+  <div class="pivot">
+    <div class="pivot-head"><span class="pn">Pivot 2</span><h3>選對那四個指標，並做成「常態監控」</h3></div>
+    <p class="card-sub" style="color:var(--ink2);font-size:15px;">把通用卡（Reporting、LTM EBITDA）換成真正驅動判斷的指標；加上<b>時間切換器</b>，讓工作區每一季都成立——「平靜的一季長什麼樣」這題順勢被回答。</p>
+    <div class="ba">
+      <div><div class="ba-tag">Before</div><div class="fig"><img src="iterations/02-cards-absorb-adam.png" alt="generic cards"><div class="fig-cap">02 · 通用卡、無時間維度</div></div></div>
+      <div><div class="ba-tag">After</div><div class="fig"><img src="iterations/03-decision-card.png" alt="period switcher added"><div class="fig-cap">03 · Period 切換器＋聚焦決定的卡</div></div></div>
+    </div>
+    <div class="pivot-why"><b>為什麼：</b>先做了一輪中文 Q&amp;A 釐清 net leverage／headroom 的方向與意義，結論是「槓桿＋餘裕是一個事實的兩層 → 併成一張卡」，靜態的 Loan 資訊降級到標頭。切到過去季度＝自動得到「安靜一季」的樣貌。</div>
+  </div>
+
+  <div class="pivot">
+    <div class="pivot-head"><span class="pn">Pivot 3</span><h3>AI 的「意見」該放在哪</h3></div>
+    <p class="card-sub" style="color:var(--ink2);font-size:15px;">分歧就是決定，不能是旁邊一張小卡。它的位置一路搬：獨立 Decision 卡 → 槓桿卡內的 amber 區塊 → <b>橫貫頂部的 banner</b>。</p>
+    <div class="ba">
+      <div><div class="ba-tag">Before</div><div class="fig"><img src="iterations/03-decision-card.png" alt="decision as side card"><div class="fig-cap">03 · 決定被擠成第四張小卡</div></div></div>
+      <div><div class="ba-tag">After</div><div class="fig"><img src="iterations/05-one-anatomy.png" alt="full width banner"><div class="fig-cap">05 · Adam 建議升為全寬 banner</div></div></div>
+    </div>
+    <div class="pivot-why"><b>為什麼：</b>原則 3——分歧是一等公民。Maya 進來第一眼就該看到「Adam 說黃、證明書說綠，由你裁定」，而不是去別處找。</div>
+  </div>
+
+  <div class="pivot">
+    <div class="pivot-head"><span class="pn">Pivot 4</span><h3>從「顯示數字」到「顯示規則如何成立」</h3></div>
+    <p class="card-sub" style="color:var(--ink2);font-size:15px;">每張卡標出自己的政策門檻（Amber &lt;10%、Green ≥85%）；banner 說明<b>「狀態＝四項政策輸入取最差」</b>。黑箱變成可讀、可辯護的邏輯。</p>
+    <div class="ba">
+      <div><div class="ba-tag">Before</div><div class="fig"><img src="iterations/05-one-anatomy.png" alt="before policy logic"><div class="fig-cap">05 · 卡片一致，但規則仍隱含</div></div></div>
+      <div><div class="ba-tag">After</div><div class="fig"><img src="iterations/06-final.png" alt="final policy logic explicit"><div class="fig-cap">06（最終）· 門檻外顯＋狀態推導外顯</div></div></div>
+    </div>
+    <div class="pivot-why"><b>為什麼：</b>Maya 要能對投委會解釋「是哪一項把它拉成黃燈」。把推導攤開，她才真能為決定負責，而不是替 AI 背書。</div>
+  </div>
+
+  <!-- ===== Q2b: AI METHOD ===== -->
+  <h2><span class="num">03</span>AI 協作方式（「用了什麼、怎麼用」）</h2>
+  <p class="section-sub">工具：Claude Code。完整逐條紀錄在 <a class="jump" href="#prompts" style="text-decoration:underline;">Prompts</a> 頁；這裡是方法的一句話版本。</p>
+  <div class="grid2">
+    <div class="card card-white"><span class="tag">人（我）</span><h3>方向、結構、品味、對錯</h3><p>決定要做什麼、什麼算正確、什麼該砍。關鍵的思考都在人這端——例如質疑 Confirm、堅持原文逐字（Prompt 3、5）。</p></div>
+    <div class="card card-white"><span class="tag">AI</span><h3>讀來源、起草、接資料與接線</h3><p>讀五頁 PDF ＋四個資料夾、把 workspace／adam／policy 的 JSON 接成畫面、產出草稿與迭代。</p></div>
+  </div>
+  <div class="callout"><p><b>節奏：</b>每一個 AI 產出都先審過、修正後才往下——不是一次生成，而是「人給判斷、AI 執行」的來回。30＋ 輪迭代都綁在同一組原則上收斂。</p></div>
+
+  <!-- ===== QA PREP ===== -->
+  <h2><span class="num">04</span>QA 預備（最後 15 分鐘）</h2>
+  <p class="section-sub">針對信貸＋設計評審最可能的追問，先備好精簡答案。</p>
+  <div class="grid2">
+    <div class="card"><h3>Q：為什麼是 Review → Decide → Act，不是 Confirm？</h3><p>Confirm 預設同意 AI＝automation bias。Brief 要的是 confirm <i>或</i> override，兩者等重；流程也從「得知就緒」那一刻起算。</p></div>
+    <div class="card"><h3>Q：怎麼防止 Maya 變成橡皮圖章？</h3><p>confirm／override 等權呈現、強制看到分歧（8.0% vs 11.8% 的 $0.72M 來源）、且必須寫下理由並連回政策條款。</p></div>
+    <div class="card"><h3>Q：「平靜的一季」長什麼樣？</h3><p>時間切換器切到過去季度：沒有 Adam 註記、沒有決策列，只剩一行 all-clear 與當季記錄的理由。注意力隨風險縮放。</p></div>
+    <div class="card"><h3>Q：為什麼把狀態寫成「四項政策輸入取最差」？</h3><p>讓規則可讀、非黑箱。Maya 一眼知道是哪一項（cushion）把它拉下來，也能照這個邏輯對投委會解釋。</p></div>
+    <div class="card"><h3>Q：溯源怎麼運作？</h3><p>每個數字都帶 (ref)，連回來源文件與頁碼——證明書 p.2、貸款合約 p.1、財報 p.3。信任來自可追。</p></div>
+    <div class="card"><h3>Q：為什麼用灰階 / 克制的視覺？</h3><p>資料是主角；顏色只留給風險（amber／red）。所以黃燈那季和綠燈那季「體感」就不同——顏色本身在傳訊。</p></div>
+    <div class="card"><h3>Q：Adam 和 Halsted 不一致時，你偏向誰？</h3><p>介面不替 Maya 選邊，但把合約規則攤開：$0.72M 是 7 月（季末後）才啟動的加回，合約不允許——證據指向 Adam，裁定權仍在 Maya。</p></div>
+    <div class="card"><h3>Q：時間更多你會做什麼？</h3><p>35 家借款人的總覽與分流、遲交／不完整季報、把「問借款人」做成真的往返、用資料包裡三項發現以外的素材走更深。</p></div>
+  </div>
+
+  <div class="footer-note">本頁為面談講述用的伴讀地圖。問題 1＝解題流程；問題 2＝關鍵轉折＋ AI 協作。完整原型見 index.html，逐條 prompt 見 Prompts 頁。</div>
+</div>
+
+<script>
+  const tabs = document.querySelectorAll('.tab');
+  const views = { overview: document.getElementById('view-overview'), detail: document.getElementById('view-detail'), user: document.getElementById('view-user'), english: document.getElementById('view-english'), prompts: document.getElementById('view-prompts'), talk: document.getElementById('view-talk') };
+  function show(name){
+    tabs.forEach(t => t.classList.toggle('active', t.dataset.view === name));
+    Object.entries(views).forEach(([k,v]) => v.classList.toggle('active', k === name));
+    window.scrollTo({top:0, behavior:'instant'});
+    history.replaceState(null,'','#'+name);
+  }
+  tabs.forEach(t => t.addEventListener('click', () => show(t.dataset.view)));
+  const h = location.hash.slice(1);
+  if(views[h]) show(h);
+</script>
+</body>
+</html>

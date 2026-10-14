@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio OS — Thinking & Design Exploration</title>
+<style>
+  /* ============ mu-system tokens ============ */
+  :root{
+    --mu-white:#fff; --mu-gray-50:#f7f7f8; --mu-gray-100:#f2f2f3; --mu-gray-200:#e8e8ea;
+    --mu-gray-300:#d6d6d9; --mu-gray-400:#b0b0b6; --mu-gray-500:#767680; --mu-gray-600:#6e6e73;
+    --mu-gray-700:#48484d; --mu-gray-800:#2c2c30; --mu-gray-900:#1d1d1f;
+    --mu-ink:var(--mu-gray-900); --mu-ink-2:var(--mu-gray-600); --mu-ink-3:var(--mu-gray-500);
+    --mu-bg:var(--mu-white); --mu-surface:var(--mu-gray-50); --mu-media:var(--mu-gray-100); --mu-border:var(--mu-gray-200);
+    --mu-radius-sm:8px; --mu-radius-md:12px; --mu-radius-lg:16px;
+    --mu-shadow-sm:0 1px 2px rgba(0,0,0,.05),0 1px 4px rgba(0,0,0,.04);
+    --mu-shadow-md:0 2px 6px rgba(0,0,0,.06),0 8px 24px rgba(0,0,0,.08);
+    --mu-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Inter,Arial,sans-serif;
+    --mu-mono:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    --rag-green:#1d7a46; --rag-green-bg:#e9f5ee;
+    --rag-amber:#9a6200; --rag-amber-bg:#fdf3e0;
+    --rag-red:#b3261e; --rag-red-bg:#fdecea;
+    --nav-w:240px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{font-family:var(--mu-font);color:var(--mu-ink);background:var(--mu-bg);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;}
+
+  /* ============ Left nav ============ */
+  .nav{position:fixed;left:0;top:0;bottom:0;width:var(--nav-w);background:var(--mu-white);border-right:1px solid var(--mu-border);display:flex;flex-direction:column;padding:20px 14px;overflow-y:auto;z-index:50;}
+  .nav-logo{display:flex;align-items:center;gap:10px;padding:2px 10px 18px;}
+  .nav-logo .mark{background:var(--mu-gray-900);color:#fff;font-weight:700;font-size:13px;padding:4px 8px;border-radius:7px;letter-spacing:.4px;position:relative;top:4px;}
+  .nav-logo .name{font-size:16px;font-weight:650;letter-spacing:-.01em;}
+  .nav-logo .name span{display:block;font-size:11px;font-weight:500;color:var(--mu-ink-3);letter-spacing:.02em;line-height:1;}
+  .nav a.cover-link{display:block;font-size:13px;font-weight:600;color:var(--mu-ink-2);padding:8px 12px;border-radius:var(--mu-radius-sm);text-decoration:none;transition:background .15s;}
+  .nav a.cover-link:hover{background:var(--mu-gray-100);}
+  .nav a.cover-link.is-active{background:var(--mu-gray-100);color:var(--mu-ink);}
+  .nav-group{margin-top:18px;}
+  .nav-head{font-family:var(--mu-mono);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--mu-ink-3);padding:0 12px 7px;display:flex;align-items:center;gap:8px;}
+  .nav-head .gnum{color:var(--mu-gray-400);}
+  .nav-sub{margin-left:12px;border-left:1px solid var(--mu-border);padding-left:6px;}
+  .nav-link{display:flex;align-items:center;gap:9px;height:32px;padding:0 15px;border-radius:var(--mu-radius-sm);font-size:13px;font-weight:500;color:var(--mu-ink-2);text-decoration:none;cursor:pointer;transition:background .15s,color .15s;}
+  .nav-link:hover{background:var(--mu-gray-100);}
+  .nav-link.is-active{background:rgba(29,29,31,.06);color:var(--mu-ink);font-weight:600;}
+  .nav-link .dot{display:none;}
+  .nav-link.is-active .dot{background:var(--mu-gray-900);}
+  .nav-link{text-transform:capitalize;}
+  .nav-foot{margin-top:auto;padding:16px 12px 4px;font-size:11.5px;color:var(--mu-ink-3);line-height:1.5;}
+
+  /* ============ Main ============ */
+  .main{margin-left:var(--nav-w);}
+  .wrap{max-width:900px;margin:0 auto;padding:0 40px;}
+  section{padding:66px 0;scroll-margin-top:0;}
+  .part-head{padding:94px 0 8px;border-top:1px solid var(--mu-border);}
+  .part-head .pn{font-family:var(--mu-mono);font-size:13px;letter-spacing:.12em;color:var(--mu-ink-3);}
+  .part-head .pt{font-size:40px;font-weight:680;letter-spacing:-.025em;line-height:1.1;margin-top:8px;}
+  .part-head .pd{font-size:16.5px;color:var(--mu-ink-2);margin-top:12px;max-width:620px;}
+  .kicker{font-family:var(--mu-mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--mu-ink-3);margin-bottom:12px;}
+  h1{font-size:40px;line-height:1.14;letter-spacing:-.025em;font-weight:680;}
+  h2{font-size:26px;line-height:1.2;letter-spacing:-.02em;font-weight:660;}
+  h3{font-size:18px;font-weight:650;}
+  .lead{font-size:16.5px;color:var(--mu-ink-2);margin-top:14px;max-width:660px;}
+  .sub{font-size:14.5px;color:var(--mu-ink-2);margin-top:10px;max-width:680px;}
+  p+p{margin-top:10px;}
+  b{font-weight:650;}
+  .mono{font-family:var(--mu-mono);}
+
+  /* cover */
+  .cover{display:flex;flex-direction:column;justify-content:flex-start;padding-top:13vh;padding-bottom:0;overflow:hidden;border-bottom:1px solid var(--mu-border);}
+  .cover .lead{margin-bottom:0;}
+  .cover-tag{font-size:18px;font-weight:600;color:var(--mu-ink);margin-top:16px;max-width:640px;line-height:1.45;letter-spacing:-.01em;}
+  .cover-shot{
+    display:block;margin-top:46px;
+    width:min(calc((100vw - var(--nav-w)) * 0.92), 1280px);
+    margin-left:50%;transform:translateX(-50%);
+    border:1px solid var(--mu-border);border-bottom:none;
+    border-radius:16px 16px 0 0;overflow:hidden;
+    max-height:60vh;background:var(--mu-surface);
+  }
+  .cover-shot img{width:100%;display:block;}
+  @media(max-width:760px){.cover-shot{width:auto;margin-left:0;transform:none;max-height:none;}}
+  .cover .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:30px;}
+  .chip{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:500;color:var(--mu-ink-2);background:var(--mu-surface);border:1px solid var(--mu-border);padding:6px 13px;border-radius:var(--mu-radius-full,999px);}
+  .chip .mono{font-size:11.5px;color:var(--mu-ink-3);}
+  .thesis{margin-top:30px;border-left:3px solid var(--mu-ink);background:var(--mu-surface);border-radius:0 var(--mu-radius-md) var(--mu-radius-md) 0;padding:18px 22px;font-size:16px;max-width:700px;}
+
+  /* cards */
+  .card{background:var(--mu-white);border:1px solid var(--mu-border);border-radius:var(--mu-radius-lg);padding:22px 24px;}
+  .card.surface{background:var(--mu-surface);box-shadow:none;}
+  .card-tag{font-family:var(--mu-mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--mu-ink-3);margin-bottom:10px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:22px;}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px;}
+  .cons{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px;}
+  @media(max-width:760px){.cons{grid-template-columns:1fr;}}
+  .cons .card-tag{color:var(--mu-ink);}
+  .cons h3{font-size:17px;}
+  /* goal + pivots combined */
+  .goal{display:flex;gap:14px;align-items:flex-start;background:var(--mu-gray-900);color:#fff;border-radius:var(--mu-radius-lg);padding:15px 17px;margin-top:24px;}
+  .goal .goal-l{font-family:var(--mu-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.5);padding-top:4px;flex-shrink:0;}
+  .goal p{font-size:13px;line-height:1.5;color:rgba(255,255,255,.65);}
+  .goal b{color:#fff;font-weight:700;}
+  .goal-split{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;align-items:stretch;}
+  .pivot-cols{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px;align-items:start;}
+  @media(max-width:760px){.pivot-cols{grid-template-columns:1fr;}}
+  .pivot-cols figure{margin:0 0 12px;}
+  .pivot-wrap{position:relative;padding-bottom:22px;margin-top:22px;}
+  .pivot-h{display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:stretch;}
+  @media(max-width:760px){.pivot-h{grid-template-columns:1fr;gap:14px;}.pivot-wrap::before,.pivot-wrap::after{display:none;}}
+  .pivot-wrap::before{content:"";position:absolute;left:50%;top:0;bottom:7px;transform:translateX(-50%);width:1.5px;background:var(--mu-ink);}
+  .pivot-wrap::after{content:"";position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid var(--mu-ink);}
+  @media(max-width:760px){.goal-split{grid-template-columns:1fr;}}
+  .goal-split .ai-card{background:var(--mu-surface);display:flex;flex-direction:column;}
+  .goal-split .ai-card .card-tag{color:var(--rag-amber);}
+  .pstack{border:1px solid var(--mu-border);border-radius:var(--mu-radius-lg);padding:6px 2px;}
+  .pitem{padding:14px 20px;}
+  .pitem .pk{font-family:var(--mu-mono);font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--mu-ink-3);}
+  .pitem .pt{font-size:15.5px;font-weight:650;margin-top:3px;}
+  .pitem p{font-size:13.5px;color:var(--mu-ink-2);margin-top:6px;line-height:1.55;}
+  .pitem p b{color:var(--mu-ink);}
+  .pfix{margin-top:11px;padding-top:9px;border-top:1px dashed var(--mu-border);font-family:var(--mu-mono);font-size:11px;letter-spacing:.02em;color:var(--mu-ink-3);}
+  .pfix b{color:var(--mu-ink);font-weight:600;}
+  .stack{display:flex;flex-direction:column;gap:14px;}
+  @media(max-width:760px){.grid2,.grid3{grid-template-columns:1fr;}}
+  ul.clean{list-style:none;margin-top:10px;}
+  ul.clean li{position:relative;padding-left:18px;margin-bottom:8px;color:var(--mu-ink-2);font-size:14px;}
+  ul.clean li::before{content:"";position:absolute;left:3px;top:9px;width:5px;height:5px;border-radius:50%;background:var(--mu-gray-400);}
+  ul.clean li b{color:var(--mu-ink);}
+  .pivot-cols ul.clean li{margin-bottom:3px;}
+  .pivot-cols .card-tag{margin-bottom:3px;}
+  .pivot-cols .card h3{margin-top:0;}
+  .pivot-cols .card{padding:0;overflow:hidden;}
+  .pivot-cols .card figure{margin:0;border:0;border-radius:0;background:transparent;border-bottom:1px solid var(--mu-border);}
+  .pivot-cols .pv-body{padding:16px 20px 18px;}
+  .pivot-cols > div:nth-child(1) figure,.pivot-cols > div:nth-child(2) figure{aspect-ratio:2370/1324;}
+  .pivot-cols > div:nth-child(3) figure,.pivot-cols > div:nth-child(4) figure{aspect-ratio:2276/1548;}
+  .pivot-cols figure img{height:100%;object-fit:cover;object-position:top;}
+  /* 20-iteration scrubber */
+  .scrub{margin-top:20px;}
+  .scrub-stage{border:1px solid var(--mu-border);border-radius:var(--mu-radius-md);overflow:hidden;background:var(--mu-surface);aspect-ratio:1.7;}
+  .scrub-stage img{width:100%;height:auto;display:block;}
+  .scrub-ctrl{display:flex;align-items:center;gap:16px;margin-top:14px;}
+  .scrub-range{flex:1;-webkit-appearance:none;appearance:none;height:4px;border-radius:3px;background:var(--mu-border);outline:none;cursor:pointer;}
+  .scrub-range::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:18px;height:18px;border-radius:50%;background:var(--mu-ink);cursor:grab;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.28);}
+  .scrub-range:active::-webkit-slider-thumb{cursor:grabbing;}
+  .scrub-range::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--mu-ink);cursor:grab;border:2px solid #fff;}
+  .scrub-cap{font-family:var(--mu-mono);font-size:12px;color:var(--mu-ink-3);white-space:nowrap;letter-spacing:.03em;}
+  .scrub-cap b{color:var(--mu-ink);}
+
+  /* parties diagram */
+  .parties{display:grid;grid-template-columns:1fr 54px 1fr 54px 1fr;align-items:stretch;gap:0;margin-top:16px;}
+  @media(max-width:760px){.parties{grid-template-columns:1fr;gap:12px;}}
+  .party{background:var(--mu-white);border:1px solid var(--mu-border);border-radius:var(--mu-radius-lg);padding:18px 18px;display:flex;flex-direction:column;}
+  .party.mid{border-color:var(--mu-gray-900);}
+  .party.green{border-color:var(--rag-green);background:var(--rag-green-bg);}
+  .party.green .role{color:var(--rag-green);}
+  .party .role{font-family:var(--mu-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mu-ink-3);margin-bottom:7px;}
+  .party h3{font-size:18px;}
+  .party .desc{font-size:12.5px;color:var(--mu-ink-2);margin-top:6px;line-height:1.5;}
+  .party .who{display:inline-flex;align-items:center;gap:6px;margin-top:auto;align-self:flex-start;font-size:11.5px;font-weight:600;white-space:nowrap;background:var(--mu-surface);border:1px solid var(--mu-border);padding:4px 9px;border-radius:999px;}
+  .party .desc{margin-bottom:14px;}
+  .party .av{width:19px;height:19px;border-radius:50%;background:var(--mu-gray-900);color:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;}
+  .link-col{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:0 2px;}
+  .link-col .arr{font-size:18px;color:var(--mu-gray-400);line-height:1;}
+  .link-col .lbl{font-size:9.5px;color:var(--mu-ink-3);text-align:center;line-height:1.25;font-weight:500;}
+  @media(max-width:760px){.link-col{flex-direction:row;}.link-col .arr{transform:rotate(90deg);}}
+  .loop-note{margin-top:16px;background:var(--mu-surface);border-radius:var(--mu-radius-md);padding:14px 18px;font-size:13.5px;color:var(--mu-ink-2);line-height:1.6;}
+  .layers{display:flex;flex-direction:column;margin-top:12px;}
+  .layer{background:var(--mu-white);border:1px solid var(--mu-border);border-radius:var(--mu-radius-sm);padding:9px 13px;}
+  .layer .ly-n{font-family:var(--mu-mono);font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--mu-ink-3);margin-bottom:2px;}
+  .layer .ly-b{font-size:12.5px;color:var(--mu-ink-2);line-height:1.4;}
+  .ly-op{align-self:center;font-family:var(--mu-mono);font-size:10.5px;color:var(--mu-ink-3);padding:5px 0;}
+  .ba2{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:stretch;}
+  .ba2-r{border-left:1px solid var(--mu-border);padding-left:24px;}
+  @media(max-width:760px){.ba2{grid-template-columns:1fr;gap:16px;}.ba2-r{border-left:none;padding-left:0;border-top:1px solid var(--mu-border);padding-top:16px;}}
+  .loop-note b{color:var(--mu-ink);}
+  .loop-note.green{background:var(--rag-green-bg);border:1px solid var(--rag-green);}
+  .loop-note.green b{color:var(--mu-ink);}
+
+  /* wireframe */
+  .wire{background:var(--mu-surface);border:1px solid var(--mu-border);border-radius:var(--mu-radius-md);padding:14px;margin-top:14px;}
+  .wire .wrow{display:flex;gap:8px;}
+  .wire .wb{background:var(--mu-white);border:1px dashed var(--mu-gray-300);border-radius:8px;height:46px;flex:1;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--mu-ink-3);font-family:var(--mu-mono);}
+  .wire .wb.tall{height:70px;}
+  .wire .wb.banner{height:34px;background:var(--mu-gray-100);}
+  .wire .wrow+.wrow{margin-top:8px;}
+  .wire .wb.title{height:16px;flex:0 0 auto;width:150px;padding:0;border:none;background:var(--mu-gray-400);border-radius:999px;}
+  .wire .wb.tab{height:16px;flex:0 0 auto;width:50px;min-width:0;padding:0;border:none;background:var(--mu-gray-400);border-radius:999px;}
+  .wire .wsp{flex:1;}
+
+  /* certain / uncertain */
+  .cu{border-radius:var(--mu-radius-md);padding:16px 18px;}
+  .cu.sure{background:var(--rag-green-bg);border:1px solid var(--rag-green);}
+  .cu.unsure{background:var(--rag-amber-bg);border:1px solid var(--rag-amber);}
+  .cu .cu-h{font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:9px;}
+  .cu.sure .cu-h{color:var(--rag-green);}
+  .cu.unsure .cu-h{color:var(--rag-amber);}
+  .cu ul{list-style:none;}
+  .cu li{font-size:14.5px;color:var(--mu-ink);padding-left:16px;position:relative;margin-bottom:6px;}
+  .cu li::before{content:"";position:absolute;left:2px;top:8px;width:5px;height:5px;border-radius:50%;}
+  .cu.sure li::before{background:var(--rag-green);}
+  .cu.unsure li::before{background:var(--rag-amber);}
+  .cu-foot{margin-top:10px;padding-top:9px;border-top:1px dashed rgba(154,98,0,.3);font-size:12px;font-weight:600;color:var(--rag-amber);}
+  #scope .stack{height:100%;}
+  #scope .stack .cu{flex:1;}
+
+  /* pivots timeline */
+  .pivots{margin-top:24px;}
+  .piv{display:grid;grid-template-columns:132px 1fr;gap:20px;position:relative;padding-bottom:28px;}
+  .piv::before{content:"";position:absolute;left:11px;top:26px;bottom:-2px;width:1.5px;background:var(--mu-border);}
+  .piv:last-child::before{display:none;}
+  .piv-mark{position:relative;}
+  .piv-mark .pdot{width:23px;height:23px;border-radius:50%;background:var(--mu-gray-900);color:#fff;font-family:var(--mu-mono);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+  .piv-mark .pname{font-size:12px;font-weight:650;margin-top:8px;line-height:1.3;}
+  .piv-mark .pprin{margin-top:9px;font-family:var(--mu-mono);font-size:10px;letter-spacing:.02em;color:var(--mu-ink-2);line-height:1.4;}
+  .piv-mark .pprin b{display:block;font-size:8.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--mu-gray-400);font-weight:600;margin-bottom:2px;}
+  .piv-body{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media(max-width:760px){.piv{grid-template-columns:1fr;gap:10px;}.piv::before{display:none;}.piv-body{grid-template-columns:1fr;}}
+  .lane{border-radius:var(--mu-radius-md);padding:13px 15px;font-size:13px;line-height:1.5;}
+  .lane.ai{background:var(--mu-surface);border:1px solid var(--mu-border);}
+  .lane.me{background:var(--mu-white);border:1.5px solid var(--mu-gray-900);}
+  .lane .ln{font-family:var(--mu-mono);font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--mu-ink-3);margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+  .lane.me .ln{color:var(--mu-ink);}
+  .lane .ln .b{display:inline-block;width:14px;height:14px;border-radius:4px;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+  .lane.ai .ln .b{background:var(--mu-gray-300);color:#fff;}
+  .lane.me .ln .b{background:var(--mu-gray-900);color:#fff;}
+
+  /* prompt block + figure */
+  .prompt{background:var(--mu-gray-900);color:#e8e8ea;border-radius:var(--mu-radius-md);padding:16px 18px;font-family:var(--mu-mono);font-size:12.5px;line-height:1.7;margin-top:16px;white-space:pre-wrap;}
+  .prompt.dim{color:rgba(255,255,255,.38);}
+  .prompt.dim b{color:#fff;font-weight:600;}
+  .prompt .pt{display:block;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--mu-gray-400);margin-bottom:8px;}
+  .prompt a{color:#fff;text-decoration:underline;text-underline-offset:2px;}
+  figure{margin-top:16px;border:1px solid var(--mu-border);border-radius:var(--mu-radius-md);overflow:hidden;background:var(--mu-surface);}
+  figure img{width:100%;display:block;}
+  figcaption{font-family:var(--mu-mono);font-size:11.5px;color:var(--mu-ink-3);padding:10px 15px;border-top:1px solid var(--mu-border);letter-spacing:.02em;}
+  .fig-anno{padding:15px 18px;border-top:1px solid var(--mu-border);}
+  .fig-anno .fa-title{font-size:14px;font-weight:650;color:var(--mu-ink);}
+  .loop-note .fa-title{font-size:14px;font-weight:700;color:var(--mu-ink);}
+  .subsec{display:flex;align-items:baseline;gap:9px;font-size:14px;font-weight:650;color:var(--mu-ink);margin:36px 0 12px;padding-bottom:9px;border-bottom:1px solid var(--mu-border);}
+  .subsec span{font-family:var(--mu-mono);font-size:11px;font-weight:600;color:var(--mu-ink-3);}
+  .acc{border-bottom:1px solid var(--mu-border);}
+  .acc:first-of-type{border-top:1px solid var(--mu-border);margin-top:26px;}
+  .acc > summary{display:flex;align-items:center;gap:9px;font-size:15.5px;font-weight:650;color:var(--mu-ink);padding:19px 2px;cursor:pointer;list-style:none;}
+  .acc > summary::-webkit-details-marker{display:none;}
+  .acc > summary .sn{font-family:var(--mu-mono);font-size:11px;font-weight:600;color:var(--mu-ink-3);}
+  .acc > summary::after{content:"+";margin-left:auto;font-family:var(--mu-mono);font-size:18px;font-weight:300;color:var(--mu-ink-3);line-height:1;}
+  .acc[open] > summary::after{content:"–";}
+  .acc-body{padding:2px 2px 22px;}
+  .cand-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px;}
+  .cand-sub{font-size:12.5px;font-weight:700;color:var(--mu-ink);margin-top:20px;}
+  @media(max-width:760px){.cand-grid{grid-template-columns:1fr 1fr;}}
+  .cand{border:1px solid var(--mu-border);border-radius:12px;padding:14px 15px;background:var(--mu-white);display:flex;flex-direction:column;min-height:122px;}
+  .cand .c-title{font-size:12.5px;font-weight:600;color:var(--mu-ink);line-height:1.3;}
+  .cand .c-num{font-family:var(--mu-mono);font-size:21px;font-weight:600;letter-spacing:-.02em;color:var(--mu-ink);margin-top:6px;line-height:1.05;}
+  .cand .c-num .u{font-size:11.5px;color:var(--mu-ink-3);font-weight:500;margin-left:2px;}
+  .cand .c-sub{font-size:11px;color:var(--mu-ink-3);margin-top:6px;line-height:1.45;}
+  .cand .cand-tag{font-family:var(--mu-mono);font-size:9.5px;letter-spacing:.07em;text-transform:uppercase;align-self:flex-start;padding:2px 8px;border-radius:999px;margin-top:12px;}
+  .cand.keep{border-color:var(--rag-green);}
+  .cand.keep .cand-tag{background:var(--rag-green);color:#fff;}
+  .cand.mod{border-color:#e8d3a0;}
+  .cand.mod .cand-tag{background:var(--rag-amber-bg);color:var(--rag-amber);}
+  .cand.drop{background:var(--mu-surface);border-style:dashed;opacity:.6;}
+  .cand.drop .cand-tag{background:var(--mu-gray-100);color:var(--mu-ink-3);}
+  /* recreated iteration cards */
+  .ic-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:6px;}
+  @media(max-width:720px){.ic-grid{grid-template-columns:1fr;}}
+  .icw{display:flex;flex-direction:column;border:1px solid var(--mu-border);border-radius:14px;overflow:hidden;background:#fff;}
+  .icw .ic{border:none;border-radius:0;flex:1;}
+  .ic-cap{background:var(--mu-surface);border-top:1px solid var(--mu-border);padding:9px 13px;font-family:var(--mu-mono);font-size:10.5px;color:var(--mu-ink-3);letter-spacing:.02em;line-height:1.4;}
+  .ic{background:#fff;border:1px solid var(--mu-border);border-radius:14px;padding:15px 16px;display:flex;flex-direction:column;}
+  .ic-h{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;}
+  .ic-title{font-size:13.5px;font-weight:700;color:var(--mu-ink);}
+  .ic-meta{font-size:11.5px;color:var(--mu-ink-3);}
+  .ic-num{font-family:var(--mu-mono);font-size:28px;font-weight:700;letter-spacing:-.02em;color:var(--mu-ink);margin-top:9px;line-height:1;}
+  .ic-num .u{font-size:15px;color:var(--mu-ink-3);font-weight:600;}
+  .ic-num.amber,.ic-num .amber{color:var(--rag-amber);}
+  .ic-num .dim{color:var(--mu-ink-3);font-size:21px;}
+  .ic-num .arr{color:var(--mu-gray-400);font-size:17px;margin:0 5px;}
+  .ic-num .vs{color:var(--mu-ink-3);font-size:13px;font-weight:500;margin:0 7px;}
+  .ic-lev{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;margin-top:9px;}
+  .ic-lev .ic-num{margin-top:0;}
+  .ic-lim{font-family:var(--mu-mono);font-size:19px;color:var(--mu-ink-3);font-weight:500;}
+  .ic-sub{font-size:12px;color:var(--mu-ink-3);margin-top:9px;line-height:1.5;}
+  .ic-note{font-size:12px;font-weight:650;margin-top:10px;color:var(--rag-amber);}
+  .ic-pill{display:inline-block;align-self:flex-start;font-size:11.5px;font-weight:650;padding:3px 11px;border-radius:999px;margin-top:9px;}
+  .ic-pill.red{background:var(--rag-red-bg);color:var(--rag-red);}
+  .ic-pill.amber{background:var(--rag-amber-bg);color:var(--rag-amber);}
+  .ic .tri{color:var(--rag-amber);font-size:15px;margin-left:5px;}
+  .ic-bars{display:flex;gap:6px;margin-top:12px;height:34px;align-items:flex-end;}
+  .ic-bars span{flex:1;background:var(--mu-gray-100);border-radius:4px;}
+  .ic-bars span.on{background:var(--rag-amber);}
+  .ic-bar{position:relative;height:9px;background:var(--mu-gray-100);border-radius:999px;margin-top:12px;overflow:hidden;}
+  .ic-bar .fr{position:absolute;right:0;top:0;bottom:0;width:8%;background:var(--rag-amber);}
+  .ic-bar .fd{position:absolute;left:0;top:0;bottom:0;width:92%;background:var(--mu-gray-900);}
+  .ic-scale{display:flex;justify-content:space-between;font-family:var(--mu-mono);font-size:10px;color:var(--mu-ink-3);margin-top:6px;}
+  /* performance card iteration extras */
+  .ic-grid.two{grid-template-columns:repeat(2,1fr);}
+  @media(max-width:620px){.ic-grid.two{grid-template-columns:1fr;}}
+  .ic-pill.green{background:var(--rag-green-bg);color:var(--rag-green);}
+  .qchips{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:12px;}
+  .qchip{background:var(--mu-gray-50);border:1px solid var(--mu-gray-100);border-radius:8px;padding:8px 4px;text-align:center;}
+  .qchip .ql{font-family:var(--mu-mono);font-size:9px;color:var(--mu-ink-3);}
+  .qchip .qd{font-family:var(--mu-mono);font-size:13px;font-weight:700;color:var(--mu-ink);margin-top:3px;}
+  .qchip.amber{background:var(--rag-amber-bg);border-color:#f0e0bf;}
+  .qchip.amber .qd{color:var(--rag-amber);}
+  .qchip.red{background:var(--rag-red-bg);border-color:#f5d9d6;}
+  .qchip.red .qd{color:var(--rag-red);}
+  .qrows{margin-top:12px;}
+  .qrow{display:flex;justify-content:space-between;gap:10px;font-size:12px;padding:6px 0;border-bottom:1px solid var(--mu-gray-100);}
+  .qrow:last-child{border-bottom:none;}
+  .qrow .ql{color:var(--mu-ink-3);}
+  .qrow .qd{font-family:var(--mu-mono);font-weight:650;color:var(--mu-ink-3);white-space:nowrap;}
+  .qrow.hl .ql{color:var(--mu-ink);font-weight:600;}
+  .qrow.hl .qd{color:var(--rag-red);}
+  .qtable{width:100%;border-collapse:collapse;margin-top:12px;}
+  .qtable th{font-family:var(--mu-mono);font-size:9px;letter-spacing:.05em;text-transform:uppercase;color:var(--mu-ink-3);text-align:left;font-weight:500;padding-bottom:7px;border-bottom:1px solid var(--mu-border);}
+  .qtable th:last-child,.qtable td:last-child{text-align:right;}
+  .qtable td{font-family:var(--mu-mono);font-size:11.5px;color:var(--mu-ink-2);padding:7px 0;border-bottom:1px solid var(--mu-gray-100);white-space:nowrap;}
+  .qtable tr:last-child td{border-bottom:none;}
+  .qtable tr.hl td{color:var(--mu-ink);font-weight:650;}
+  .qtable .d-red{color:var(--rag-red);}
+  .rag-tbl{width:100%;border-collapse:collapse;margin-top:14px;font-size:12.5px;}
+  .rag-tbl th{font-family:var(--mu-mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--mu-ink-3);text-align:left;font-weight:500;padding:0 10px 8px 0;border-bottom:1px solid var(--mu-border);}
+  .rag-tbl td{padding:9px 10px 9px 0;border-bottom:1px solid var(--mu-gray-100);color:var(--mu-ink-2);vertical-align:top;}
+  .rag-tbl tr:last-child td{border-bottom:none;}
+  .rag-tbl td.inp{color:var(--mu-ink);font-weight:600;}
+  .rag-tbl td.g{color:var(--rag-green);font-family:var(--mu-mono);font-size:11.5px;white-space:nowrap;}
+  .rag-tbl td.a{color:var(--rag-amber);font-family:var(--mu-mono);font-size:11.5px;white-space:nowrap;}
+  .rag-tbl td.r{color:var(--rag-red);font-family:var(--mu-mono);font-size:11.5px;white-space:nowrap;}
+  .ic-link{display:inline-flex;align-items:center;gap:5px;margin-top:12px;font-size:11.5px;font-weight:600;color:var(--mu-ink-2);cursor:pointer;}
+  .ic-link:hover{color:var(--mu-ink);}
+  .ic-link .chev{font-size:12px;}
+  /* recreated banners */
+  .bnr{border-radius:14px;padding:15px 17px;}
+  .bnr-white{background:#fff;border:1px solid var(--mu-border);}
+  .bnr-amber{background:var(--rag-amber-bg);border:1px solid #f0e0bf;}
+  .bnr-row{display:flex;gap:12px;align-items:flex-start;}
+  .ad-av{width:26px;height:26px;border-radius:7px;background:var(--mu-gray-900);color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .bnr-main{flex:1;min-width:0;}
+  .bnr-meta{font-size:10.5px;color:var(--mu-ink-3);}
+  .bnr-meta b{color:var(--mu-ink);font-weight:650;}
+  .bnr-head{font-size:13px;font-weight:700;color:var(--mu-ink);margin-top:3px;line-height:1.4;}
+  .bnr-head .star,.adam-amber .star{color:var(--rag-amber);}
+  .bnr-findings{margin-top:9px;}
+  .bf{font-size:11px;color:var(--mu-ink);padding:6px 0;border-top:1px solid var(--mu-gray-100);line-height:1.5;}
+  .bf:first-child{border-top:none;}
+  .bf-n{font-family:var(--mu-mono);font-size:9px;color:var(--mu-ink-3);margin-right:6px;}
+  .muted{color:var(--mu-ink-3);font-weight:400;}
+  .bnr-btn{flex-shrink:0;background:var(--mu-gray-900);color:#fff;font-size:11px;font-weight:600;padding:8px 13px;border-radius:9px;white-space:nowrap;align-self:center;}
+  .bnr-body{font-size:11.5px;color:var(--mu-ink-2);line-height:1.55;margin-top:5px;}
+  .bnr-body b{color:var(--mu-ink);}
+  .bnr-inputs{display:flex;flex-wrap:wrap;gap:3px 15px;margin-top:9px;padding-top:8px;border-top:1px dashed rgba(0,0,0,.14);font-size:10.5px;align-items:center;}
+  .bi{color:var(--rag-green);}
+  .bi.amber{color:var(--rag-amber);}
+  .bi.q{color:var(--mu-ink-3);}
+  .bi-right{margin-left:auto;color:var(--mu-ink-3);}
+  .ref{font-family:var(--mu-mono);font-size:9px;color:var(--mu-ink-3);border-bottom:1px solid var(--mu-gray-300);}
+  /* recreated discarded placement cards */
+  .adam-tag{display:inline-flex;align-items:center;background:var(--mu-gray-900);color:#fff;font-family:var(--mu-mono);font-size:8px;font-weight:700;padding:3px 6px;border-radius:5px;letter-spacing:.03em;flex-shrink:0;}
+  .halsted-tag{display:inline-flex;align-items:center;background:transparent;border:1px solid var(--mu-border);color:var(--mu-ink-3);font-family:var(--mu-mono);font-size:8px;font-weight:600;padding:2px 6px;border-radius:5px;flex-shrink:0;}
+  .adam-inline{margin-top:12px;padding:10px 11px;background:var(--mu-gray-50);border-radius:9px;font-size:10.5px;line-height:1.55;color:var(--mu-ink-2);}
+  .adam-inline b{color:var(--mu-ink);}
+  .adam-inline .adam-tag{margin-right:6px;vertical-align:middle;}
+  .dec-row{display:flex;align-items:center;gap:8px;font-family:var(--mu-mono);font-size:11px;color:var(--mu-ink);margin-top:9px;}
+  .dec-row .dec-mid{flex:1;}
+  .pill-a,.pill-g{font-size:9.5px;font-weight:650;padding:2px 8px;border-radius:999px;}
+  .pill-a{background:var(--rag-amber-bg);color:var(--rag-amber);}
+  .pill-g{background:var(--rag-green-bg);color:var(--rag-green);}
+  .dec-btn{margin-top:14px;background:var(--mu-gray-900);color:#fff;text-align:center;padding:9px;border-radius:9px;font-size:11px;font-weight:600;}
+  .adam-amber{margin-top:12px;padding:11px 13px;background:var(--rag-amber-bg);border-radius:9px;}
+  .adam-amber .aa-title{font-size:11.5px;font-weight:700;color:var(--mu-ink);}
+  .adam-amber p{font-size:10.5px;line-height:1.5;color:var(--mu-ink-2);margin-top:5px;}
+  .adam-amber b{color:var(--mu-ink);}
+  .adam-amber .aa-btn{display:inline-block;margin-top:9px;background:var(--mu-gray-900);color:#fff;padding:6px 13px;border-radius:7px;font-size:10.5px;font-weight:600;}
+  /* embedded prototype */
+  .embed{position:relative;width:min(calc((100vw - var(--nav-w)) * 0.92), 1280px);height:640px;margin-left:50%;transform:translateX(-50%);margin-top:20px;border:1px solid var(--mu-border);border-radius:var(--mu-radius-md);overflow:hidden;background:var(--mu-surface);box-shadow:var(--mu-shadow-md);}
+  .embed iframe{width:125%;height:800px;transform:scale(0.8);transform-origin:top left;border:none;display:block;}
+  .embed-open{display:inline-flex;align-items:center;gap:6px;background:var(--mu-gray-900);color:#fff;font-size:12px;font-weight:600;padding:8px 15px;border-radius:8px;text-decoration:none;}
+  .embed-open:hover{background:var(--mu-gray-800);}
+  @media(max-width:760px){.embed{width:auto;margin-left:0;transform:none;}}
+  .ba{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;}
+  @media(max-width:760px){.ba{grid-template-columns:1fr;}}
+  .ba figure{margin-top:0;}
+  .ba-note{font-family:var(--mu-mono);font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--mu-ink-3);margin-bottom:6px;}
+
+  /* media breakout — images wider than the text column, centered in the content region */
+  .wrap > figure,
+  .wrap > .ba,
+  .wrap > .grid3,
+  .wrap > .pivot-cols,
+  .wrap > .scrub,
+  .acc-body > figure{
+    width:min(calc((100vw - var(--nav-w)) * 0.9), 1200px);
+    max-width:none;
+    margin-left:50%;
+    transform:translateX(-50%);
+  }
+  .wrap > .ba{margin-top:16px;}
+  .wrap > .grid3{margin-top:22px;}
+  @media(max-width:760px){
+    .wrap > figure,.wrap > .ba,.wrap > .grid3,.wrap > .pivot-cols,.acc-body > figure{width:auto;margin-left:0;transform:none;}
+  }
+
+  /* keep/remove */
+  .kr{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
+  .krchip{font-size:12.5px;font-weight:500;padding:6px 12px;border-radius:999px;display:inline-flex;align-items:center;gap:7px;}
+  .krchip.keep{background:var(--rag-green-bg);color:var(--rag-green);border:1px solid #cfe8d9;}
+  .krchip.drop{background:var(--mu-surface);color:var(--mu-ink-3);border:1px solid var(--mu-border);text-decoration:line-through;}
+  .krchip .t{font-family:var(--mu-mono);font-size:9px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;}
+
+  /* flow steps */
+  .flow{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:22px;}
+  @media(max-width:760px){.flow{grid-template-columns:1fr;}}
+  .fstep{background:var(--mu-white);border:1px solid var(--mu-border);border-radius:var(--mu-radius-lg);padding:18px 18px;position:relative;}
+  .fstep .fn{font-family:var(--mu-mono);font-size:11px;color:var(--mu-ink-3);}
+  .fstep h3{margin-top:4px;font-size:16px;}
+  .fstep .fq{font-size:13px;color:var(--mu-ink-2);margin-top:3px;font-style:italic;}
+  .fstep p{font-size:13px;color:var(--mu-ink-2);margin-top:10px;}
+
+  /* metric rows */
+  .mrow{display:grid;grid-template-columns:148px 1fr 1fr;gap:16px;padding:14px 0;border-bottom:1px solid var(--mu-border);align-items:start;}
+  .mrow:last-child{border-bottom:none;}
+  .mrow .mq{font-weight:650;font-size:14px;}
+  .mrow .ma,.mrow .mv{font-size:13.5px;color:var(--mu-ink-2);}
+  .mrow.mhead{padding:0 0 10px;}
+  .mrow.mhead>div{font-family:var(--mu-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--mu-ink-3);font-weight:600;}
+  @media(max-width:760px){.mrow{grid-template-columns:1fr;gap:4px;}.mrow.mhead{display:none;}}
+  .metric-pill{display:inline-block;font-family:var(--mu-mono);font-size:11px;background:var(--mu-surface);border:1px solid var(--mu-border);border-radius:6px;padding:2px 8px;color:var(--mu-ink);margin:2px 4px 2px 0;}
+
+  .pill{display:inline-block;font-size:11.5px;font-weight:650;padding:2px 9px;border-radius:999px;}
+  .pill.g{background:var(--rag-green-bg);color:var(--rag-green);}
+  .pill.a{background:var(--rag-amber-bg);color:var(--rag-amber);}
+
+  /* overview stats */
+  .ov-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:24px;}
+  @media(max-width:760px){.ov-stats{grid-template-columns:1fr;}}
+  .ov-stat{background:var(--mu-surface);border:1px solid var(--mu-border);border-radius:var(--mu-radius-lg);padding:20px 22px;}
+  .ov-stat .ov-l{font-family:var(--mu-mono);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--mu-ink-3);}
+  .ov-stat .ov-v{font-size:30px;font-weight:680;letter-spacing:-.02em;margin-top:9px;line-height:1.05;}
+  .ov-stat .ov-v .u{font-size:15px;font-weight:500;color:var(--mu-ink-3);margin-left:3px;}
+  .ov-stat .ov-s{font-size:12.5px;color:var(--mu-ink-2);margin-top:6px;}
+
+  /* folder tree */
+  .tree2{margin-top:2px;}
+  .tree2 .trow{padding:10px 0;border-bottom:1px solid var(--mu-gray-100);}
+  .tree2 .trow:last-child{border-bottom:none;padding-bottom:0;}
+  .tree2 .tg{font-family:var(--mu-mono);font-size:13px;color:var(--mu-ink);font-weight:600;display:flex;align-items:center;gap:8px;}
+  .tree2 .tg .root{font-weight:700;}
+  .tree2 .tg svg{width:15px;height:15px;flex-shrink:0;fill:none;stroke:var(--mu-gray-400);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;}
+  .tree2 .trow:first-child .tg svg{stroke:var(--mu-ink);}
+  .tree2 .tc{font-size:12.5px;color:var(--mu-ink-2);margin-top:3px;line-height:1.5;}
+  .brief-block{padding:11px 0;border-bottom:1px solid var(--mu-gray-100);}
+  .brief-block:last-child{border-bottom:none;padding-bottom:0;}
+  .brief-block .bl{font-family:var(--mu-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--mu-ink);font-weight:600;margin-bottom:4px;}
+  .brief-block p{font-size:15px;color:var(--mu-ink-2);line-height:1.55;}
+  .brief-link{display:inline-flex;align-items:center;gap:6px;margin-top:14px;font-size:12.5px;font-weight:600;color:var(--mu-ink);text-decoration:none;border:1px solid var(--mu-border);padding:7px 13px;border-radius:8px;transition:background .15s,border-color .15s;}
+  .brief-link:hover{background:rgba(29,29,31,.04);border-color:var(--mu-gray-300);}
+  .brief-block b{color:var(--mu-ink);}
+
+  /* prototype link in footer */
+  .proto-link{display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:var(--mu-ink-3);padding:4px 2px;font-size:13px;font-weight:500;transition:color .15s;}
+  .proto-link span{text-decoration:none;}
+  .proto-link:hover{color:var(--mu-ink);}
+  .proto-link svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}
+</style>
+</head>
+<body>
+
+<!-- ══════════ NAV ══════════ -->
+<nav class="nav">
+  <div class="nav-logo">
+    <span class="mark">F2</span>
+    <span class="name">Portfolio OS<span>Case Study</span></span>
+  </div>
+  <div class="nav-group">
+    <div class="nav-head"><span class="gnum">00</span> Cover</div>
+    <div class="nav-sub">
+      <a class="nav-link" href="#cover" data-spy="cover"><span class="dot"></span>Cover</a>
+      <a class="nav-link" href="#context" data-spy="context"><span class="dot"></span>Given context</a>
+      <a class="nav-link" href="#overview" data-spy="overview"><span class="dot"></span>My process</a>
+    </div>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-head"><span class="gnum">01</span> Understand</div>
+    <div class="nav-sub">
+      <a class="nav-link" href="#digest" data-spy="digest"><span class="dot"></span>Digest with AI</a>
+      <a class="nav-link" href="#parties" data-spy="parties"><span class="dot"></span>Scenario</a>
+      <a class="nav-link" href="#scope" data-spy="scope"><span class="dot"></span>Scope</a>
+    </div>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-head"><span class="gnum">02</span> Explore</div>
+    <div class="nav-sub">
+      <a class="nav-link" href="#dashboard" data-spy="dashboard"><span class="dot"></span>AI's first draft</a>
+      <a class="nav-link" href="#approach" data-spy="approach"><span class="dot"></span>Pivots & focus</a>
+      <a class="nav-link" href="#topcards" data-spy="topcards"><span class="dot"></span>Top Cards</a>
+      <a class="nav-link" href="#hierarchy" data-spy="hierarchy"><span class="dot"></span>Card & Info Design</a>
+      <a class="nav-link" href="#agent" data-spy="agent"><span class="dot"></span>Guide with Agent</a>
+    </div>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-head"><span class="gnum">03</span> Finalize</div>
+    <div class="nav-sub">
+      <a class="nav-link" href="#flow" data-spy="flow"><span class="dot"></span>End-to-end flow</a>
+      <a class="nav-link" href="#validation" data-spy="validation"><span class="dot"></span>Validation</a>
+      <a class="nav-link" href="#future" data-spy="future"><span class="dot"></span>What's next</a>
+    </div>
+  </div>
+
+  <div class="nav-foot">
+    <a class="proto-link" href="index.html" target="_blank" rel="noopener">
+      <span>Final Prototype</span>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6"/><path d="M20 4 10 14"/><path d="M19 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h6"/></svg>
+    </a>
+  </div>
+</nav>
+
+<!-- ══════════ MAIN ══════════ -->
+<div class="main">
+
+<!-- COVER -->
+<section id="cover" class="cover"><div class="wrap">
+  <div class="kicker">Case Study</div>
+  <h1>A workspace for faster decisions</h1>
+  <p class="lead">My design focused on Maya's use case: she opens it and, within a minute, knows what changed this quarter, why, whether she agrees with Adam, and what to do next.</p>
+  <p class="lead" style="margin-top:14px;">This case study walks through: how I framed an ambiguous problem, used AI tools to explore directions, design thinking and decisions that shaped the proposal.</p>
+  <a class="cover-shot" href="index.html" target="_blank" rel="noopener" title="Open the final prototype">
+    <img src="iterations/06-final.png" alt="Final Halsted workspace prototype">
+  </a>
+</div></section>
+
+<!-- GIVEN CONTEXT -->
+<section id="context"><div class="wrap">
+  <div class="kicker">Given Context</div>
+  <h2>What I was given from the brief and data pack</h2>
+  <p class="sub">What I used from the context versus what I set aside: the brief and folders 2–4 shaped the design; folder 1 is background.</p>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-tag">The brief (PRD)</div>
+      <div class="brief-block">
+        <div class="bl">The ask</div>
+        <p>Design what Maya sees and does from learning the Q2 package is ready to making her health-status decision.</p>
+      </div>
+      <div class="brief-block">
+        <div class="bl">Success bar</div>
+        <p>Open the workspace and, <b>within a minute</b>, know what changed, why, whether she agrees with Adam, and what to do next.</p>
+      </div>
+      <a class="brief-link" href="F2%20Designer%20Case%20Study.pdf" target="_blank" rel="noopener">Open PRD ↗</a>
+    </div>
+
+    <div class="card">
+      <div class="card-tag">Data pack · folder structure</div>
+      <div class="tree2">
+        <div class="trow"><div class="tg"><svg viewBox="0 0 24 24"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg><span class="root">halsted_data_pack/</span></div><div class="tc">START_HERE.md — what to use for what</div></div>
+        <div class="trow"><div class="tg"><svg viewBox="0 0 24 24"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>1_the_email/</div><div class="tc">Background — how the package arrived</div></div>
+        <div class="trow"><div class="tg"><svg viewBox="0 0 24 24"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>2_workspace_before/</div><div class="tc">Terms, covenants, plan, 5 quarters</div></div>
+        <div class="trow"><div class="tg"><svg viewBox="0 0 24 24"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>3_what_adam_found/</div><div class="tc">Adam's 3 findings + suggested status</div></div>
+        <div class="trow"><div class="tg"><svg viewBox="0 0 24 24"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>4_fund_rules/</div><div class="tc">Credit policy — green / amber / red</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <div class="card-tag">Fund credit policy · 4_fund_rules</div>
+    <h3>How the status is scored</h3>
+    <p class="sub" style="margin-top:6px"><b>Status = the worst band across all four inputs.</b> Maya can override the computed status with a written reason.</p>
+    <table class="rag-tbl">
+      <thead><tr><th>Input</th><th>Green</th><th>Amber</th><th>Red</th></tr></thead>
+      <tbody>
+        <tr><td class="inp">Tightest covenant headroom</td><td class="g">≥ 10%</td><td class="a">5–&lt;10%</td><td class="r">&lt; 5% / breach</td></tr>
+        <tr><td class="inp">LTM Adj. EBITDA (% of case)</td><td class="g">≥ 85%</td><td class="a">70–&lt;85%</td><td class="r">&lt; 70%</td></tr>
+        <tr><td class="inp">Reporting delinquency (days)</td><td class="g">≤ 15</td><td class="a">16–30</td><td class="r">&gt; 30</td></tr>
+        <tr><td class="inp">Payment status</td><td class="g">Current</td><td class="a">—</td><td class="r">Missed</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div></section>
+
+<!-- OVERVIEW -->
+<section id="overview"><div class="wrap">
+  <div class="kicker">My process</div>
+  <h2>How this was made</h2>
+  <p class="sub">Approach in one line: I set direction, structure, and taste; AI read the data pack, drafted, and wired the data. Every output was reviewed and corrected before moving on.</p>
+  <div class="ov-stats">
+    <div class="ov-stat"><div class="ov-l">Tool</div><div class="ov-v">Claude Code</div><div class="ov-s">AI pair-designer · Fable 5</div></div>
+    <div class="ov-stat"><div class="ov-l">Total time</div><div class="ov-v">3<span class="u">h</span> 15<span class="u">m</span></div><div class="ov-s">understand → design → ship</div></div>
+    <div class="ov-stat"><div class="ov-l">Design iteration</div><div class="ov-v">2<span class="u">h</span> 45<span class="u">m</span></div><div class="ov-s">V1 → V20 HTML iteration</div></div>
+    <div class="ov-stat"><div class="ov-l">Prompts</div><div class="ov-v">~50</div><div class="ov-s">logged end-to-end</div></div>
+    <div class="ov-stat"><div class="ov-l">Iterations</div><div class="ov-v">20</div><div class="ov-s">captured · V1 → V20</div></div>
+    <div class="ov-stat"><div class="ov-l">Key pivots</div><div class="ov-v">4</div><div class="ov-s">major direction changes</div></div>
+  </div>
+</div></section>
+
+<!-- ───── UNDERSTAND ───── -->
+<div class="part-head"><div class="wrap">
+  <div class="pn">01</div>
+  <div class="pt">Understand</div>
+  <p class="pd">Who's in the room, and what the brief fixes versus leaves open.</p>
+</div></div>
+
+<!-- DIGEST WITH AI -->
+<section id="digest"><div class="wrap">
+  <div class="kicker">Digest with AI</div>
+  <h2>Asked AI to turn context into a readable brief</h2>
+  <p class="sub">Gave a Claude agent access to the brief and project folder, and asked it to generate an HTML page summarizing the context and user needs.</p>
+
+  <div class="embed">
+    <iframe src="case-study-zh.html#user" title="User needs & pain points" loading="lazy"></iframe>
+  </div>
+  <div style="text-align:center;margin-top:14px"><a class="embed-open" href="case-study-zh.html#user" target="_blank" rel="noopener">Open in full ↗</a></div>
+</div></section>
+
+<!-- 3 PARTIES -->
+<section id="parties"><div class="wrap">
+  <div class="kicker">Scenario</div>
+  <h2>Three parties, one loop, and our focus</h2>
+  <p class="sub">Mapped how the stakeholders relate, and identified who the design needs to serve.</p>
+
+  <div class="loop-note"><b>Where this case starts:</b> Tuesday, Aug 18, 2026 — Adam's first pass on Halsted's <b>Q2 2026</b> package is done, and Maya is about to open the workspace. Everything that follows is designing that moment.</div>
+
+  <div class="parties">
+    <div class="party">
+      <div class="role">Report</div>
+      <h3>Borrower · Halsted</h3>
+      <div class="desc">A $85M unitranche loan from Dec 2024. Sends its numbers every quarter — financial statements, management commentary, and a signed compliance certificate.</div>
+    </div>
+    <div class="link-col"><div class="lbl">sends package</div><div class="arr">→</div></div>
+    <div class="party">
+      <div class="role">Analyze</div>
+      <h3>F2 agent · Adam</h3>
+      <div class="desc">F2's agent inside Portfolio OS. Files each package and runs the first pass — re-checks covenants, the certificate, and what changed.</div>
+    </div>
+    <div class="link-col"><div class="lbl">suggests status</div><div class="arr">→</div></div>
+    <div class="party green">
+      <div class="role">Decide</div>
+      <h3>F2 user · Maya</h3>
+      <div class="desc">Monitoring analyst at Northgate Credit Partners, covering 35 borrowers — a credit expert who owns the health-status call.</div>
+    </div>
+  </div>
+
+  <div class="loop-note green"><b>Consider for the bigger picture</b>
+    <ul class="clean" style="margin-top:8px">
+      <li><b>The lender's needs</b> — Northgate makes money on interest and getting the $85M back, so its core need is to protect returns by <b>catching credit risk early</b>. <b>Clear signals</b> and the <b>health status</b> let it reduce losses across the whole book (35 borrowers), not just one loan.</li>
+      <li><b>Serve different roles</b> — beyond Maya's call: a <b>portfolio manager</b> watching book-level risk, an <b>account / relationship manager</b> owning borrower communication, <b>loan servicing</b> chasing payments and reporting, or a <b>workout specialist</b> on a distressed credit — each needs its own view, depth, and cadence.</li>
+    </ul>
+  </div>
+</div></section>
+
+<!-- SCOPE -->
+<section id="scope"><div class="wrap">
+  <div class="kicker">Scope</div>
+  <h2>Knowns vs unknowns: what the brief fixes, what it leaves open</h2>
+  <p class="sub">The brief fixes the shape of the thing. What it deliberately leaves open became my design questions — and the backbone of every iteration that followed.</p>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-tag">The fixed shape</div>
+      <h3>A single-borrower dashboard</h3>
+      <p class="sub" style="margin-top:8px">One workspace — Halsted — built on the data pack. Maya reviews a few key data points plus Adam's suggestion, then takes an action: change the health status, or not.</p>
+      <div class="wire" aria-hidden="true">
+        <div class="wrow"><div class="wb title"></div></div>
+        <div class="wrow"><div class="wb tab"></div><div class="wb tab"></div><div class="wb tab"></div><div class="wsp"></div></div>
+        <div class="wrow"><div class="wb banner">agent suggestion?</div></div>
+        <div class="wrow"><div class="wb tall">card?</div><div class="wb tall">card?</div><div class="wb tall">card?</div><div class="wb tall">card?</div></div>
+        <div class="wrow"><div class="wb tall">card?</div><div class="wb tall">card?</div></div>
+        <div class="wrow"><div class="wb tall">card?</div><div class="wb tall">card?</div></div>
+      </div>
+    </div>
+
+    <div class="stack">
+      <div class="cu sure">
+        <div class="cu-h">Knowns, fixed by the brief</div>
+        <ul>
+          <li><b>Scope</b> — one dashboard, one borrower (Halsted)</li>
+          <li><b>Data</b> — brief mentioned multiple data</li>
+          <li><b>Adam suggests</b> (Risk Intelligence) — analyzes and recommends actions</li>
+          <li><b>Maya decides</b> — reviews analysis, then keeps or changes the health status</li>
+        </ul>
+        <div style="margin-top:11px;padding-top:10px;border-top:1px dashed rgba(29,122,70,.3);font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--rag-green);margin-bottom:7px;">Decisions I made</div>
+        <ul>
+          <li>On conflicts, default to <b>Adam's numbers</b> because it follows the standardized definition the whole platform uses.</li>
+        </ul>
+      </div>
+      <div class="cu unsure">
+        <div class="cu-h">Unknowns, design to figure out</div>
+        <ul>
+          <li><b>Which data to show</b> — what does Maya need to make the call?</li>
+          <li><b>How to design the cards</b> so the information is scannable?</li>
+          <li><b>How the agent surfaces</b> its insight and next steps?</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- ───── EXPLORE ───── -->
+<div class="part-head"><div class="wrap">
+  <div class="pn">02</div>
+  <div class="pt">Explore</div>
+  <p class="pd">The goal, the pivots, and how the dashboard took shape.</p>
+</div></div>
+
+<!-- DASHBOARD / FIRST VERSION -->
+<section id="dashboard"><div class="wrap">
+  <div class="kicker">AI's first draft</div>
+  <h2>The first version generated by AI: a useful mess</h2>
+  <p class="sub">AI already had the context from the digest, so I had it mock up a first workspace page — enough to see what data we had to work with and where it needed clearer direction.</p>
+
+  <div class="prompt"><span class="pt">My Prompt</span>ok now, leverage <a href="../mu-system/index.html#tokens" target="_blank" rel="noopener">mu-system</a>, building a tool to support this journey. consider
+1. this is a Portfolio Monitoring tool, so on left bar we might have a few tools, you can mock it up
+2. we only show the page for "Halsted", make it the index.html
+3. give me the first version: overview of Halsted, analysis, a few tabs to check analysis or email; leverage data from the other folders</div>
+
+  <figure>
+    <img src="iterations/01-hero-card.png" alt="First generated version of the Halsted workspace">
+    <div class="fig-anno">
+      <div class="fa-title">v01 — AI's first draft</div>
+      <ul class="clean" style="margin-top:8px">
+        <li><b>What AI delivered</b> — a working dashboard and page framework.</li>
+        <li><b>What needed direction</b> — Adam's card and the data cards: text-heavy, no hierarchy, and a weak link between the data and the action.</li>
+        <li><b>My design focus</b> — Adam's card and the top row of cards — make them scannable, actionable, and scalable.</li>
+      </ul>
+    </div>
+  </figure>
+</div></section>
+
+<!-- PIVOTS & FOCUS -->
+<section id="approach"><div class="wrap">
+  <div class="kicker">Pivots &amp; focus</div>
+  <h2>20 iterations, 4 pivots to meet Maya's goal</h2>
+  <p class="sub">The path wasn't linear. I explored top cards, card/info design, and agent card together, compared and pivoted as a whole, until the workspace held up.</p>
+  <p class="sub" style="margin-top:8px"><b>My goals</b> — (1) Maya knows what changed from data &amp; Adam's card, and what to do next. (2) Consider for other roles and use cases. <b>My focus</b> — Adam's card + top row of cards to help Maya make her decision within a minute.</p>
+
+  <div class="scrub">
+    <div class="scrub-stage"><img id="scrubImg" alt="Design iteration"></div>
+    <div class="scrub-ctrl">
+      <input type="range" id="scrubRange" class="scrub-range" min="1" max="20" value="1" step="1" aria-label="Scrub through the 20 iterations">
+      <div class="scrub-cap">Iteration <b id="scrubNum">01</b> / 20 · drag to scrub</div>
+    </div>
+  </div>
+  <script>
+  (function(){
+    const S=["design%20iteration/Screenshot%202026-10-02%20at%204.14.18%E2%80%AFPM.png","design%20iteration/Screenshot%202026-10-02%20at%204.22.30%E2%80%AFPM.png","design%20iteration/Screenshot%202026-10-02%20at%204.35.00%E2%80%AFPM.png","design%20iteration/Screenshot%202026-10-02%20at%204.44.34%E2%80%AFPM.png","design%20iteration/Screenshot%202026-10-02%20at%205.08.24%E2%80%AFPM.png","design%20iteration/Screenshot%202026-10-02%20at%205.12.51%E2%80%AFPM.png","design%20iteration/Screenshot%202026-10-02%20at%205.17.23%E2%80%AFPM.png","design%20iteration/Screenshot%202026-10-02%20at%205.24.24%E2%80%AFPM.png","design%20iteration/Screenshot%202026-10-02%20at%205.36.13%E2%80%AFPM.png","design%20iteration/Screenshot%202026-10-02%20at%205.43.22%E2%80%AFPM.png","design%20iteration/Screenshot%202026-10-02%20at%205.46.24%E2%80%AFPM.png","design%20iteration/Screenshot%202026-10-02%20at%205.50.18%E2%80%AFPM.png","design%20iteration/Screenshot%202026-10-02%20at%205.58.48%E2%80%AFPM.png","design%20iteration/Screenshot%202026-10-02%20at%206.00.37%E2%80%AFPM.png","design%20iteration/Screenshot%202026-10-02%20at%206.12.07%E2%80%AFPM.png","design%20iteration/Screenshot%202026-10-02%20at%206.16.38%E2%80%AFPM.png","design%20iteration/Screenshot%202026-10-02%20at%206.25.21%E2%80%AFPM.png","design%20iteration/Screenshot%202026-10-02%20at%206.55.23%E2%80%AFPM.png","design%20iteration/Screenshot%202026-10-02%20at%206.57.18%E2%80%AFPM.png","design%20iteration/Screenshot%202026-10-02%20at%206.59.33%E2%80%AFPM.png"];
+    const img=document.getElementById('scrubImg'), rng=document.getElementById('scrubRange'), num=document.getElementById('scrubNum');
+    S.forEach(function(s){ var im=new Image(); im.src=s; });
+    function show(n){ var i=Math.max(0,Math.min(S.length-1,n-1)); img.src=S[i]; num.textContent=('0'+(i+1)).slice(-2); }
+    rng.addEventListener('input',function(){ show(+rng.value); });
+    show(1);
+  })();
+  </script>
+
+  <div class="pivot-cols">
+    <div class="card">
+      <figure><img src="iterations/p1.png" alt="Lead with the answer — Adam's call and findings up top"></figure>
+      <div class="pv-body">
+        <div class="card-tag">Pivot 1</div>
+        <h3>From report to answer-first</h3>
+        <p class="sub" style="margin-top:6px">Cut the chrome and the big read-me card; folded Adam's findings into the data cards they belong to. A dashboard shouldn't make Maya read a report to find the answer.</p>
+      </div>
+    </div>
+    <div class="card">
+      <figure><img src="iterations/p2.png" alt="Picked the signals that drive the call"></figure>
+      <div class="pv-body">
+        <div class="card-tag">Pivot 2</div>
+        <h3>The right signals, as standing monitors</h3>
+        <p class="sub" style="margin-top:6px">Triaged to the few that drive the call — merged leverage + cushion into one card, cut Reporting, demoted the Loan to the header; added a period switcher so it holds every quarter.</p>
+      </div>
+    </div>
+    <div class="card">
+      <figure><img src="iterations/p3.png" alt="Made it a standing monitor over time"></figure>
+      <div class="pv-body">
+        <div class="card-tag">Pivot 3</div>
+        <h3>Where the AI's opinion goes</h3>
+        <p class="sub" style="margin-top:6px">Disagreement is the decision, not a side note — Adam's call moved from a small card, to an in-card block, to a full-width banner, so it's the first thing Maya sees.</p>
+      </div>
+    </div>
+    <div class="card">
+      <figure><img src="iterations/p4.png" alt="Exposed how the rule holds"></figure>
+      <div class="pv-body">
+        <div class="card-tag">Pivot 4</div>
+        <h3>From numbers to how the rule holds</h3>
+        <p class="sub" style="margin-top:6px">Each card marks its policy line (Amber &lt;10%, Green ≥85%); the banner spells out status = worst of four inputs — so Maya can tell the IC which input pulled it to amber.</p>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- TOP CARDS -->
+<section id="topcards"><div class="wrap">
+  <div class="kicker">Top Cards</div>
+  <h2>What earns a place above the fold</h2>
+  <p class="sub">Worked with AI to understand the terminology and decide what to surface on top.</p>
+
+  <div class="cand-sub">4 signals to adjust health status</div>
+  <div class="cand-grid">
+        <div class="cand keep"><div class="c-title">Cushion / Headroom</div><div class="c-num">8.0<span class="u">%</span></div><div class="c-sub">net leverage 4.83x / 5.25x</div><div class="cand-tag">Keep</div></div>
+        <div class="cand keep"><div class="c-title">Performance (EBITDA)</div><div class="c-num">89.7<span class="u">% of case</span></div><div class="c-sub">EBITDA $16.8M vs $18.7M plan · margin 16.8% vs ~19%</div><div class="cand-tag">Keep</div></div>
+        <div class="cand drop"><div class="c-title">Reporting status</div><div class="c-num">On time</div><div class="c-sub">Q2 package received</div><div class="cand-tag">Cut</div></div>
+        <div class="cand drop"><div class="c-title">Payments on time</div><div class="c-num">Current</div><div class="c-sub">no missed payments</div><div class="cand-tag">Cut</div></div>
+      </div>
+
+  <div class="cand-sub">Revenue / Loan</div>
+  <div class="cand-grid">
+        <div class="cand drop"><div class="c-title">Revenue</div><div class="c-num">$23.5<span class="u">M</span></div><div class="c-sub">−6% vs $25.0M plan</div><div class="cand-tag">Cut</div></div>
+        <div class="cand drop"><div class="c-title">Loan</div><div class="c-num">$85<span class="u">M</span></div><div class="c-sub">unitranche · Dec 2024</div><div class="cand-tag">Remove</div></div>
+        <div class="cand keep"><div class="c-title">Liquidity</div><div class="c-num">$0.0<span class="u">M avail.</span></div><div class="c-sub">Revolver $10.0M fully drawn · cash $3.4M</div><div class="cand-tag">Keep</div></div>
+        <div class="cand drop"><div class="c-title">Interest paid</div><div class="c-num">67<span class="u">%</span></div><div class="c-sub">on schedule · matures Dec 2030</div><div class="cand-tag">Cut</div></div>
+      </div>
+
+  <div class="loop-note" style="margin-top:20px">
+    <div class="fa-title">What AI helped me</div>
+    <ul class="clean" style="margin-top:8px"><li>Learned terminology, checked context / folder / policies, suggested and debated with me.</li></ul>
+    <div style="border-top:1px solid var(--mu-border);margin:16px 0 18px;"></div>
+    <div class="fa-title">My + AI's judgement — why these cards earned the spot</div>
+    <p style="margin-top:8px;font-size:13.5px;color:var(--mu-ink-2);line-height:1.6;">Top cards give any user a scannable read on the borrower's <b style="color:var(--mu-ink)">credit risk</b> — the key to protecting Northgate's $85M loan. A few considerations:</p>
+    <ul class="clean" style="margin-top:8px">
+      <li><b>Surface the core signals</b> — the data that changes each quarter and that different roles come back to re-verify.</li>
+      <li><b>Place workflow context dynamically</b> — reporting and payment checks are role- and time-specific, needing attention only under certain conditions — so they don't earn a permanent spot.</li>
+      <li><b>Add key credit-risk signals</b> — liquidity isn't one of the four status signals, but it's critical to gauge whether the company can keep repaying.</li>
+    </ul>
+  </div>
+</div></section>
+
+<!-- HIERARCHY -->
+<section id="hierarchy"><div class="wrap">
+  <div class="kicker">Card & Info Design</div>
+  <h2>How to make top cards scannable</h2>
+  <p class="sub">Scannability comes down to a few levers: <b>which data each card shows</b>, <b>which layer to highlight first</b>, and <b>how much detail to reveal progressively</b> — so the eye lands on what matters.</p>
+
+  <details class="acc" style="margin-top:26px">
+    <summary><span class="sn">01</span> How to present layers of data, and which layer to highlight</summary>
+    <div class="acc-body">
+      <div class="ic-grid" style="margin-top:4px">
+        <div class="icw"><div class="ic">
+          <div class="ic-title">Tightest headroom</div>
+          <div class="ic-num">8.0<span class="u">%</span></div>
+          <div class="ic-sub">Net leverage 4.83x vs 5.25x limit</div>
+          <div class="ic-note">▼ from 19.1% · policy line 10%</div>
+        </div><div class="ic-cap">v1 · plain stat tile</div></div>
+
+        <div class="icw"><div class="ic">
+          <div class="ic-title">Covenant cushion</div>
+          <div class="ic-num"><span class="dim">19.1%</span><span class="arr">→</span><span class="amber">8.0%</span></div>
+          <div class="ic-sub">Net leverage 4.83x vs 5.25x limit</div>
+          <div class="ic-bars"><span style="height:80%"></span><span style="height:66%"></span><span style="height:54%"></span><span class="on" style="height:28%"></span></div>
+          <div class="ic-note">−11.1 pts · amber line 10%</div>
+        </div><div class="ic-cap">v2 · added the drop + trend</div></div>
+
+        <div class="icw"><div class="ic">
+          <div class="ic-title">Adam vs Halsted's certificate</div>
+          <div class="ic-num"><span class="amber">8.0%</span><span class="vs">vs</span>11.8%</div>
+          <div class="ic-sub">Halsted counts $0.72M of July savings; the loan agreement doesn't allow them</div>
+          <div class="ic-note">amber or green — Maya's call</div>
+        </div><div class="ic-cap">v3 · surfaced the dispute</div></div>
+
+        <div class="icw"><div class="ic">
+          <div class="ic-h"><span class="ic-title">Covenant headroom</span><span class="ic-meta">Q2 2026 · tightest</span></div>
+          <div class="ic-num amber">8.0<span class="u">%</span><span class="tri">▼</span></div>
+          <div class="ic-pill amber">Below 10% policy line</div>
+          <div class="ic-sub">Last quarter (Q1 2026): 19.1% · net leverage 4.83x vs 5.25x limit</div>
+        </div><div class="ic-cap">v4 · policy-line pill</div></div>
+
+        <div class="icw"><div class="ic">
+          <div class="ic-h"><span class="ic-title">Net leverage</span><span class="ic-meta">debt ÷ earnings · Q2 2026</span></div>
+          <div class="ic-lev"><span class="ic-num">4.83x</span><span class="ic-lim">/ 5.25x</span><span class="ic-pill amber" style="margin-top:0">Cushion 8.0%</span></div>
+          <div class="ic-bar"><div class="fr"></div></div>
+          <div class="ic-scale"><span>0x</span><span>breach at 5.25x</span></div>
+          <div class="ic-sub">Last quarter cushion 19.1% · next step-down Q2 27 → 5.00x</div>
+        </div><div class="ic-cap">v5 · leverage + inverted bar</div></div>
+
+        <div class="icw"><div class="ic">
+          <div class="ic-h"><span class="ic-title">Net leverage</span><span class="ic-meta">debt ÷ earnings</span></div>
+          <div class="ic-lev"><span class="ic-num">4.83x</span><span class="ic-lim">/ 5.25x</span></div>
+          <div class="ic-pill amber">● Cushion 8.0% → Amber</div>
+          <div class="ic-bar"><div class="fd"></div></div>
+          <div class="ic-scale"><span>0x</span><span>breach at 5.25x</span></div>
+        </div><div class="ic-cap">v6 · final — cushion → Amber</div></div>
+      </div>
+
+      <div class="loop-note" style="margin-top:16px">
+        <div class="ba2">
+        <div>
+        <div class="card-tag" style="margin-top:4px;margin-bottom:0">Layers of data</div>
+        <h3 style="margin-top:1px;color:var(--mu-ink)">How I break down the number</h3>
+        <div class="layers">
+          <div class="layer" style="background:none">
+            <div class="ly-n">Layer 1 · Foundation data</div>
+            <div class="ly-b"><b>Net debt $81.1M</b> · <b>LTM EBITDA $16.8M</b> — raw, auditable</div>
+          </div>
+          <div class="ly-op">↓ debt ÷ earnings</div>
+          <div class="layer">
+            <div class="ly-n">Layer 2 · Foundation Ratio</div>
+            <div class="ly-b"><b>Net leverage = 4.83x</b></div>
+          </div>
+          <div class="ly-op">↓ compare to the limit</div>
+          <div class="layer">
+            <div class="ly-n">Layer 3 · Benchmark</div>
+            <div class="ly-b"><b>Covenant limit 5.25x</b> — steps down each quarter</div>
+          </div>
+          <div class="ly-op">↓ measure the gap</div>
+          <div class="layer">
+            <div class="ly-n">Layer 4 · Insight</div>
+            <div class="ly-b"><b>Health tag + details</b> — highlight for decision making</div>
+          </div>
+        </div>
+        </div>
+
+        <div class="ba2-r">
+        <div class="card-tag" style="margin-top:4px;margin-bottom:0">Design Decisions</div>
+        <h3 style="margin-top:1px;color:var(--mu-ink)">Pair layers of data with the insight</h3>
+        <ul class="clean" style="margin-top:8px">
+          <li><b>Health tag for scannability</b> — "below 10%, needs to change to amber" is more important than the "8%" itself</li>
+          <li><b>More data for trust</b> — show how the insight was calculated (debt ÷ earnings → limit → cushion), so analysts can trace and trust the number</li>
+          <li><b>Consider for scalability</b> — support different role needs; the insight / health-status bar might change by role</li>
+        </ul>
+        <h3 style="margin-top:14px;color:var(--mu-ink)">Size/Color to guide reading order</h3>
+        <p class="sub" style="margin-top:4px">L2 + L4 → L3 (ratio + health tag first, then the limit)</p>
+        </div>
+        </div>
+      </div>
+
+      <div class="card surface" style="margin-top:14px;border:none">
+        <div class="card-tag">Validate with users</div>
+        <h3 style="margin-top:6px">Net leverage vs. cushion — which one is more useful?</h3>
+        <div class="grid2" style="margin-top:14px">
+          <div>
+            <div class="ic">
+              <div class="ic-h"><span class="ic-title">Net leverage</span><span class="ic-meta">debt ÷ earnings</span></div>
+              <div class="ic-lev"><span class="ic-num">4.83x</span><span class="ic-lim">/ 5.25x</span></div>
+              <div class="ic-pill amber">● Cushion 8.0% → Amber</div>
+              <div class="ic-bar"><div class="fd"></div></div>
+              <div class="ic-scale"><span>0x</span><span>breach at 5.25x</span></div>
+            </div>
+            <div class="ba-note" style="margin-top:8px">Leverage ratio first (current)</div>
+          </div>
+          <div>
+            <div class="ic">
+              <div class="ic-title">Cushion</div>
+              <div class="ic-num">8<span class="u" style="font-size:20px;margin-left:4px">%</span></div>
+              <div class="ic-pill amber">● Amber (&lt;10%)</div>
+              <div class="ic-bar"><div class="fd"></div></div>
+              <div class="ic-scale"><span>0x</span><span>4.83x / 5.25x</span></div>
+            </div>
+            <div class="ba-note" style="margin-top:8px">Cushion first (alternative)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </details>
+
+  <details class="acc">
+    <summary><span class="sn">02</span> How to progressively disclose the supporting detail</summary>
+    <div class="acc-body">
+      <div class="ba-note">Assumption</div>
+      <ul class="clean" style="margin-top:4px">
+        <li>Maya needs <b>context</b> and the <b>last 4 quarters</b> for reference — not just this quarter's number</li>
+      </ul>
+
+      <div class="ic-grid" style="margin-top:16px">
+        <div class="icw"><div class="ic">
+          <div class="ic-title">Performance vs plan</div>
+          <div class="ic-num">89.7<span class="u">% of case</span></div>
+          <div class="ic-sub">LTM EBITDA $16.8M vs $18.7M plan · margin 16.8% vs ~19%</div>
+          <div class="ic-bars" style="margin-top:14px"><span style="height:80%"></span><span style="height:70%"></span><span style="height:58%"></span><span class="on" style="height:46%"></span></div>
+        </div><div class="ic-cap">v1 · bar chart</div></div>
+
+        <div class="icw"><div class="ic">
+          <div class="ic-title">Performance vs plan</div>
+          <div class="ic-num">89.7<span class="u">% of case</span></div>
+          <div class="ic-sub">LTM EBITDA $16.8M vs $18.7M plan · margin 16.8% vs ~19%</div>
+          <div class="qchips">
+            <div class="qchip"><div class="ql">Q3 25</div><div class="qd">−5%</div></div>
+            <div class="qchip"><div class="ql">Q4 25</div><div class="qd">−8%</div></div>
+            <div class="qchip"><div class="ql">Q1 26</div><div class="qd">−12%</div></div>
+            <div class="qchip amber"><div class="ql">Q2 26</div><div class="qd">−17%</div></div>
+          </div>
+        </div><div class="ic-cap">v2 · quarter chips</div></div>
+
+        <div class="icw"><div class="ic">
+          <div class="ic-title">Performance vs plan</div>
+          <div class="ic-num">89.7<span class="u">% of case</span></div>
+          <div class="ic-sub">LTM EBITDA $16.8M vs $18.7M plan</div>
+          <div class="qchips">
+            <div class="qchip"><div class="ql">Q3 25</div><div class="qd">−5%</div></div>
+            <div class="qchip"><div class="ql">Q4 25</div><div class="qd">−8%</div></div>
+            <div class="qchip"><div class="ql">Q1 26</div><div class="qd">−12%</div></div>
+            <div class="qchip red"><div class="ql">Q2 26</div><div class="qd">−17%</div></div>
+          </div>
+        </div><div class="ic-cap">v3 · miss in red</div></div>
+
+        <div class="icw"><div class="ic">
+          <div class="ic-title">Performance vs plan</div>
+          <div class="ic-num">89.7<span class="u">% of case</span></div>
+          <div class="ic-sub">LTM EBITDA $16.8M vs $18.7M plan</div>
+          <div class="qrows">
+            <div class="qrow hl"><span class="ql">Q2 26 · $3.95 vs 4.75</span><span class="qd">−17%</span></div>
+            <div class="qrow"><span class="ql">Q1 26 · $4.15 vs 4.71</span><span class="qd">−12%</span></div>
+            <div class="qrow"><span class="ql">Q4 25 · $4.30 vs 4.65</span><span class="qd">−8%</span></div>
+            <div class="qrow"><span class="ql">Q3 25 · $4.40 vs 4.62</span><span class="qd">−5%</span></div>
+          </div>
+        </div><div class="ic-cap">v4 · compact rows</div></div>
+
+        <div class="icw"><div class="ic">
+          <div class="ic-title">Performance vs plan</div>
+          <div class="ic-num">89.7<span class="u">% of case</span></div>
+          <div class="ic-sub">LTM EBITDA $16.8M vs $18.7M plan</div>
+          <table class="qtable">
+            <tr><th>Qtr</th><th>EBITDA vs plan</th><th>Δ</th></tr>
+            <tr class="hl"><td>Q2 26</td><td>$3.95M vs $4.75M</td><td class="d-red">−17%</td></tr>
+            <tr><td>Q1 26</td><td>$4.15M vs $4.71M</td><td>−12%</td></tr>
+            <tr><td>Q4 25</td><td>$4.30M vs $4.65M</td><td>−8%</td></tr>
+            <tr><td>Q3 25</td><td>$4.40M vs $4.62M</td><td>−5%</td></tr>
+          </table>
+        </div><div class="ic-cap">v5 · table</div></div>
+
+        <div class="icw"><div class="ic">
+          <div class="ic-h"><span class="ic-title">EBITDA vs plan</span><span class="ic-meta">earnings · policy input</span></div>
+          <div class="ic-num">89.7<span class="u">% of case</span></div>
+          <div class="ic-pill green">● Green (≥85%)</div>
+          <div class="ic-bar" style="margin-top:10px"><div class="fd" style="width:90%"></div></div>
+          <div class="ic-scale"><span>0</span><span>plan $18.7M</span></div>
+          <table class="qtable">
+            <tr><th>Qtr</th><th>Actual vs plan</th><th>Δ</th></tr>
+            <tr class="hl"><td>Q2 26</td><td>$3.95M vs $4.75M</td><td class="d-red">−17%</td></tr>
+            <tr><td>Q1 26</td><td>$4.15M vs $4.71M</td><td>−12%</td></tr>
+            <tr><td>Q4 25</td><td>$4.30M vs $4.65M</td><td>−8%</td></tr>
+            <tr><td>Q3 25</td><td>$4.40M vs $4.62M</td><td>−5%</td></tr>
+          </table>
+        </div><div class="ic-cap">v6 · final — pill + bar + table</div></div>
+      </div>
+
+      <div class="card surface" style="margin-top:16px">
+        <div class="card-tag">Design Moves</div>
+        <h3 style="margin-top:6px">Used a table to show the quarter-by-quarter detail</h3>
+        <ul class="clean" style="margin-top:8px">
+          <li>Showed <b>4-quarter data below the core number</b></li>
+          <li>Presented <b>actual vs plan</b> and the changes for Maya to evaluate</li>
+          <li>Used <b>color</b> to indicate status or draw attention</li>
+        </ul>
+      </div>
+
+      <div class="card surface" style="margin-top:14px;border:none">
+        <div class="card-tag">Validate with users</div>
+        <h3 style="margin-top:6px">Data of previous quarters — show it upfront? hide it?</h3>
+        <div class="grid2" style="margin-top:14px">
+          <div>
+            <div class="ic">
+              <div class="ic-h"><span class="ic-title">EBITDA vs plan</span><span class="ic-meta">earnings · policy input</span></div>
+              <div class="ic-num">89.7<span class="u">% of case</span></div>
+              <div class="ic-pill green">● Green (≥85%)</div>
+              <div class="ic-bar" style="margin-top:10px"><div class="fd" style="width:90%"></div></div>
+              <div class="ic-scale"><span>0</span><span>plan $18.7M</span></div>
+              <table class="qtable">
+                <tr><th>Qtr</th><th>Actual vs plan</th><th>Δ</th></tr>
+                <tr class="hl"><td>Q2 26</td><td>$3.95M vs $4.75M</td><td class="d-red">−17%</td></tr>
+                <tr><td>Q1 26</td><td>$4.15M vs $4.71M</td><td>−12%</td></tr>
+                <tr><td>Q4 25</td><td>$4.30M vs $4.65M</td><td>−8%</td></tr>
+                <tr><td>Q3 25</td><td>$4.40M vs $4.62M</td><td>−5%</td></tr>
+              </table>
+            </div>
+            <div class="ba-note" style="margin-top:8px">Always show 4 quarters</div>
+          </div>
+          <div>
+            <div class="ic">
+              <div class="ic-h"><span class="ic-title">EBITDA vs plan</span><span class="ic-meta">earnings · policy input</span></div>
+              <div class="ic-num">89.7<span class="u">% of case</span></div>
+              <div class="ic-pill green">● Green (≥85%)</div>
+              <div class="ic-bar" style="margin-top:10px"><div class="fd" style="width:90%"></div></div>
+              <div class="ic-scale"><span>0</span><span>plan $18.7M</span></div>
+              <table class="qtable">
+                <tr><th>Qtr</th><th>Actual vs plan</th><th>Δ</th></tr>
+                <tr class="hl"><td>Q2 26</td><td>$3.95M vs $4.75M</td><td class="d-red">−17%</td></tr>
+                <tr class="qmore" style="display:none"><td>Q1 26</td><td>$4.15M vs $4.71M</td><td>−12%</td></tr>
+                <tr class="qmore" style="display:none"><td>Q4 25</td><td>$4.30M vs $4.65M</td><td>−8%</td></tr>
+                <tr class="qmore" style="display:none"><td>Q3 25</td><td>$4.40M vs $4.62M</td><td>−5%</td></tr>
+              </table>
+              <a class="ic-link" onclick="togglePrev(this)"><span class="lt">Show data of previous quarters</span> <span class="chev">▾</span></a>
+            </div>
+            <div class="ba-note" style="margin-top:8px">Collapse past quarters</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </details>
+
+</div></section>
+
+<!-- AGENT -->
+<section id="agent"><div class="wrap">
+  <div class="kicker">Guide with Agent</div>
+  <h2>Where the agent speaks — and how loud</h2>
+  <p class="sub">Adam proposes; Maya decides. The suggestion had to be <b>impossible to miss but never a rubber stamp</b>.</p>
+
+  <details class="acc" style="margin-top:26px">
+    <summary><span class="sn">01</span> Where to show Adam's suggestion</summary>
+    <div class="acc-body">
+      <div class="loop-note" style="margin-top:0">❌ <b>Showed agent banner in the card</b> — not scalable, one-time show, text-heavy, and might show in multiple cards</div>
+      <div class="ic-grid dis-grid" style="margin-top:8px">
+        <div class="icw"><div class="ic">
+          <div class="ic-h"><span class="ic-title">Net leverage</span><span class="ic-meta">debt ÷ earnings</span></div>
+          <div class="ic-lev"><span class="ic-num">4.83x</span><span class="ic-lim">/ 5.25x</span><span class="ic-pill red" style="margin-top:0">Cushion 8.0%</span></div>
+          <div class="ic-bar"><div class="fd"></div></div>
+          <div class="ic-scale"><span>0x</span><span>breach at 5.25x</span></div>
+          <div class="ic-sub">Last quarter cushion 19.1% · next step-down Q2 27 → 5.00x</div>
+          <div class="adam-inline"><span class="adam-tag">✦ ADAM</span>Suggests <b>Green → Amber</b> — cushion below the 10% line <span class="ref">F1</span> · certificate claims <b>11.8%</b> via $0.72M disputed savings <span class="ref">F2</span></div>
+        </div><div class="ic-cap">Inline block inside the card</div></div>
+
+        <div class="icw"><div class="ic">
+          <div class="ic-h"><span class="ic-title">Decision</span><span class="ic-meta">Q2 2026 status</span></div>
+          <div class="dec-row"><span class="adam-tag">✦ ADAM</span><span class="dec-mid">cushion 8.0%</span><span class="pill-a">● Amber</span></div>
+          <div class="dec-row"><span class="halsted-tag">HALSTED</span><span class="dec-mid">cushion 11.8%</span><span class="pill-g">● Green</span></div>
+          <div class="ic-sub" style="margin-top:10px">The gap: $0.72M of July savings the loan agreement doesn't allow <span class="ref">F2</span></div>
+          <div class="dec-btn">Review &amp; decide</div>
+        </div><div class="ic-cap">A separate Decision card</div></div>
+
+        <div class="icw"><div class="ic">
+          <div class="ic-h"><span class="ic-title">Net leverage</span><span class="ic-meta">debt ÷ earnings</span></div>
+          <div class="ic-lev"><span class="ic-num">4.83x</span><span class="ic-lim">/ 5.25x</span><span class="ic-pill red" style="margin-top:0">Cushion 8.0%</span></div>
+          <div class="ic-bar"><div class="fd"></div></div>
+          <div class="ic-scale"><span>0x</span><span>breach at 5.25x</span></div>
+          <div class="ic-sub">Q1 26: 4.45x/5.50x (cushion 19.1%)</div>
+          <div class="adam-amber">
+            <div class="aa-title"><span class="star">✦</span> Adam suggests <b>Green → Amber</b></div>
+            <p>Cushion <b>8.0%</b> is below the 10% policy line. Halsted's certificate reports <b>11.8%</b> (still green) — the gap is $0.72M the loan agreement doesn't allow <span class="ref">ref</span>. Whose number governs is Maya's call.</p>
+            <div class="aa-btn">Review</div>
+          </div>
+        </div><div class="ic-cap">Amber callout inside the card</div></div>
+      </div>
+
+      <div class="loop-note" style="margin-top:20px">✅ <b>Pivoted to use a banner</b> and defined the content framework for Maya's workflow.</div>
+      <div style="margin-top:8px;display:flex;flex-direction:column;gap:10px">
+        <div class="bnr bnr-white">
+          <div class="bnr-row">
+            <span class="ad-av">AD</span>
+            <div class="bnr-main">
+              <div class="bnr-meta"><b>Adam</b> · first pass finished Fri Aug 14, 6:46 PM · Q2 2026 package complete, on time</div>
+              <div class="bnr-head">Q2 is not routine: tightest headroom fell to 8.0%, below the 10% policy line — and Halsted's own certificate disagrees.</div>
+              <div class="bnr-findings">
+                <div class="bf"><span class="bf-n">F1</span><b>Headroom 19.1% → 8.0%.</b> <span class="muted">~4 pts from the scheduled step-down (5.50x → 5.25x), ~7 pts from weaker earnings.</span></div>
+                <div class="bf"><span class="bf-n">F2</span><b>Certificate says 11.8% (green).</b> <span class="muted">The $0.72M gap is a cost-savings add-back the loan agreement doesn't allow.</span></div>
+                <div class="bf"><span class="bf-n">F3</span><b>Fourth quarter behind plan.</b> <span class="muted">The IC's top underwriting risk — wage inflation — is what management blames.</span></div>
+              </div>
+            </div>
+            <div class="bnr-btn">Review &amp; decide</div>
+          </div>
+        </div>
+        <div class="bnr bnr-amber">
+          <div class="bnr-row">
+            <div class="bnr-main">
+              <div class="bnr-head"><span class="star">✦</span> Adam suggests <b>Green → Amber</b></div>
+              <p class="bnr-body">Cushion <b>8.0%</b> is below the 10% policy line. Halsted's own certificate reports <b>11.8%</b> (still green) — the gap is $0.72M of July savings the loan agreement doesn't allow <span class="ref">ref</span>. Whose number governs is Maya's call.</p>
+              <div class="bnr-inputs">
+                <span class="bi amber">● Cushion 8.0%</span>
+                <span class="bi">● Performance 89.7% of case</span>
+                <span class="bi">● Reporting on time</span>
+                <span class="bi">● Payments current</span>
+                <span class="bi-right">status = worst of 4 policy inputs <span class="ref">ref</span></span>
+              </div>
+            </div>
+            <div class="bnr-btn">Review</div>
+          </div>
+        </div>
+        <div class="bnr bnr-white">
+          <div class="bnr-row">
+            <div class="bnr-main">
+              <div class="bnr-head"><span class="star">✦</span> Adam suggests <b>Green → Amber</b></div>
+              <p class="bnr-body">Cushion <b>8.0%</b> is below the 10% policy line. Halsted's own certificate reports <b>11.8%</b> (still green) — the gap is $0.72M of July savings the loan agreement doesn't allow <span class="ref">ref</span>. Whose number governs is Maya's call.</p>
+              <div class="bnr-inputs">
+                <span class="bi q">Q2 2026</span>
+                <span class="bi amber">● Cushion 8.0%</span>
+                <span class="bi">● Performance 89.7% of case</span>
+                <span class="bi">● Reporting on time</span>
+                <span class="bi">● Payments current</span>
+                <span class="bi-right">status = worst of 4 policy inputs <span class="ref">ref</span></span>
+              </div>
+            </div>
+            <div class="bnr-btn">Review</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </details>
+
+  <details class="acc">
+    <summary><span class="sn">02</span> How to make Adam's suggestion scannable</summary>
+    <div class="acc-body">
+      <p class="sub" style="margin-top:0">What Adam surfaces for Maya:</p>
+      <ul class="clean" style="margin-top:8px">
+        <li><b>Title</b> provides the conclusion — the action item</li>
+        <li><b>Subtext</b> provides the details</li>
+        <li><b>Footer</b> provides the 4 signals for the health-status check</li>
+      </ul>
+      <figure style="margin-top:14px"><img src="iterations/glance.png" alt="dashboard — banner + three cards at a glance"><figcaption>The banner carries Adam's call + the policy inputs; the three monitors sit below.</figcaption></figure>
+    </div>
+  </details>
+
+  <details class="acc">
+    <summary><span class="sn">03</span> How to guide user action</summary>
+    <div class="acc-body">
+      <ul class="clean" style="margin-top:0">
+        <li><b>Review details in a modal</b> — scalable to various use cases</li>
+        <li>Confirm and override are <b>equal-weight</b> — no default path</li>
+        <li>Follow-ups ride with the decision — watchlist, ask the borrower, flag the IC</li>
+      </ul>
+      <figure style="margin-top:14px"><img src="iterations/review.png" alt="Review & decide modal — Halsted vs Adam table, status, reason, follow-ups"><figcaption>Review opens a Halsted-vs-Adam comparison; confirm/override with a recorded reason, follow-ups in the same step.</figcaption></figure>
+      <div class="card surface" style="margin-top:14px;border:none">
+        <div class="card-tag">Open to Discussion</div>
+        <h3>Show details on the page vs. in a modal? Depends on 2 things.</h3>
+        <ul style="margin-top:6px;list-style:disc;padding-left:19px;color:var(--mu-ink-2);font-size:14px;line-height:1.5;">
+          <li style="margin-bottom:8px"><b style="color:var(--mu-ink)">Action's consequence</b> — a soft check (like flagging the borrower for extra review) should be easy to take and can surface right on the dashboard, while a hard check (like triggering a funding pause) should carry more friction, so it's deliberate and harder to take by accident.</li>
+          <li><b style="color:var(--mu-ink)">User type</b> — a monitoring analyst like Maya is the primary user, but other roles may use this dashboard to take different actions, so the surface should flex to each.</li>
+        </ul>
+      </div>
+    </div>
+  </details>
+</div></section>
+
+<!-- ───── FINALIZE ───── -->
+<div class="part-head"><div class="wrap">
+  <div class="pn">03</div>
+  <div class="pt">Finalize</div>
+  <p class="pd">The end-to-end flow, how I'd validate it, and what's next.</p>
+</div></div>
+
+<!-- E2E FLOW -->
+<section id="flow"><div class="wrap">
+  <div class="kicker">End-to-end flow</div>
+  <h2>Review → Decide → Act</h2>
+  <p class="sub">The pieces connect into one recorded flow, starting at the notification and ending with the follow-ups filed — so nothing is left in Maya's head.</p>
+
+  <div class="flow">
+    <div class="fstep">
+      <div class="fn">Stage 01</div>
+      <h3>Review</h3>
+      <div class="fq">"Show me what changed and why."</div>
+    </div>
+    <div class="fstep">
+      <div class="fn">Stage 02</div>
+      <h3>Decide</h3>
+      <div class="fq">"Help me make the call, and stand behind it."</div>
+    </div>
+    <div class="fstep">
+      <div class="fn">Stage 03</div>
+      <h3>Act</h3>
+      <div class="fq">"Close the loop before I move on."</div>
+    </div>
+  </div>
+
+  <div class="embed">
+    <iframe src="index.html" title="Halsted workspace prototype" loading="lazy"></iframe>
+  </div>
+  <div style="text-align:center;margin-top:14px"><a class="embed-open" href="index.html" target="_blank" rel="noopener">Open prototype ↗</a></div>
+</div></section>
+
+<!-- VALIDATION -->
+<section id="validation"><div class="wrap">
+  <div class="kicker">Validation</div>
+  <h2>How I'd validate it</h2>
+  <p class="sub">The prototype is an argument, not proof. Here's what I'd put in front of real monitoring analysts, and the signals that would tell me it holds.</p>
+
+  <div class="ba-note" style="margin-top:24px">Methods</div>
+  <p class="sub" style="margin-top:8px"><b style="color:var(--mu-ink)">Moderated task-based sessions</b> with 5–8 analysts. Key questions:</p>
+  <ul class="clean" style="margin-top:6px">
+    <li style="margin-bottom:2px"><b>What draws their attention first</b> — and does it match what they actually need?</li>
+    <li style="margin-bottom:2px"><b>Which actions</b> do they want to take?</li>
+    <li style="margin-bottom:0">From landing on the dashboard to taking an action, <b>how long does it take?</b></li>
+  </ul>
+
+  <div class="ba-note" style="margin-top:24px">Metrics</div>
+  <div class="card" style="margin-top:8px">
+    <div class="mrow mhead"><div class="mq">Metric</div><div class="ma">To track</div><div class="mv">To validate</div></div>
+    <div class="mrow"><div class="mq"><span class="metric-pill">time-to-action</span></div><div class="ma">Turnaround time to review and act on each case.</div><div class="mv">Is a case fast enough to review?</div></div>
+    <div class="mrow"><div class="mq"><span class="metric-pill">drop-off rate</span></div><div class="ma">Whether they act in one continuous flow, drop off, close and return, or leave without acting.</div><div class="mv">Did Adam surface enough, or do they go find other data?</div></div>
+    <div class="mrow"><div class="mq"><span class="metric-pill">tab-click rate</span></div><div class="ma">Clicks to the other tabs before deciding.</div><div class="mv">Do they trust Adam's number, or need to check sources?</div></div>
+    <div class="mrow"><div class="mq"><span class="metric-pill">override rate</span></div><div class="ma">Share of suggestions overridden vs. confirmed.</div><div class="mv">Automation bias, or healthy scrutiny?</div></div>
+    <div class="mrow"><div class="mq"><span class="metric-pill">min / borrower</span></div><div class="ma">Quarter-close time per borrower.</div><div class="mv">Faster than the Excel baseline?</div></div>
+  </div>
+</div></section>
+
+<!-- FUTURE -->
+<section id="future"><div class="wrap">
+  <div class="kicker">What's next</div>
+  <h2>Where I'd take it next</h2>
+  <p class="sub">Deliberately out of scope here, but the natural extensions once the single-borrower decision is solid.</p>
+
+  <div class="card" style="border:none;padding:0;background:none;margin-top:6px">
+    <ul style="list-style:disc;padding-left:19px;margin:0;color:var(--mu-ink-2);font-size:14px;line-height:1.5;">
+      <li style="margin-bottom:4px"><b style="color:var(--mu-ink)">Polish design:</b> Explored different ways to show data and validated with teams/users.</li>
+      <li><b style="color:var(--mu-ink)">Make it scalable:</b> Understood broader use cases to ensure product growth and diverse user needs.</li>
+    </ul>
+  </div>
+
+  <div class="embed" style="margin-top:18px">
+    <iframe src="index_1.html" title="Polished workspace exploration" loading="lazy"></iframe>
+  </div>
+  <div style="text-align:center;margin-top:14px"><a class="embed-open" href="index_1.html" target="_blank" rel="noopener">Open prototype ↗</a></div>
+
+</div></section>
+
+</div><!-- /main -->
+
+<script>
+  function togglePrev(link){
+    const rows = link.closest('.ic').querySelectorAll('.qmore');
+    const open = rows.length && rows[0].style.display !== 'none';
+    rows.forEach(r => r.style.display = open ? 'none' : 'table-row');
+    link.querySelector('.lt').textContent = open ? 'Show data of previous quarters' : 'Hide previous quarters';
+    link.querySelector('.chev').textContent = open ? '▾' : '▴';
+  }
+  const spies = [...document.querySelectorAll('[data-spy]')];
+  const map = {};
+  spies.forEach(a => map[a.dataset.spy] = a);
+  const sections = [...document.querySelectorAll('section[id]')];
+  let currentIdx = 0;
+  const obs = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        spies.forEach(a=>a.classList.remove('is-active'));
+        const link = map[e.target.id];
+        if(link){
+          link.classList.add('is-active');
+          history.replaceState(null,'','#'+e.target.id);
+        }
+        const i = sections.indexOf(e.target);
+        if(i !== -1) currentIdx = i;
+      }
+    });
+  }, {rootMargin:'-12% 0px -80% 0px', threshold:0});
+  sections.forEach(s=>obs.observe(s));
+
+  // Bottom of page: the last section may be too short to reach the active band, so force it active
+  window.addEventListener('scroll', ()=>{
+    if(window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2){
+      const last = sections[sections.length-1];
+      const link = last && map[last.id];
+      if(link && !link.classList.contains('is-active')){
+        spies.forEach(a=>a.classList.remove('is-active'));
+        link.classList.add('is-active');
+        history.replaceState(null,'','#'+last.id);
+      }
+    }
+  }, {passive:true});
+
+  // Keyboard: ArrowUp / ArrowDown jump between sections (include the part header above a section)
+  function scrollTargetFor(sec){
+    const prev = sec.previousElementSibling;
+    return (prev && prev.classList.contains('part-head')) ? prev : sec;
+  }
+  document.addEventListener('keydown', (e)=>{
+    if(e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+    if(e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+    const t = e.target, tag = (t.tagName || '').toLowerCase();
+    if(tag === 'input' || tag === 'textarea' || t.isContentEditable) return;
+    e.preventDefault();
+    let idx = currentIdx + (e.key === 'ArrowDown' ? 1 : -1);
+    idx = Math.max(0, Math.min(sections.length - 1, idx));
+    currentIdx = idx;
+    scrollTargetFor(sections[idx]).scrollIntoView({behavior:'smooth', block:'start'});
+  });
+</script>
+</body>
+</html>
